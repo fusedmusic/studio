@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Move to Make Music — Fused Music Studio</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --ink: #0a0a0f;
+    --teal: #1a6b6b;
+    --teal-light: #2eadad;
+    --cream: #f5f0e8;
+    --white: #ffffff;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--ink);
+    color: var(--white);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow-x: hidden;
+  }
+
+  .game-wrap {
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .game-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--white);
+    text-align: center;
+  }
+  .game-title span { color: var(--teal-light); font-style: italic; }
+
+  .game-subtitle {
+    font-size: 14px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.6);
+    text-align: center;
+    max-width: 420px;
+    line-height: 1.6;
+  }
+
+  /* CAMERA + CANVAS CONTAINER */
+  .camera-container {
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    aspect-ratio: 4/3;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #111;
+    border: 2px solid rgba(255,255,255,0.08);
+  }
+
+  #video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* mirror */
+    opacity: 0.6;
+  }
+
+  #canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: scaleX(-1);
+  }
+
+  /* ZONE INDICATORS */
+  .zones {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    pointer-events: none;
+  }
+  .zone {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 16px;
+    opacity: 0.3;
+    transition: opacity 0.1s;
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  .zone:last-child { border-right: none; }
+  .zone.active { opacity: 1; }
+  .zone-note {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--white);
+    text-shadow: 0 0 20px rgba(46,173,173,0.8);
+  }
+  .zone-bar {
+    width: 2px;
+    background: var(--teal-light);
+    margin-top: 6px;
+    transition: height 0.1s;
+    border-radius: 2px;
+    min-height: 4px;
+  }
+  .zone-bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.15s;
+    pointer-events: none;
+  }
+  .zone.active .zone-bg { opacity: 1; }
+
+  /* NOTE BURST ANIMATIONS */
+  .note-burst {
+    position: absolute;
+    font-size: 28px;
+    pointer-events: none;
+    animation: burst 0.8s ease-out forwards;
+    z-index: 10;
+  }
+  @keyframes burst {
+    0%   { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+  }
+
+  /* SCORE + STATUS */
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 640px;
+    padding: 0 4px;
+  }
+
+  .score-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .score-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+  .score-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--teal-light);
+  }
+
+  .scale-display {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .scale-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+  .scale-btns {
+    display: flex;
+    gap: 6px;
+  }
+  .scale-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7);
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .scale-btn.active, .scale-btn:hover {
+    background: var(--teal);
+    border-color: var(--teal);
+    color: var(--white);
+  }
+
+  /* START / STATUS */
+  .start-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10,10,15,0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    z-index: 20;
+    border-radius: 6px;
+  }
+  .start-overlay p {
+    font-size: 15px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.7);
+    text-align: center;
+    max-width: 300px;
+    line-height: 1.6;
+  }
+  .start-btn {
+    background: var(--teal);
+    color: var(--white);
+    border: none;
+    padding: 14px 32px;
+    border-radius: 2px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .start-btn:hover { background: var(--teal-light); }
+
+  .status-bar {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    min-height: 20px;
+  }
+  .status-bar.active { color: var(--teal-light); }
+
+  /* PRIVACY NOTE */
+  .privacy-note {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    text-align: center;
+    max-width: 420px;
+    line-height: 1.5;
+  }
+  .privacy-note strong { color: rgba(255,255,255,0.5); }
+</style>
+</head>
+<body>
+
+<div class="game-wrap">
+
+  <div>
+    <div class="game-title">Move to make <span>music</span></div>
+  </div>
+  <p class="game-subtitle">Move your head or hand left and right across the zones to play notes. No data is stored — everything runs in your browser.</p>
+
+  <!-- HUD -->
+  <div class="hud">
+    <div class="score-display">
+      <span class="score-label">Notes</span>
+      <span class="score-num" id="scoreNum">0</span>
+    </div>
+    <div class="scale-display">
+      <span class="scale-label">Scale</span>
+      <div class="scale-btns">
+        <button class="scale-btn active" data-scale="pentatonic">Pentatonic</button>
+        <button class="scale-btn" data-scale="major">Major</button>
+        <button class="scale-btn" data-scale="blues">Blues</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAMERA -->
+  <div class="camera-container" id="cameraContainer">
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas"></canvas>
+
+    <!-- ZONES (will be built by JS) -->
+    <div class="zones" id="zones"></div>
+
+    <!-- START OVERLAY -->
+    <div class="start-overlay" id="startOverlay">
+      <p>Allow camera access to start making music with your movements</p>
+      <button class="start-btn" id="startBtn">Enable Camera</button>
+      <p style="font-size:12px; color:rgba(255,255,255,0.35);">No video is recorded or stored</p>
+    </div>
+  </div>
+
+  <div class="status-bar" id="statusBar">Press Enable Camera to start</div>
+  <p class="privacy-note"><strong>Privacy:</strong> Your camera feed never leaves your device. This demo uses your browser's built-in motion detection — no video is sent anywhere.</p>
+
+</div>
+
+<!-- MediaPipe via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+
+<script>
+// ============================================================
+// SCALES
+// ============================================================
+const SCALES = {
+  pentatonic: [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00],
+  major:      [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25],
+  blues:      [261.63, 311.13, 349.23, 369.99, 392.00, 466.16, 523.25, 622.25, 698.46, 739.99]
+};
+
+const NOTE_NAMES = {
+  pentatonic: ['C','D','E','G','A','C','D','E','G','A'],
+  major:      ['C','D','E','F','G','A','B','C','D','E'],
+  blues:      ['C','Eb','F','F#','G','Bb','C','Eb','F','F#']
+};
+
+const ZONE_COLORS = [
+  'rgba(46,173,173,0.15)',
+  'rgba(184,130,58,0.15)',
+  'rgba(107,26,107,0.15)',
+  'rgba(26,107,26,0.15)',
+  'rgba(173,46,46,0.15)',
+  'rgba(46,46,173,0.15)',
+  'rgba(173,173,46,0.15)',
+  'rgba(46,173,107,0.15)',
+  'rgba(173,107,46,0.15)',
+  'rgba(107,173,46,0.15)',
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentScale = 'pentatonic';
+let numZones = 10;
+let score = 0;
+let lastZone = -1;
+let cooldown = false;
+let audioCtx = null;
+let started = false;
+
+// ============================================================
+// BUILD ZONES
+// ============================================================
+function buildZones() {
+  const zonesEl = document.getElementById('zones');
+  zonesEl.innerHTML = '';
+  const notes = NOTE_NAMES[currentScale];
+  for (let i = 0; i < numZones; i++) {
+    const zone = document.createElement('div');
+    zone.className = 'zone';
+    zone.id = `zone-${i}`;
+    zone.innerHTML = `
+      <div class="zone-bg" style="background: linear-gradient(to top, ${ZONE_COLORS[i]}, transparent)"></div>
+      <div class="zone-note">${notes[i]}</div>
+      <div class="zone-bar" id="bar-${i}" style="height:4px"></div>
+    `;
+    zonesEl.appendChild(zone);
+  }
+}
+
+// ============================================================
+// AUDIO
+// ============================================================
+function initAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function playNote(zoneIndex) {
+  initAudio();
+  const freqs = SCALES[currentScale];
+  const freq = freqs[zoneIndex];
+
+  const osc = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+  const filter = audioCtx.createBiquadFilter();
+
+  filter.type = 'lowpass';
+  filter.frequency.value = 2000;
+
+  osc.connect(filter);
+  filter.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+  // Add harmonics for richness
+  const osc2 = audioCtx.createOscillator();
+  const gain2 = audioCtx.createGain();
+  osc2.connect(gain2);
+  gain2.connect(audioCtx.destination);
+  osc2.type = 'triangle';
+  osc2.frequency.setValueAtTime(freq * 2, audioCtx.currentTime);
+  gain2.gain.setValueAtTime(0.08, audioCtx.currentTime);
+  gain2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+  osc2.start();
+  osc2.stop(audioCtx.currentTime + 0.4);
+
+  gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+
+  osc.start(audioCtx.currentTime);
+  osc.stop(audioCtx.currentTime + 0.8);
+
+  // Animate bar
+  const bar = document.getElementById(`bar-${zoneIndex}`);
+  if (bar) {
+    bar.style.height = '40px';
+    setTimeout(() => { bar.style.height = '4px'; }, 200);
+  }
+}
+
+// ============================================================
+// NOTE BURST VISUAL
+// ============================================================
+function spawnBurst(x, y, noteName) {
+  const container = document.getElementById('cameraContainer');
+  const burst = document.createElement('div');
+  burst.className = 'note-burst';
+  burst.textContent = noteName;
+  // x is in mirrored space — convert
+  burst.style.left = `${x * 100}%`;
+  burst.style.top = `${y * 100}%`;
+  burst.style.color = `hsl(${Math.random() * 60 + 160}, 80%, 70%)`;
+  container.appendChild(burst);
+  setTimeout(() => burst.remove(), 800);
+}
+
+// ============================================================
+// ZONE TRIGGER
+// ============================================================
+function triggerZone(zoneIndex, nx, ny) {
+  if (zoneIndex === lastZone || cooldown) return;
+
+  // Deactivate all
+  document.querySelectorAll('.zone').forEach(z => z.classList.remove('active'));
+
+  // Activate this zone
+  const zoneEl = document.getElementById(`zone-${zoneIndex}`);
+  if (zoneEl) zoneEl.classList.add('active');
+
+  playNote(zoneIndex);
+  spawnBurst(nx, ny, NOTE_NAMES[currentScale][zoneIndex]);
+
+  score++;
+  document.getElementById('scoreNum').textContent = score;
+
+  lastZone = zoneIndex;
+  cooldown = true;
+  setTimeout(() => { cooldown = false; }, 120);
+}
+
+// ============================================================
+// MEDIAPIPE FACE MESH
+// ============================================================
+const videoEl = document.getElementById('video');
+const canvasEl = document.getElementById('canvas');
+const ctx = canvasEl.getContext('2d');
+
+function onResults(results) {
+  canvasEl.width = videoEl.videoWidth || 640;
+  canvasEl.height = videoEl.videoHeight || 480;
+
+  ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+
+  if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) return;
+
+  const landmarks = results.multiFaceLandmarks[0];
+
+  // Use nose tip (landmark 1) as tracking point
+  const nose = landmarks[1];
+  const nx = nose.x; // 0 = left, 1 = right (but video is mirrored so left/right feels natural)
+  const ny = nose.y;
+
+  // Draw tracking dot
+  const cx = nx * canvasEl.width;
+  const cy = ny * canvasEl.height;
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(46,173,173,0.9)';
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(46,173,173,0.4)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Determine zone
+  const zoneIndex = Math.min(Math.floor(nx * numZones), numZones - 1);
+  triggerZone(zoneIndex, nx, ny);
+
+  // Update status
+  document.getElementById('statusBar').textContent =
+    `Tracking ✓  —  Zone ${zoneIndex + 1} of ${numZones}  —  Note: ${NOTE_NAMES[currentScale][zoneIndex]}`;
+  document.getElementById('statusBar').className = 'status-bar active';
+}
+
+// ============================================================
+// START
+// ============================================================
+document.getElementById('startBtn').addEventListener('click', async () => {
+  document.getElementById('startOverlay').style.display = 'none';
+  document.getElementById('statusBar').textContent = 'Starting camera...';
+  initAudio();
+  buildZones();
+  started = true;
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+    videoEl.srcObject = stream;
+    await videoEl.play();
+
+    const faceMesh = new FaceMesh({ locateFile: (file) => {
+      return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+    }});
+
+    faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: false,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+
+    faceMesh.onResults(onResults);
+
+    // Process frames
+    async function processFrame() {
+      if (videoEl.readyState >= 2) {
+        await faceMesh.send({ image: videoEl });
+      }
+      requestAnimationFrame(processFrame);
+    }
+    processFrame();
+
+    document.getElementById('statusBar').textContent = 'Move your head or hand across the screen to play notes';
+
+  } catch (err) {
+    document.getElementById('startOverlay').style.display = 'flex';
+    document.getElementById('startOverlay').querySelector('p').textContent =
+      'Camera access denied. Please allow camera access and try again.';
+    document.getElementById('statusBar').textContent = 'Camera access required';
+    console.error(err);
+  }
+});
+
+// ============================================================
+// SCALE BUTTONS
+// ============================================================
+document.querySelectorAll('.scale-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentScale = btn.dataset.scale;
+    lastZone = -1;
+    if (started) buildZones();
+  });
+});
+</script>
+</body>
+</html>

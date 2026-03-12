@@ -164,8 +164,24 @@
     .about-cta h2 em { font-style: italic; color: var(--teal-light); }
     .about-cta-btns { display: flex; flex-direction: column; gap: 12px; min-width: 200px; }
 
+    .about-hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+      position: relative; z-index: 1;
+      max-width: 1200px;
+    }
+    .about-hero-inner { max-width: 100%; }
+    .about-hero-game {
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
     @media (max-width: 900px) {
-      .about-hero { padding: 120px 24px 60px; }
+      .about-hero-grid { grid-template-columns: 1fr; }
+      .about-hero-game iframe { height: 360px; }
+    }
       .story-section { grid-template-columns: 1fr; padding: 60px 24px; gap: 40px; }
       .phd-section { padding: 60px 24px; }
       .phd-inner { grid-template-columns: 1fr; gap: 40px; }
@@ -197,10 +213,22 @@
 
   <!-- HERO -->
   <section class="about-hero" aria-labelledby="about-heading">
-    <div class="about-hero-inner">
-      <div class="section-label">About</div>
-      <h1 id="about-heading"><em>Fused Music Studio</em></h1>
-      <p>My name is Rebecca. I have spent over 25 years working within music, education, technology, and disability, building tailored solutions that open up music-making for disabled children, adults, and developing rehabilitation protocols and strategies with and for stroke survivors.</p>
+    <div class="about-hero-grid">
+      <div class="about-hero-inner">
+        <div class="section-label">About</div>
+        <h1 id="about-heading"><em>Fused Music Studio</em></h1>
+        <p>My name is Rebecca. I have spent over 25 years working within music, education, technology, and disability, building tailored solutions that open up music-making for disabled children, adults, and developing rehabilitation protocols and strategies with and for stroke survivors.</p>
+      </div>
+      <div class="about-hero-game">
+        <iframe
+          src="/studio/music-game.html"
+          width="100%"
+          height="480"
+          style="border:none; border-radius:8px;"
+          title="Interactive music game — move your head or hand to make music"
+          allow="camera">
+        </iframe>
+      </div>
     </div>
   </section>
 
