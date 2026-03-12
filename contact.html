@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact & Book — Fused Music Studio</title>
+  <meta name="description" content="Book a discovery call or send an enquiry to Rebecca at Fused Music Studio. Specialist training in assistive music technology across the UK.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .page-hero {
+      background:var(--ink); padding:140px 60px 80px;
+      position:relative; overflow:hidden;
+    }
+    .page-hero::before {
+      content:''; position:absolute; top:-80px; right:-60px;
+      width:600px; height:600px;
+      background:radial-gradient(circle,rgba(26,107,107,0.22) 0%,transparent 65%);
+      pointer-events:none;
+    }
+    .page-hero-inner { max-width:680px; position:relative; z-index:1; }
+    .page-hero h1 {
+      font-family:'Playfair Display',serif;
+      font-size:clamp(38px,5vw,64px); font-weight:900;
+      color:var(--white); line-height:1.05; margin-bottom:20px;
+    }
+    .page-hero h1 em { font-style:italic; color:var(--teal-light); }
+    .page-hero p {
+      font-size:18px; font-weight:300;
+      color:rgba(255,255,255,0.82); line-height:1.75;
+    }
+
+    /* CONTACT LAYOUT */
+    .contact-layout {
+      padding:80px 60px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:80px;
+      max-width:1200px; margin:0 auto;
+      align-items:start;
+    }
+
+    /* FORM */
+    .contact-form-wrap h2 {
+      font-family:'Playfair Display',serif;
+      font-size:32px; font-weight:700; margin-bottom:8px;
+    }
+    .contact-form-wrap > p {
+      font-size:16px; font-weight:300; color:var(--muted);
+      line-height:1.65; margin-bottom:36px;
+    }
+    .form-group { margin-bottom:22px; }
+    .form-group label {
+      display:block; font-size:13px; font-weight:500;
+      color:var(--ink); margin-bottom:7px; letter-spacing:0.3px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width:100%; padding:13px 16px;
+      border:1.5px solid var(--border);
+      border-radius:2px;
+      font-family:'DM Sans',sans-serif; font-size:15px;
+      color:var(--ink); background:var(--white);
+      transition:border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline:none; border-color:var(--teal);
+      box-shadow:0 0 0 3px rgba(26,107,107,0.12);
+    }
+    .form-group textarea { min-height:130px; resize:vertical; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .form-submit {
+      width:100%; padding:16px;
+      background:var(--teal); color:var(--white);
+      border:none; border-radius:2px; cursor:pointer;
+      font-family:'DM Sans',sans-serif; font-size:15px; font-weight:500;
+      transition:background 0.2s; margin-top:8px;
+    }
+    .form-submit:hover { background:var(--teal-mid); }
+    .form-submit:focus-visible { outline:3px solid var(--teal); outline-offset:3px; }
+    .form-note {
+      font-size:13px; color:var(--muted); font-weight:300;
+      margin-top:12px; line-height:1.5;
+    }
+
+    /* SIDEBAR */
+    .contact-sidebar { display:flex; flex-direction:column; gap:28px; }
+
+    .booking-box {
+      background:var(--ink); padding:40px; border-radius:2px;
+    }
+    .booking-box h3 {
+      font-family:'Playfair Display',serif;
+      font-size:24px; font-weight:700;
+      color:var(--white); margin-bottom:10px;
+    }
+    .booking-box p {
+      font-size:15px; font-weight:300;
+      color:rgba(255,255,255,0.75); line-height:1.65; margin-bottom:24px;
+    }
+    /* Calendly embed placeholder */
+    .calendly-placeholder {
+      background:rgba(255,255,255,0.05);
+      border:1px dashed rgba(255,255,255,0.2);
+      border-radius:2px;
+      min-height:200px;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:12px; padding:32px; text-align:center;
+    }
+    .calendly-placeholder .cal-icon { font-size:36px; }
+    .calendly-placeholder p {
+      font-size:14px; color:rgba(255,255,255,0.5);
+      margin:0; line-height:1.5;
+    }
+    .calendly-placeholder a {
+      color:var(--teal-light); text-decoration:underline;
+    }
+
+    .info-box {
+      background:var(--white); padding:36px; border-radius:2px;
+    }
+    .info-box h3 {
+      font-size:11px; letter-spacing:2px; text-transform:uppercase;
+      color:var(--teal); font-weight:500; margin-bottom:20px;
+    }
+    .info-item {
+      display:flex; gap:14px; align-items:flex-start;
+      margin-bottom:18px;
+    }
+    .info-item:last-child { margin-bottom:0; }
+    .info-icon { font-size:20px; min-width:24px; }
+    .info-text strong {
+      display:block; font-size:14px; font-weight:500;
+      color:var(--ink); margin-bottom:2px;
+    }
+    .info-text span { font-size:13px; font-weight:300; color:var(--muted); }
+
+    /* WHAT TO EXPECT */
+    .expect-section {
+      background:var(--teal); padding:80px 60px;
+    }
+    .expect-inner {
+      max-width:1100px; margin:0 auto;
+      display:grid; grid-template-columns:1fr 2fr; gap:80px; align-items:center;
+    }
+    .expect-inner h2 {
+      font-family:'Playfair Display',serif;
+      font-size:clamp(28px,3.5vw,42px); font-weight:700;
+      color:var(--white); line-height:1.2;
+    }
+    .expect-list { display:flex; flex-direction:column; gap:20px; }
+    .expect-item {
+      display:flex; gap:16px; align-items:flex-start;
+      background:rgba(255,255,255,0.1); padding:20px; border-radius:2px;
+    }
+    .expect-num {
+      font-family:'Playfair Display',serif;
+      font-size:24px; font-weight:900;
+      color:rgba(255,255,255,0.3); min-width:32px;
+    }
+    .expect-item strong {
+      display:block; font-size:15px; font-weight:500;
+      color:var(--white); margin-bottom:4px;
+    }
+    .expect-item p {
+      font-size:14px; font-weight:300;
+      color:rgba(255,255,255,0.8); line-height:1.6; margin:0;
+    }
+
+    @media (max-width:900px) {
+      .page-hero { padding:120px 24px 60px; }
+      .contact-layout { grid-template-columns:1fr; padding:48px 24px; gap:40px; }
+      .form-row { grid-template-columns:1fr; }
+      .expect-section { padding:60px 24px; }
+      .expect-inner { grid-template-columns:1fr; gap:36px; }
+    }
+  </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-nav">Skip to main content</a>
+
+<nav class="site-nav" aria-label="Main navigation">
+  <a href="index.html" class="nav-logo" aria-label="Fused Music Studio - Home">Fused<span>Music</span>.studio</a>
+  <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" role="list">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="contact.html" class="nav-cta" aria-current="page">Book a Call</a></li>
+  </ul>
+</nav>
+
+<main id="main-content">
+
+  <section class="page-hero" aria-labelledby="contact-heading">
+    <div class="page-hero-inner">
+      <div class="section-label">Contact</div>
+      <h1 id="contact-heading">Let's talk about<br>what's <em>possible.</em></h1>
+      <p>Every enquiry is welcome — whether you know exactly what you need or you're just starting to explore. I'll get back to you within 2 working days.</p>
+    </div>
+  </section>
+
+  <!-- CONTACT LAYOUT -->
+  <div class="contact-layout">
+
+    <!-- FORM -->
+    <div class="contact-form-wrap reveal">
+      <h2>Send an enquiry</h2>
+      <p>Tell me about your setting and what you're hoping to achieve. I'll come back to you with thoughts and, if it seems like a good fit, we'll arrange a free discovery call.</p>
+
+      <form action="#" method="post" aria-label="Enquiry form" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="first-name">First name <span aria-label="required">*</span></label>
+            <input type="text" id="first-name" name="first_name" required autocomplete="given-name" placeholder="Jane">
+          </div>
+          <div class="form-group">
+            <label for="last-name">Last name <span aria-label="required">*</span></label>
+            <input type="text" id="last-name" name="last_name" required autocomplete="family-name" placeholder="Smith">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="email">Email address <span aria-label="required">*</span></label>
+          <input type="email" id="email" name="email" required autocomplete="email" placeholder="jane@example.com">
+        </div>
+        <div class="form-group">
+          <label for="organisation">Organisation (if applicable)</label>
+          <input type="text" id="organisation" name="organisation" autocomplete="organization" placeholder="School, NHS Trust, charity...">
+        </div>
+        <div class="form-group">
+          <label for="service">Which service are you interested in?</label>
+          <select id="service" name="service">
+            <option value="">Please select...</option>
+            <option value="one-to-one">One-to-One Training</option>
+            <option value="sen-workshops">School & SEN Workshops</option>
+            <option value="nhs-consultancy">NHS & Neurorehabilitation Consultancy</option>
+            <option value="cpd">CPD for Music Therapists</option>
+            <option value="not-sure">Not sure yet</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="message">Tell me about your setting and what you're hoping to achieve <span aria-label="required">*</span></label>
+          <textarea id="message" name="message" required placeholder="For example: I work in a secondary SEN school with 12 students with complex needs. We'd like to introduce music technology but aren't sure where to start..."></textarea>
+        </div>
+        <button type="submit" class="form-submit">Send Enquiry</button>
+        <p class="form-note">I'll respond within 2 working days. Fields marked * are required.</p>
+      </form>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="contact-sidebar reveal reveal-delay-1">
+
+      <div class="booking-box">
+        <h3>Book a discovery call</h3>
+        <p>Prefer to talk? Book a free 20-minute call directly in my calendar. No obligation — just a conversation about what you need.</p>
+        <!-- CALENDLY EMBED: Replace the div below with your Calendly embed code -->
+        <!-- To get your embed code: calendly.com → Share → Embed on website → Inline widget -->
+        <div class="calendly-placeholder" aria-label="Booking calendar — connect Calendly to activate">
+          <div class="cal-icon" aria-hidden="true">📅</div>
+          <p>Booking calendar goes here.<br>
+          <a href="https://calendly.com" target="_blank" rel="noopener">Connect your Calendly account</a> and paste your embed code here.</p>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <h3>Good to know</h3>
+        <div class="info-item">
+          <div class="info-icon" aria-hidden="true">📍</div>
+          <div class="info-text">
+            <strong>In person across the UK</strong>
+            <span>All sessions and workshops delivered on site at your location</span>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon" aria-hidden="true">💬</div>
+          <div class="info-text">
+            <strong>British Sign Language</strong>
+            <span>Rebecca is a BSL speaker — please let us know if this is helpful</span>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon" aria-hidden="true">📋</div>
+          <div class="info-text">
+            <strong>Bespoke quotes</strong>
+            <span>Every project is scoped individually — no one-size-fits-all pricing</span>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon" aria-hidden="true">⏱</div>
+          <div class="info-text">
+            <strong>2 working day response</strong>
+            <span>I aim to respond to all enquiries within 2 working days</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- WHAT TO EXPECT -->
+  <section class="expect-section reveal" aria-labelledby="expect-heading">
+    <div class="expect-inner">
+      <h2 id="expect-heading">What happens next</h2>
+      <div class="expect-list">
+        <div class="expect-item">
+          <div class="expect-num" aria-hidden="true">1</div>
+          <div>
+            <strong>I read your enquiry carefully</strong>
+            <p>I'll take time to understand your setting, your learners, and what you're hoping to achieve before responding.</p>
+          </div>
+        </div>
+        <div class="expect-item">
+          <div class="expect-num" aria-hidden="true">2</div>
+          <div>
+            <strong>We have a free discovery call</strong>
+            <p>A 20-minute conversation to explore whether we're a good fit and what a programme might look like.</p>
+          </div>
+        </div>
+        <div class="expect-item">
+          <div class="expect-num" aria-hidden="true">3</div>
+          <div>
+            <strong>I put together a proposal</strong>
+            <p>A tailored programme plan with a clear, transparent quote — no hidden costs.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer" aria-label="Site footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="index.html" class="nav-logo" aria-label="Fused Music Studio Home">Fused<span>Music</span>.studio</a>
+      <p>Specialist training in assistive music technology for disabled children and adults. Delivered in person across the UK.</p>
+    </div>
+    <nav aria-label="Footer navigation">
+      <h4>Navigation</h4>
+      <ul role="list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="blog.html">Blog & Videos</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+    <div>
+      <h4>Also</h4>
+      <ul role="list">
+        <li><a href="https://www.fusedmusic.org" target="_blank" rel="noopener">Research (fusedmusic.org)</a></li>
+        <li><a href="contact.html">Book a Call</a></li>
+        <li><a href="contact.html">Send an Enquiry</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Fused Music Studio. All rights reserved.</span>
+    <span>Designed for accessibility — <a href="contact.html">get in touch</a></span>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

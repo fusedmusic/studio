@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services — Fused Music Studio</title>
+  <meta name="description" content="Specialist training in assistive music technology for SEN schools, NHS teams, music therapists and families. All services delivered in person across the UK.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .page-hero {
+      background: var(--ink);
+      padding: 140px 60px 80px;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::before {
+      content:''; position:absolute; top:-100px; right:-80px;
+      width:600px; height:600px;
+      background:radial-gradient(circle,rgba(26,107,107,0.22) 0%,transparent 65%);
+      pointer-events:none;
+    }
+    .page-hero-inner { max-width:720px; position:relative; z-index:1; }
+    .page-hero h1 {
+      font-family:'Playfair Display',serif;
+      font-size:clamp(38px,5vw,66px); font-weight:900;
+      color:var(--white); line-height:1.05; margin-bottom:20px;
+    }
+    .page-hero h1 em { font-style:italic; color:var(--teal-light); }
+    .page-hero p {
+      font-size:18px; font-weight:300;
+      color:rgba(255,255,255,0.82); line-height:1.75; max-width:580px;
+    }
+
+    /* WHO I WORK WITH */
+    .clients-strip {
+      background:var(--teal);
+      padding:18px 60px;
+      display:flex; align-items:center; gap:32px; flex-wrap:wrap;
+    }
+    .cl-label {
+      font-size:11px; letter-spacing:2px; text-transform:uppercase;
+      color:rgba(255,255,255,0.82); font-weight:500; white-space:nowrap;
+    }
+    .cl-tags { display:flex; gap:10px; flex-wrap:wrap; }
+    .cl-tag {
+      background:rgba(255,255,255,0.15); color:var(--white);
+      padding:5px 14px; border-radius:100px; font-size:13px;
+    }
+
+    /* INTRO */
+    .services-intro {
+      padding:64px 60px 48px;
+      max-width:780px;
+    }
+    .services-intro p {
+      font-size:20px; font-weight:300; line-height:1.8; color:#2a2a35;
+    }
+    .services-intro strong { font-weight:500; color:var(--ink); }
+
+    /* SERVICE ROWS */
+    .services-list { padding:0 0 80px; }
+
+    .service-row {
+      display:flex; min-height:420px;
+    }
+    .service-row.reverse { flex-direction:row-reverse; }
+    .service-row > * { flex:1; }
+
+    .service-visual {
+      display:flex; align-items:center; justify-content:center;
+      position:relative; overflow:hidden; min-height:380px;
+    }
+    .sv-teal  { background:var(--teal); }
+    .sv-slate { background:#1a1a2e; }
+    .sv-dark  { background:#12121a; }
+    .sv-gold  { background:#1c1408; }
+
+    .sv-num {
+      font-family:'Playfair Display',serif;
+      font-size:180px; font-weight:900;
+      color:rgba(255,255,255,0.06); line-height:1;
+      position:absolute; bottom:-20px; right:20px;
+      user-select:none; pointer-events:none;
+    }
+    .sv-icon {
+      width:100px; height:100px;
+      border:2px solid rgba(255,255,255,0.2); border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:42px; position:relative; z-index:1;
+    }
+
+    .service-content {
+      padding:64px 60px;
+      display:flex; flex-direction:column; justify-content:center;
+      background:var(--cream);
+    }
+    .service-row:nth-child(even) .service-content { background:var(--white); }
+
+    .svc-num {
+      font-size:11px; letter-spacing:3px; text-transform:uppercase;
+      color:var(--teal); font-weight:500; margin-bottom:14px;
+    }
+    .service-content h2 {
+      font-family:'Playfair Display',serif;
+      font-size:32px; font-weight:700; line-height:1.2;
+      margin-bottom:8px; color:var(--ink);
+    }
+    .svc-subtitle {
+      font-size:13px; color:var(--muted); font-style:italic; margin-bottom:22px;
+    }
+    .service-content > p {
+      font-size:16px; line-height:1.8; color:#3a3a45;
+      font-weight:300; margin-bottom:22px;
+    }
+    .great-for {
+      display:flex; align-items:flex-start; gap:10px; margin-bottom:28px;
+    }
+    .gf-label {
+      font-size:11px; letter-spacing:1.5px; text-transform:uppercase;
+      color:var(--muted); font-weight:500; padding-top:3px; white-space:nowrap;
+    }
+    .gf-tags { display:flex; flex-wrap:wrap; gap:8px; }
+    .gf-tag {
+      background:rgba(26,107,107,0.08); color:var(--teal);
+      padding:4px 12px; border-radius:2px; font-size:12px; font-weight:500;
+      border:1px solid rgba(26,107,107,0.15);
+    }
+    .svc-link {
+      display:inline-flex; align-items:center; gap:8px;
+      color:var(--teal); font-size:14px; font-weight:500;
+      text-decoration:none; transition:gap 0.2s;
+    }
+    .svc-link::after { content:'→'; }
+    .svc-link:hover { gap:14px; }
+    .svc-link:focus-visible { outline:3px solid var(--teal); outline-offset:2px; border-radius:2px; }
+
+    /* HOW IT WORKS */
+    .how-section {
+      background:var(--ink);
+      padding:96px 60px;
+      position:relative; overflow:hidden;
+    }
+    .how-section::before {
+      content:''; position:absolute; inset:0;
+      background:repeating-linear-gradient(90deg,
+        rgba(255,255,255,0.01) 0,rgba(255,255,255,0.01) 1px,
+        transparent 1px,transparent 80px);
+      pointer-events:none;
+    }
+    .how-inner { max-width:1100px; margin:0 auto; position:relative; z-index:1; }
+    .how-inner h2 {
+      font-family:'Playfair Display',serif;
+      font-size:42px; font-weight:700;
+      color:var(--white); margin-bottom:60px; max-width:480px; line-height:1.2;
+    }
+    .steps {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:48px;
+    }
+    .step-num {
+      font-family:'Playfair Display',serif;
+      font-size:52px; font-weight:900;
+      color:var(--teal-light); opacity:0.4; line-height:1; margin-bottom:18px;
+    }
+    .steps h3 {
+      font-family:'Playfair Display',serif;
+      font-size:22px; font-weight:700;
+      color:var(--white); margin-bottom:12px;
+    }
+    .steps p {
+      font-size:15px; font-weight:300;
+      color:rgba(255,255,255,0.82); line-height:1.7;
+    }
+
+    /* CTA */
+    .svc-cta {
+      padding:96px 60px;
+      display:grid; grid-template-columns:1fr auto;
+      align-items:center; gap:60px;
+    }
+    .svc-cta h2 {
+      font-family:'Playfair Display',serif;
+      font-size:42px; font-weight:700; line-height:1.2;
+    }
+    .svc-cta h2 em { font-style:italic; color:var(--teal); }
+    .svc-cta-btns { display:flex; flex-direction:column; gap:12px; min-width:220px; }
+
+    @media (max-width:900px) {
+      .page-hero { padding:120px 24px 60px; }
+      .clients-strip { padding:18px 24px; }
+      .services-intro { padding:48px 24px 32px; }
+      .service-row, .service-row.reverse { flex-direction:column; }
+      .service-visual { min-height:200px; }
+      .service-content { padding:40px 24px; }
+      .how-section { padding:60px 24px; }
+      .steps { grid-template-columns:1fr; gap:32px; }
+      .svc-cta { grid-template-columns:1fr; padding:60px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-nav">Skip to main content</a>
+
+<nav class="site-nav" aria-label="Main navigation">
+  <a href="index.html" class="nav-logo" aria-label="Fused Music Studio - Home">Fused<span>Music</span>.studio</a>
+  <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" role="list">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="services.html" aria-current="page">Services</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="contact.html" class="nav-cta">Book a Call</a></li>
+  </ul>
+</nav>
+
+<main id="main-content">
+
+  <section class="page-hero" aria-labelledby="page-heading">
+    <div class="page-hero-inner">
+      <div class="section-label">Services</div>
+      <h1 id="page-heading">Specialist training in<br><em>assistive music technology</em></h1>
+      <p>For schools, healthcare teams, music therapists, and families — delivered in person across the UK. Every project is scoped individually.</p>
+    </div>
+  </section>
+
+  <div class="clients-strip" role="region" aria-label="I work with">
+    <span class="cl-label">I work with</span>
+    <div class="cl-tags">
+      <span class="cl-tag">SEN Departments</span>
+      <span class="cl-tag">NHS & Neurorehabilitation</span>
+      <span class="cl-tag">Music Therapists</span>
+      <span class="cl-tag">Families & Carers</span>
+    </div>
+  </div>
+
+  <div class="services-intro">
+    <p>Every project is <strong>scoped and quoted individually</strong> — so you get exactly what you need. Whether you're supporting a single learner or upskilling an entire department, I'll design the right programme for your setting.</p>
+  </div>
+
+  <section class="services-list" aria-label="Services">
+
+    <!-- 01 -->
+    <div class="service-row" id="one-to-one">
+      <div class="service-visual sv-teal reveal" aria-hidden="true">
+        <div class="sv-icon">🎵</div>
+        <div class="sv-num">01</div>
+      </div>
+      <div class="service-content reveal reveal-delay-1">
+        <div class="svc-num" aria-hidden="true">Service 01</div>
+        <h2>One-to-One Training</h2>
+        <p class="svc-subtitle">For disabled children and adults</p>
+        <p>Hands-on, personalised sessions teaching individuals to use assistive music technology to access mainstream music software. Tailored to each person's needs, abilities, and goals — whether they're a complete beginner or developing existing skills.</p>
+        <div class="great-for">
+          <span class="gf-label">Great for</span>
+          <div class="gf-tags" aria-label="Suitable for: Families, Care settings, Schools">
+            <span class="gf-tag">Families</span>
+            <span class="gf-tag">Care settings</span>
+            <span class="gf-tag">Schools</span>
+          </div>
+        </div>
+        <a href="contact.html" class="svc-link" aria-label="Get in touch to discuss One-to-One Training">Get in touch to discuss</a>
+      </div>
+    </div>
+
+    <!-- 02 -->
+    <div class="service-row reverse" id="sen-workshops">
+      <div class="service-visual sv-slate reveal" aria-hidden="true">
+        <div class="sv-icon">🏫</div>
+        <div class="sv-num">02</div>
+      </div>
+      <div class="service-content reveal reveal-delay-1">
+        <div class="svc-num" aria-hidden="true">Service 02</div>
+        <h2>School & SEN Workshops</h2>
+        <p class="svc-subtitle">For SEN departments and specialist schools</p>
+        <p>Practical in-person workshops for teaching staff and students, covering how to select, set up, and use assistive music technology in the classroom. I work with your team to ensure the tools become a sustainable part of your music provision — not just a one-off session.</p>
+        <div class="great-for">
+          <span class="gf-label">Great for</span>
+          <div class="gf-tags" aria-label="Suitable for: SEN Coordinators, Music Teachers, Inclusion Leads">
+            <span class="gf-tag">SEN Coordinators</span>
+            <span class="gf-tag">Music Teachers</span>
+            <span class="gf-tag">Inclusion Leads</span>
+          </div>
+        </div>
+        <a href="contact.html" class="svc-link" aria-label="Get in touch to discuss School and SEN Workshops">Get in touch to discuss</a>
+      </div>
+    </div>
+
+    <!-- 03 -->
+    <div class="service-row" id="nhs">
+      <div class="service-visual sv-dark reveal" aria-hidden="true">
+        <div class="sv-icon">🏥</div>
+        <div class="sv-num">03</div>
+      </div>
+      <div class="service-content reveal reveal-delay-1">
+        <div class="svc-num" aria-hidden="true">Service 03</div>
+        <h2>NHS & Neurorehabilitation Consultancy</h2>
+        <p class="svc-subtitle">For healthcare and rehabilitation teams</p>
+        <p>Specialist consultancy for NHS teams and neurorehabilitation practitioners looking to integrate music technology into therapeutic practice. I bring deep knowledge of both the clinical and creative sides — helping your team use these tools confidently and effectively with patients.</p>
+        <div class="great-for">
+          <span class="gf-label">Great for</span>
+          <div class="gf-tags" aria-label="Suitable for: OTs, Clinical Music Therapists, Rehab Teams">
+            <span class="gf-tag">OTs</span>
+            <span class="gf-tag">Clinical Music Therapists</span>
+            <span class="gf-tag">Rehab Teams</span>
+          </div>
+        </div>
+        <a href="contact.html" class="svc-link" aria-label="Get in touch to discuss NHS and Neurorehabilitation Consultancy">Get in touch to discuss</a>
+      </div>
+    </div>
+
+    <!-- 04 -->
+    <div class="service-row reverse" id="cpd">
+      <div class="service-visual sv-gold reveal" aria-hidden="true">
+        <div class="sv-icon">🎓</div>
+        <div class="sv-num">04</div>
+      </div>
+      <div class="service-content reveal reveal-delay-1">
+        <div class="svc-num" aria-hidden="true">Service 04</div>
+        <h2>CPD for Music Therapists & Practitioners</h2>
+        <p class="svc-subtitle">Professional development for individuals and groups</p>
+        <p>In-depth continuing professional development for qualified music therapists and practitioners who want to expand their use of assistive technology. Learn to match technology to client need, troubleshoot common challenges, and open up new creative possibilities in your sessions.</p>
+        <div class="great-for">
+          <span class="gf-label">Great for</span>
+          <div class="gf-tags" aria-label="Suitable for: Music Therapists, Arts in Health professionals, Practitioners">
+            <span class="gf-tag">Music Therapists</span>
+            <span class="gf-tag">Arts in Health</span>
+            <span class="gf-tag">Practitioners</span>
+          </div>
+        </div>
+        <a href="contact.html" class="svc-link" aria-label="Get in touch to discuss CPD for Music Therapists and Practitioners">Get in touch to discuss</a>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how-section" aria-labelledby="how-heading">
+    <div class="how-inner">
+      <div class="section-label">The Process</div>
+      <h2 id="how-heading">Simple to get started.</h2>
+      <div class="steps">
+        <div class="reveal">
+          <div class="step-num" aria-hidden="true">01</div>
+          <h3>Get in touch</h3>
+          <p>Tell me about your setting, the individuals you support, and what you're hoping to achieve. No obligation — just a conversation.</p>
+        </div>
+        <div class="reveal reveal-delay-1">
+          <div class="step-num" aria-hidden="true">02</div>
+          <h3>I scope the work</h3>
+          <p>I'll design a programme or session plan tailored to your needs and provide a clear, transparent quote.</p>
+        </div>
+        <div class="reveal reveal-delay-2">
+          <div class="step-num" aria-hidden="true">03</div>
+          <h3>We get started</h3>
+          <p>I deliver in person, work hands-on with your team or learners, and make sure the training sticks long after I leave.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="svc-cta reveal" aria-labelledby="svc-cta-heading">
+    <h2 id="svc-cta-heading">Ready to explore what's <em>possible?</em></h2>
+    <div class="svc-cta-btns">
+      <a href="contact.html" class="btn btn-dark">Book a Discovery Call</a>
+      <a href="contact.html" class="btn btn-outline">Send an Enquiry</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer" aria-label="Site footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="index.html" class="nav-logo" aria-label="Fused Music Studio Home">Fused<span>Music</span>.studio</a>
+      <p>Specialist training in assistive music technology for disabled children and adults. Delivered in person across the UK.</p>
+    </div>
+    <nav aria-label="Footer navigation">
+      <h4>Navigation</h4>
+      <ul role="list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="blog.html">Blog & Videos</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+    <div>
+      <h4>Also</h4>
+      <ul role="list">
+        <li><a href="https://www.fusedmusic.org" target="_blank" rel="noopener">Research (fusedmusic.org)</a></li>
+        <li><a href="contact.html">Book a Call</a></li>
+        <li><a href="contact.html">Send an Enquiry</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Fused Music Studio. All rights reserved.</span>
+    <span>Designed for accessibility — <a href="contact.html">get in touch</a></span>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

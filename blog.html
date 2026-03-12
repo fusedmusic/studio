@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog & Videos — Fused Music Studio</title>
+  <meta name="description" content="Articles, videos and resources on assistive music technology, neurorehabilitation, SEN music education, and accessible music-making.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .page-hero {
+      background:var(--ink); padding:140px 60px 80px;
+      position:relative; overflow:hidden;
+    }
+    .page-hero::before {
+      content:''; position:absolute; top:-80px; right:-60px;
+      width:600px; height:600px;
+      background:radial-gradient(circle,rgba(26,107,107,0.22) 0%,transparent 65%);
+      pointer-events:none;
+    }
+    .page-hero-inner { max-width:720px; position:relative; z-index:1; }
+    .page-hero h1 {
+      font-family:'Playfair Display',serif;
+      font-size:clamp(38px,5vw,66px); font-weight:900;
+      color:var(--white); line-height:1.05; margin-bottom:20px;
+    }
+    .page-hero h1 em { font-style:italic; color:var(--teal-light); }
+    .page-hero p {
+      font-size:18px; font-weight:300;
+      color:rgba(255,255,255,0.82); line-height:1.75;
+    }
+
+    /* FILTER TABS */
+    .filter-bar {
+      background:var(--white);
+      padding:0 60px;
+      border-bottom:1px solid var(--border);
+      display:flex; gap:0;
+    }
+    .filter-btn {
+      background:none; border:none; cursor:pointer;
+      font-family:'DM Sans',sans-serif;
+      font-size:14px; font-weight:400;
+      color:var(--muted);
+      padding:18px 24px;
+      border-bottom:2px solid transparent;
+      transition:all 0.2s;
+    }
+    .filter-btn:hover { color:var(--ink); }
+    .filter-btn.active {
+      color:var(--teal); font-weight:500;
+      border-bottom-color:var(--teal);
+    }
+    .filter-btn:focus-visible { outline:3px solid var(--teal); outline-offset:-3px; }
+
+    /* FEATURED */
+    .featured-section {
+      padding:72px 60px 48px;
+      max-width:1200px; margin:0 auto;
+    }
+    .featured-post {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:0; background:var(--ink);
+      border-radius:2px; overflow:hidden;
+      text-decoration:none; color:inherit;
+      transition:transform 0.2s;
+    }
+    .featured-post:hover { transform:translateY(-3px); }
+    .featured-post:focus-visible { outline:3px solid var(--teal); outline-offset:2px; }
+
+    .featured-thumb {
+      background:var(--teal);
+      display:flex; align-items:center; justify-content:center;
+      min-height:340px; position:relative; overflow:hidden;
+    }
+    .featured-thumb .play-btn {
+      width:72px; height:72px;
+      background:rgba(255,255,255,0.15);
+      border-radius:50%; border:2px solid rgba(255,255,255,0.3);
+      display:flex; align-items:center; justify-content:center;
+      font-size:28px; position:relative; z-index:1;
+      transition:background 0.2s;
+    }
+    .featured-post:hover .play-btn { background:rgba(255,255,255,0.25); }
+    .featured-thumb .featured-label {
+      position:absolute; top:20px; left:20px;
+      background:var(--teal-light); color:var(--white);
+      font-size:11px; letter-spacing:2px; text-transform:uppercase;
+      font-weight:500; padding:5px 12px; border-radius:2px;
+    }
+
+    .featured-body {
+      padding:48px;
+      display:flex; flex-direction:column; justify-content:center;
+    }
+    .post-meta {
+      font-size:12px; letter-spacing:1.5px; text-transform:uppercase;
+      color:var(--teal-light); font-weight:500; margin-bottom:14px;
+    }
+    .featured-body h2 {
+      font-family:'Playfair Display',serif;
+      font-size:28px; font-weight:700;
+      color:var(--white); line-height:1.25; margin-bottom:16px;
+    }
+    .featured-body p {
+      font-size:15px; font-weight:300;
+      color:rgba(255,255,255,0.75); line-height:1.7; margin-bottom:28px;
+    }
+    .read-link {
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:14px; font-weight:500; color:var(--teal-light);
+      text-decoration:none; transition:gap 0.2s;
+    }
+    .read-link::after { content:'→'; }
+    .featured-post:hover .read-link { gap:14px; }
+
+    /* POSTS GRID */
+    .posts-section {
+      padding:0 60px 80px;
+      max-width:1200px; margin:0 auto;
+    }
+    .posts-section h3 {
+      font-family:'Playfair Display',serif;
+      font-size:28px; font-weight:700; margin-bottom:36px;
+    }
+    .posts-grid {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:24px;
+    }
+    .post-card {
+      background:var(--white); border-radius:2px; overflow:hidden;
+      text-decoration:none; color:inherit;
+      transition:transform 0.2s;
+      display:flex; flex-direction:column;
+    }
+    .post-card:hover { transform:translateY(-4px); }
+    .post-card:focus-visible { outline:3px solid var(--teal); outline-offset:2px; }
+
+    .post-thumb {
+      height:180px; display:flex;
+      align-items:center; justify-content:center;
+      position:relative; font-size:48px;
+    }
+    .post-thumb.t1 { background:#1a2e2e; }
+    .post-thumb.t2 { background:#1a1a2e; }
+    .post-thumb.t3 { background:#2e1a1a; }
+    .post-thumb.t4 { background:#1a2a1a; }
+    .post-thumb.t5 { background:#2a1a2e; }
+    .post-thumb.t6 { background:#1c1408; }
+
+    .post-type-badge {
+      position:absolute; top:12px; right:12px;
+      background:rgba(255,255,255,0.15); color:var(--white);
+      font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+      font-weight:500; padding:4px 10px; border-radius:100px;
+    }
+    .post-body { padding:28px; flex:1; display:flex; flex-direction:column; }
+    .post-body .post-meta { color:var(--teal); margin-bottom:10px; }
+    .post-body h4 {
+      font-family:'Playfair Display',serif;
+      font-size:18px; font-weight:700; line-height:1.3;
+      margin-bottom:10px; color:var(--ink);
+    }
+    .post-body p {
+      font-size:14px; font-weight:300; line-height:1.65;
+      color:var(--muted); flex:1; margin-bottom:18px;
+    }
+    .post-read {
+      font-size:13px; font-weight:500; color:var(--teal);
+      text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+      transition:gap 0.2s; margin-top:auto;
+    }
+    .post-read::after { content:'→'; }
+    .post-card:hover .post-read { gap:10px; }
+
+    /* NEWSLETTER */
+    .newsletter {
+      background:var(--teal); padding:80px 60px;
+      text-align:center;
+    }
+    .newsletter h2 {
+      font-family:'Playfair Display',serif;
+      font-size:36px; font-weight:700;
+      color:var(--white); margin-bottom:14px; line-height:1.2;
+    }
+    .newsletter p {
+      font-size:17px; font-weight:300;
+      color:rgba(255,255,255,0.85); margin-bottom:36px; max-width:480px; margin-left:auto; margin-right:auto;
+    }
+    .newsletter-form {
+      display:flex; gap:12px; max-width:480px;
+      margin:0 auto; flex-wrap:wrap;
+    }
+    .newsletter-form input {
+      flex:1; min-width:200px;
+      padding:14px 20px;
+      border:none; border-radius:2px;
+      font-family:'DM Sans',sans-serif; font-size:15px;
+      background:rgba(255,255,255,0.15);
+      color:var(--white);
+    }
+    .newsletter-form input::placeholder { color:rgba(255,255,255,0.55); }
+    .newsletter-form input:focus { outline:3px solid var(--white); outline-offset:2px; }
+    .newsletter-form button {
+      padding:14px 28px;
+      background:var(--ink); color:var(--white);
+      border:none; border-radius:2px; cursor:pointer;
+      font-family:'DM Sans',sans-serif; font-size:15px; font-weight:500;
+      transition:background 0.2s;
+    }
+    .newsletter-form button:hover { background:#1e1e2a; }
+    .newsletter-form button:focus-visible { outline:3px solid var(--white); outline-offset:2px; }
+    .newsletter-note {
+      font-size:12px; color:rgba(255,255,255,0.6);
+      margin-top:14px;
+    }
+
+    @media (max-width:900px) {
+      .page-hero { padding:120px 24px 60px; }
+      .filter-bar { padding:0 24px; overflow-x:auto; }
+      .featured-section { padding:48px 24px 32px; }
+      .featured-post { grid-template-columns:1fr; }
+      .featured-thumb { min-height:200px; }
+      .posts-section { padding:0 24px 60px; }
+      .posts-grid { grid-template-columns:1fr; }
+      .newsletter { padding:60px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-nav">Skip to main content</a>
+
+<nav class="site-nav" aria-label="Main navigation">
+  <a href="index.html" class="nav-logo" aria-label="Fused Music Studio - Home">Fused<span>Music</span>.studio</a>
+  <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" role="list">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="blog.html" aria-current="page">Blog</a></li>
+    <li><a href="contact.html" class="nav-cta">Book a Call</a></li>
+  </ul>
+</nav>
+
+<main id="main-content">
+
+  <section class="page-hero" aria-labelledby="blog-heading">
+    <div class="page-hero-inner">
+      <div class="section-label">Blog & Videos</div>
+      <h1 id="blog-heading">Ideas, insights,<br>and <em>practical resources</em></h1>
+      <p>Articles and videos on assistive music technology, neurorehabilitation, SEN music education, and making music accessible for everyone.</p>
+    </div>
+  </section>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar" role="tablist" aria-label="Filter posts by type">
+    <button class="filter-btn active" role="tab" aria-selected="true">All</button>
+    <button class="filter-btn" role="tab" aria-selected="false">Videos</button>
+    <button class="filter-btn" role="tab" aria-selected="false">Articles</button>
+    <button class="filter-btn" role="tab" aria-selected="false">Neurorehabilitation</button>
+    <button class="filter-btn" role="tab" aria-selected="false">SEN Education</button>
+  </div>
+
+  <!-- FEATURED -->
+  <section class="featured-section reveal" aria-labelledby="featured-heading">
+    <div class="section-label">Featured</div>
+    <a href="#" class="featured-post" aria-label="Watch: Getting Started with Assistive Music Technology — featured video">
+      <div class="featured-thumb" aria-hidden="true">
+        <span class="featured-label">Video</span>
+        <div class="play-btn">▶</div>
+      </div>
+      <div class="featured-body">
+        <div class="post-meta">Video · Assistive Technology</div>
+        <h2 id="featured-heading">Getting Started with Assistive Music Technology</h2>
+        <p>An introduction to the tools, approaches, and possibilities — whether you're a teacher, therapist, or parent looking to open up music for a disabled learner.</p>
+        <span class="read-link">Watch now</span>
+      </div>
+    </a>
+  </section>
+
+  <!-- POSTS GRID -->
+  <section class="posts-section" aria-labelledby="posts-heading">
+    <h3 id="posts-heading">Latest posts</h3>
+    <div class="posts-grid">
+
+      <a href="#" class="post-card reveal" aria-label="Read: Music Technology in Neurorehabilitation — What the Evidence Says">
+        <div class="post-thumb t1" aria-hidden="true">🧠<span class="post-type-badge">Article</span></div>
+        <div class="post-body">
+          <div class="post-meta">Neurorehabilitation</div>
+          <h4>Music Technology in Neurorehabilitation — What the Evidence Says</h4>
+          <p>A look at the growing body of evidence for music technology as a therapeutic tool after stroke and acquired brain injury.</p>
+          <span class="post-read">Read article</span>
+        </div>
+      </a>
+
+      <a href="#" class="post-card reveal reveal-delay-1" aria-label="Watch: Setting Up a Switch-Accessible Music Station">
+        <div class="post-thumb t2" aria-hidden="true">🎹<span class="post-type-badge">Video</span></div>
+        <div class="post-body">
+          <div class="post-meta">Assistive Technology · Video</div>
+          <h4>Setting Up a Switch-Accessible Music Station</h4>
+          <p>A step-by-step walkthrough of setting up a switch-accessible music workstation for a learner with limited motor control.</p>
+          <span class="post-read">Watch video</span>
+        </div>
+      </a>
+
+      <a href="#" class="post-card reveal reveal-delay-2" aria-label="Read: What is Neurological Music Therapy?">
+        <div class="post-thumb t3" aria-hidden="true">🎵<span class="post-type-badge">Article</span></div>
+        <div class="post-body">
+          <div class="post-meta">NMT · Education</div>
+          <h4>What is Neurological Music Therapy?</h4>
+          <p>A plain-language guide to NMT — what it is, who it's for, and how it differs from traditional music therapy.</p>
+          <span class="post-read">Read article</span>
+        </div>
+      </a>
+
+      <a href="#" class="post-card reveal" aria-label="Watch: Five Free Tools for Accessible Music-Making">
+        <div class="post-thumb t4" aria-hidden="true">🎸<span class="post-type-badge">Video</span></div>
+        <div class="post-body">
+          <div class="post-meta">Resources · Video</div>
+          <h4>Five Free Tools for Accessible Music-Making</h4>
+          <p>You don't need to spend a lot to get started. Here are five free or low-cost tools I recommend to schools and families.</p>
+          <span class="post-read">Watch video</span>
+        </div>
+      </a>
+
+      <a href="#" class="post-card reveal reveal-delay-1" aria-label="Read: Co-Design in Rehabilitation Research — Lessons from My PhD">
+        <div class="post-thumb t5" aria-hidden="true">📋<span class="post-type-badge">Article</span></div>
+        <div class="post-body">
+          <div class="post-meta">Research · PhD</div>
+          <h4>Co-Design in Rehabilitation Research</h4>
+          <p>What I learned from involving stroke survivors as co-designers in my PhD research — and why it changed my whole approach.</p>
+          <span class="post-read">Read article</span>
+        </div>
+      </a>
+
+      <a href="#" class="post-card reveal reveal-delay-2" aria-label="Read: Making the Case for Music Technology in Your SEN School">
+        <div class="post-thumb t6" aria-hidden="true">🏫<span class="post-type-badge">Article</span></div>
+        <div class="post-body">
+          <div class="post-meta">SEN Education</div>
+          <h4>Making the Case for Music Technology in Your SEN School</h4>
+          <p>Practical advice for SEN coordinators and music teachers on building a case for investment in accessible music technology.</p>
+          <span class="post-read">Read article</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section class="newsletter reveal" aria-labelledby="newsletter-heading">
+    <h2 id="newsletter-heading">Get new posts in your inbox</h2>
+    <p>Articles, videos, and practical resources on assistive music technology — straight to you, no spam.</p>
+    <form class="newsletter-form" action="#" method="post" aria-label="Newsletter signup">
+      <label for="email-input" class="skip-nav">Your email address</label>
+      <input type="email" id="email-input" name="email" placeholder="Your email address" required autocomplete="email">
+      <button type="submit">Subscribe</button>
+    </form>
+    <p class="newsletter-note">No spam. Unsubscribe any time.</p>
+  </section>
+
+</main>
+
+<footer class="site-footer" aria-label="Site footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="index.html" class="nav-logo" aria-label="Fused Music Studio Home">Fused<span>Music</span>.studio</a>
+      <p>Specialist training in assistive music technology for disabled children and adults. Delivered in person across the UK.</p>
+    </div>
+    <nav aria-label="Footer navigation">
+      <h4>Navigation</h4>
+      <ul role="list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="blog.html">Blog & Videos</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+    <div>
+      <h4>Also</h4>
+      <ul role="list">
+        <li><a href="https://www.fusedmusic.org" target="_blank" rel="noopener">Research (fusedmusic.org)</a></li>
+        <li><a href="contact.html">Book a Call</a></li>
+        <li><a href="contact.html">Send an Enquiry</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Fused Music Studio. All rights reserved.</span>
+    <span>Designed for accessibility — <a href="contact.html">get in touch</a></span>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

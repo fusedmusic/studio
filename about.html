@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Rebecca — Fused Music Studio</title>
+  <meta name="description" content="Rebecca has over 25 years' experience in music education, accessible music technology, and neurorehabilitation. PhD researcher, NMT practitioner, BSL speaker.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ---- HERO ---- */
+    .about-hero {
+      background: var(--ink);
+      padding: 140px 60px 96px;
+      position: relative; overflow: hidden;
+    }
+    .about-hero::before {
+      content: ''; position: absolute;
+      top: -100px; right: -50px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(26,107,107,0.2) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .about-hero-inner {
+      max-width: 800px; position: relative; z-index: 1;
+    }
+    .about-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(38px, 5vw, 68px);
+      font-weight: 900; color: var(--white);
+      line-height: 1.05; margin-bottom: 28px;
+    }
+    .about-hero h1 em { font-style: italic; color: var(--teal-light); }
+    .about-hero p {
+      font-size: 19px; font-weight: 300;
+      color: rgba(255,255,255,0.82); line-height: 1.75;
+      max-width: 620px;
+    }
+
+    /* ---- STORY ---- */
+    .story-section {
+      padding: 96px 60px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 80px;
+      max-width: 1200px; margin: 0 auto;
+      align-items: start;
+    }
+    .story-body h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px; font-weight: 700;
+      margin-bottom: 28px; line-height: 1.2;
+    }
+    .story-body p {
+      font-size: 17px; font-weight: 300;
+      line-height: 1.85; color: #2e2e3a;
+      margin-bottom: 20px;
+    }
+    .story-body p strong { font-weight: 500; color: var(--ink); }
+
+    /* sidebar */
+    .story-sidebar { display: flex; flex-direction: column; gap: 32px; }
+    .sidebar-box {
+      background: var(--ink);
+      padding: 36px;
+      border-radius: 2px;
+    }
+    .sidebar-box h3 {
+      font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--teal-light); font-weight: 500; margin-bottom: 20px;
+    }
+    .sidebar-box ul { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+    .sidebar-box li {
+      font-size: 14px; font-weight: 300;
+      color: rgba(255,255,255,0.82); line-height: 1.5;
+      padding-left: 16px; position: relative;
+    }
+    .sidebar-box li::before {
+      content: '—'; position: absolute; left: 0;
+      color: var(--teal-light); font-weight: 500;
+    }
+    .sidebar-box li strong { font-weight: 500; color: var(--white); }
+
+    /* ---- PHD FEATURE ---- */
+    .phd-section {
+      background: var(--teal);
+      padding: 80px 60px;
+    }
+    .phd-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: center;
+    }
+    .phd-inner h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 3.5vw, 44px);
+      font-weight: 700; color: var(--white);
+      line-height: 1.2; margin-bottom: 24px;
+    }
+    .phd-inner p {
+      font-size: 16px; font-weight: 300;
+      color: rgba(255,255,255,0.87); line-height: 1.8;
+      margin-bottom: 16px;
+    }
+    .phd-detail {
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .phd-detail-item {
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px; padding: 24px;
+    }
+    .phd-detail-item h4 {
+      font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(255,255,255,0.6); font-weight: 500; margin-bottom: 8px;
+    }
+    .phd-detail-item p {
+      font-size: 15px; color: var(--white); font-weight: 300;
+      line-height: 1.6; margin: 0;
+    }
+
+    /* ---- PRESENTATIONS ---- */
+    .presentations {
+      padding: 80px 60px;
+      background: var(--cream);
+    }
+    .presentations-inner { max-width: 1200px; margin: 0 auto; }
+    .presentations h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px; font-weight: 700; margin-bottom: 48px;
+    }
+    .pres-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2px;
+    }
+    .pres-item {
+      background: var(--white);
+      padding: 36px;
+      display: flex; gap: 24px; align-items: flex-start;
+    }
+    .pres-year {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px; font-weight: 900;
+      color: rgba(26,107,107,0.2); line-height: 1;
+      min-width: 64px;
+    }
+    .pres-details strong {
+      display: block; font-size: 15px; font-weight: 500;
+      color: var(--ink); margin-bottom: 4px;
+    }
+    .pres-details span { font-size: 14px; font-weight: 300; color: var(--muted); }
+
+    /* ---- CTA ---- */
+    .about-cta {
+      background: var(--ink);
+      padding: 80px 60px;
+      display: flex; justify-content: space-between;
+      align-items: center; gap: 40px; flex-wrap: wrap;
+    }
+    .about-cta h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(26px, 3vw, 40px); font-weight: 700;
+      color: var(--white); line-height: 1.2; max-width: 520px;
+    }
+    .about-cta h2 em { font-style: italic; color: var(--teal-light); }
+    .about-cta-btns { display: flex; flex-direction: column; gap: 12px; min-width: 200px; }
+
+    @media (max-width: 900px) {
+      .about-hero { padding: 120px 24px 60px; }
+      .story-section { grid-template-columns: 1fr; padding: 60px 24px; gap: 40px; }
+      .phd-section { padding: 60px 24px; }
+      .phd-inner { grid-template-columns: 1fr; gap: 40px; }
+      .presentations { padding: 60px 24px; }
+      .pres-grid { grid-template-columns: 1fr; }
+      .about-cta { padding: 60px 24px; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-nav">Skip to main content</a>
+
+<nav class="site-nav" aria-label="Main navigation">
+  <a href="index.html" class="nav-logo" aria-label="Fused Music Studio - Home">Fused<span>Music</span>.studio</a>
+  <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" role="list">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="about.html" aria-current="page">About</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="contact.html" class="nav-cta">Book a Call</a></li>
+  </ul>
+</nav>
+
+<main id="main-content">
+
+  <!-- HERO -->
+  <section class="about-hero" aria-labelledby="about-heading">
+    <div class="about-hero-inner">
+      <div class="section-label">About</div>
+      <h1 id="about-heading">Hi, I'm <em>Rebecca.</em></h1>
+      <p>I've spent over 25 years working at the intersection of music, technology, and disability — helping people access the creative and therapeutic power of music that the world too often assumes isn't for them.</p>
+    </div>
+  </section>
+
+  <!-- STORY -->
+  <section class="story-section" aria-labelledby="story-heading">
+    <div class="story-body reveal">
+      <h2 id="story-heading">My background & approach</h2>
+      <p>I started my career as a music teacher in SEN schools, eventually becoming <strong>Head of Music</strong> in both secondary and primary settings. It was there — working directly with disabled learners — that I understood how profoundly music technology could open doors that had previously been closed.</p>
+      <p>That conviction has driven everything since. I've worked as a <strong>freelance consultant</strong> for organisations including the British Society of Music Therapy, the Royal Hospital for Neuro-Disability, and DEMELZA, as well as with individual clients and their families.</p>
+      <p>My approach is always hands-on and rooted in the real context of the people I work with. I don't deliver generic training — I design each programme around your setting, your learners, and your goals.</p>
+      <p>I'm also a <strong>British Sign Language speaker</strong>, which shapes how I think about communication, access, and the assumptions we make about who can and can't participate.</p>
+      <a href="contact.html" class="btn btn-dark" style="margin-top:16px;">Work with me</a>
+    </div>
+
+    <aside class="story-sidebar" aria-label="Qualifications and organisations">
+      <div class="sidebar-box reveal reveal-delay-1">
+        <h3>Qualifications</h3>
+        <ul role="list">
+          <li><strong>PhD</strong>, Anglia Ruskin University (submitted)</li>
+          <li><strong>MA Music Education</strong>, UCL</li>
+          <li><strong>PGCE Secondary Education</strong>, Middlesex University</li>
+          <li><strong>Associated Professional in NMT</strong>, NMT Academy</li>
+          <li><strong>British Sign Language</strong></li>
+        </ul>
+      </div>
+      <div class="sidebar-box reveal reveal-delay-2">
+        <h3>Organisations I've worked with</h3>
+        <ul role="list">
+          <li>British Society of Music Therapy</li>
+          <li>Royal Hospital for Neuro-Disability</li>
+          <li>DEMELZA</li>
+          <li>SEN schools (primary & secondary)</li>
+          <li>Individual clients & families</li>
+        </ul>
+      </div>
+    </aside>
+  </section>
+
+  <!-- PHD FEATURE -->
+  <section class="phd-section reveal" aria-labelledby="phd-heading">
+    <div class="phd-inner">
+      <div>
+        <div class="section-label">PhD Research</div>
+        <h2 id="phd-heading">Rhythm games and stroke recovery</h2>
+        <p>My doctoral research brought together two things I care deeply about: making technology genuinely useful to people after stroke, and involving those people in designing the tools they use.</p>
+        <p>Using co-design with stroke survivors, I adapted and modified a mainstream DDR rhythm game computer game for upper limb rehabilitation — a project that sits at the heart of what Fused Music Studio is about.</p>
+        <a href="https://www.fusedmusic.org" target="_blank" rel="noopener" class="btn btn-outline-white" style="margin-top:8px;">See the full research →</a>
+      </div>
+      <div class="phd-detail">
+        <div class="phd-detail-item">
+          <h4>Methodology</h4>
+          <p>Co-design with stroke survivors — participants as creative collaborators, not just research subjects</p>
+        </div>
+        <div class="phd-detail-item">
+          <h4>Technology</h4>
+          <p>Adapted mainstream DDR rhythm game for upper limb rehabilitation after stroke</p>
+        </div>
+        <div class="phd-detail-item">
+          <h4>Institution</h4>
+          <p>Anglia Ruskin University (ARU) — submitted</p>
+        </div>
+        <div class="phd-detail-item">
+          <h4>Field</h4>
+          <p>Music technology, neurorehabilitation, participatory design</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRESENTATIONS -->
+  <section class="presentations reveal" aria-labelledby="pres-heading">
+    <div class="presentations-inner">
+      <div class="section-label">Speaking</div>
+      <h2 id="pres-heading">Recent presentations & conferences</h2>
+      <div class="pres-grid">
+        <div class="pres-item">
+          <div class="pres-year" aria-hidden="true">2022</div>
+          <div class="pres-details">
+            <strong>Poster Presentation</strong>
+            <span>UK Stroke Forum</span>
+          </div>
+        </div>
+        <div class="pres-item">
+          <div class="pres-year" aria-hidden="true">2019</div>
+          <div class="pres-details">
+            <strong>Presentation</strong>
+            <span>Music and Drama Education Expo</span>
+          </div>
+        </div>
+        <div class="pres-item">
+          <div class="pres-year" aria-hidden="true">2018</div>
+          <div class="pres-details">
+            <strong>Presentation</strong>
+            <span>European Research and Innovation Conference, Brussels</span>
+          </div>
+        </div>
+        <div class="pres-item">
+          <div class="pres-year" aria-hidden="true">2017</div>
+          <div class="pres-details">
+            <strong>Presentation</strong>
+            <span>Music Tech Fest, Berlin</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="about-cta reveal" aria-labelledby="about-cta-heading">
+    <h2 id="about-cta-heading">Want to work together or find out <em>more?</em></h2>
+    <div class="about-cta-btns">
+      <a href="contact.html" class="btn btn-primary">Book a Discovery Call</a>
+      <a href="services.html" class="btn btn-outline-white">View Services</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer" aria-label="Site footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="index.html" class="nav-logo" aria-label="Fused Music Studio Home">Fused<span>Music</span>.studio</a>
+      <p>Specialist training in assistive music technology for disabled children and adults. Delivered in person across the UK.</p>
+    </div>
+    <nav aria-label="Footer navigation">
+      <h4>Navigation</h4>
+      <ul role="list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="blog.html">Blog & Videos</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+    <div>
+      <h4>Also</h4>
+      <ul role="list">
+        <li><a href="https://www.fusedmusic.org" target="_blank" rel="noopener">Research (fusedmusic.org)</a></li>
+        <li><a href="contact.html">Book a Call</a></li>
+        <li><a href="contact.html">Send an Enquiry</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Fused Music Studio. All rights reserved.</span>
+    <span>Designed for accessibility — <a href="contact.html">get in touch</a></span>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
