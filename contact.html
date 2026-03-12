@@ -100,23 +100,25 @@
       font-size:15px; font-weight:300;
       color:rgba(255,255,255,0.75); line-height:1.65; margin-bottom:24px;
     }
-    /* Calendly embed placeholder */
-    .calendly-placeholder {
-      background:rgba(255,255,255,0.05);
-      border:1px dashed rgba(255,255,255,0.2);
-      border-radius:2px;
-      min-height:200px;
-      display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      gap:12px; padding:32px; text-align:center;
+    /* Calendly embed */
+    .calendly-wrap {
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 0 -8px;
     }
-    .calendly-placeholder .cal-icon { font-size:36px; }
-    .calendly-placeholder p {
-      font-size:14px; color:rgba(255,255,255,0.5);
-      margin:0; line-height:1.5;
+    .calendly-inline-widget {
+      border-radius: 4px;
     }
-    .calendly-placeholder a {
-      color:var(--teal-light); text-decoration:underline;
+    .calendly-fallback {
+      font-size: 13px !important;
+      color: rgba(255,255,255,0.4) !important;
+      text-align: center;
+      margin-top: 12px !important;
+      margin-bottom: 0 !important;
+    }
+    .calendly-fallback a {
+      color: var(--teal-light);
+      text-decoration: underline;
     }
 
     .info-box {
@@ -259,14 +261,14 @@
 
       <div class="booking-box">
         <h3>Book a discovery call</h3>
-        <p>Prefer to talk? Book a free 20-minute call directly in my calendar. No obligation — just a conversation about what you need.</p>
-        <!-- CALENDLY EMBED: Replace the div below with your Calendly embed code -->
-        <!-- To get your embed code: calendly.com → Share → Embed on website → Inline widget -->
-        <div class="calendly-placeholder" aria-label="Booking calendar — connect Calendly to activate">
-          <div class="cal-icon" aria-hidden="true">📅</div>
-          <p>Booking calendar goes here.<br>
-          <a href="https://calendly.com" target="_blank" rel="noopener">Connect your Calendly account</a> and paste your embed code here.</p>
+        <p>Prefer to talk? Book a free 30-minute call directly in my calendar. No obligation — just a conversation about what you need.</p>
+        <div class="calendly-wrap" role="region" aria-label="Booking calendar — select a time for a 30-minute discovery call">
+          <!-- Calendly inline widget begin -->
+          <div class="calendly-inline-widget" data-url="https://calendly.com/colclasure/30min" style="min-width:280px;height:660px;"></div>
+          <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+          <!-- Calendly inline widget end -->
         </div>
+        <p class="calendly-fallback">Can't see the booking calendar? <a href="https://calendly.com/colclasure/30min" target="_blank" rel="noopener noreferrer">Open it directly on Calendly ↗</a></p>
       </div>
 
       <div class="info-box">
