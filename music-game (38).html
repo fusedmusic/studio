@@ -1,0 +1,2964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HEDSHOK</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Barlow+Condensed:wght@400;600;700;900&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --ink: #050508;
+    --ink2: #0d0d12;
+    --steel: #1a1a22;
+    --steel2: #242430;
+    --white: #f0f0f0;
+    --dim: rgba(240,240,240,0.35);
+    --dimmer: rgba(240,240,240,0.12);
+    --accent: #e8ff00;          /* electric yellow — industrial warning */
+    --accent-d: rgba(232,255,0,0.12);
+    --red: #ff2020;
+    --red-d: rgba(255,32,32,0.12);
+    --teal: #1a6b6b;
+    --teal-l: #2eadad;
+    --mg: #2ead6e;
+    --mg-d: #1a6b46;
+    --sp: #9b6bde;
+    --sp-d: #3a2060;
+    --warn: #e08b2a;
+    --tab-h: 52px;
+    --panel-bg: rgba(5,5,8,0.97);
+    --panel-border: rgba(240,240,240,0.08);
+    --border: 1px solid rgba(240,240,240,0.1);
+    --border-accent: 1px solid var(--accent);
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  html, body {
+    width:100vw; height:100vh; overflow:hidden;
+    background:var(--ink); font-family:'Barlow Condensed', sans-serif;
+    color:var(--white); letter-spacing:0.03em;
+  }
+
+  /* ══ CAMERA ══ */
+  #video {
+    position:fixed; inset:0; width:100%; height:100%;
+    object-fit:cover; transform:scaleX(-1);
+    opacity:0.35; z-index:0;
+    filter:grayscale(60%) contrast(1.1);
+  }
+  #canvas { position:fixed; inset:0; width:100%; height:100%; z-index:1; pointer-events:none; }
+  #circleZones { position:fixed; inset:0; z-index:2; pointer-events:none; }
+
+  /* ══ NOTE BURST ══ */
+  .note-burst {
+    position:fixed; pointer-events:none;
+    font-family:'Barlow Condensed', sans-serif;
+    font-weight:900; letter-spacing:0.05em;
+    font-size:clamp(28px,5vw,52px);
+    animation:burst 0.8s ease-out forwards; z-index:20;
+    text-shadow:0 0 24px currentColor;
+  }
+  @keyframes burst {
+    0%   { opacity:1; transform:translate(-50%,-50%) scale(1); }
+    100% { opacity:0; transform:translate(-50%,-200%) scale(1.6); }
+  }
+
+  /* ══ RANGE CONTROLS ══ */
+  .range-row { display:flex; align-items:center; gap:10px; }
+  .range-lbl {
+    font-size:11px; color:var(--dim); min-width:90px; flex-shrink:0;
+    font-family:'Share Tech Mono', monospace; letter-spacing:0.05em;
+  }
+  .range-lbl span { color:var(--accent); font-weight:700; }
+  .big-range-wrap { flex:1; }
+  .big-range { width:100%; height:4px; cursor:pointer; accent-color:var(--accent); }
+
+  /* ══ TAB BAR ══ */
+  #tabbar {
+    position:fixed; top:0; left:0; right:0;
+    height:var(--tab-h); z-index:50;
+    display:flex; align-items:stretch;
+    background:var(--ink);
+    border-bottom:2px solid rgba(240,240,240,0.1);
+    padding:0 0 0 16px;
+  }
+
+  /* Brand — keep Playfair, add industrial treatment */
+  .app-brand {
+    display:flex; align-items:center;
+    padding-right:20px;
+    border-right:2px solid rgba(240,240,240,0.1);
+    margin-right:0;
+    gap:10px; flex-shrink:0;
+  }
+  .brand-name {
+    font-family:'Barlow Condensed', sans-serif;
+    font-size:22px; font-weight:900;
+    color:var(--white); white-space:nowrap;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    line-height:1;
+  }
+  .brand-name .brand-fused {
+    color:var(--accent);
+    font-style:normal;
+    display:block;
+  }
+  .brand-name .brand-music {
+    color:var(--accent);
+    font-style:italic;
+  }
+  .brand-name .brand-studio {
+    color:var(--dim);
+    font-size:9px; font-weight:400;
+    letter-spacing:0.25em;
+    display:block; line-height:1;
+    font-family:'Share Tech Mono', monospace;
+    font-style:normal;
+    text-transform:uppercase;
+    margin-top:1px;
+  }
+  .brand-score {
+    background:var(--accent-d);
+    border:1px solid var(--accent);
+    padding:2px 10px;
+    border-radius:0;
+    font-size:14px; font-weight:700; color:var(--accent);
+    font-family:'Share Tech Mono', monospace;
+    letter-spacing:0.1em;
+  }
+
+  /* Tabs */
+  .tabs { display:flex; align-items:stretch; flex:1; }
+  .tab {
+    display:flex; align-items:center; gap:6px;
+    padding:0 16px;
+    background:none; border:none;
+    border-bottom:3px solid transparent;
+    border-left:1px solid rgba(240,240,240,0.06);
+    color:var(--dim);
+    font-family:'Barlow Condensed', sans-serif;
+    font-size:12px; font-weight:700;
+    letter-spacing:0.12em; text-transform:uppercase;
+    cursor:pointer; transition:all 0.12s;
+    white-space:nowrap; flex-shrink:0;
+  }
+  .tab:hover { color:var(--white); background:rgba(240,240,240,0.04); }
+  .tab.active {
+    color:var(--accent);
+    border-bottom-color:var(--accent);
+    background:var(--accent-d);
+  }
+  .tab .tab-dot {
+    width:5px; height:5px;
+    border-radius:0; /* square dots — industrial */
+    background:rgba(255,255,255,0.2); flex-shrink:0;
+    transform:rotate(45deg);
+  }
+  .tab.active .tab-dot { background:var(--accent); box-shadow:0 0 6px var(--accent); }
+  .tab .tab-dot.on  { background:var(--teal-l); box-shadow:0 0 5px var(--teal-l); }
+  .tab .tab-dot.on-sp { background:var(--sp); box-shadow:0 0 5px var(--sp); }
+  .tab .tab-dot.on-mg { background:var(--mg); box-shadow:0 0 5px var(--mg); }
+  .tab-spacer { flex:1; }
+
+  /* ══ PANEL ══ */
+  #panelArea {
+    position:fixed; top:var(--tab-h); left:0; right:0;
+    z-index:45; display:none;
+    background:var(--panel-bg);
+    border-bottom:2px solid rgba(240,240,240,0.08);
+    backdrop-filter:blur(24px);
+    padding:14px 20px 16px;
+    max-height:calc(100vh - var(--tab-h) - 50px);
+    overflow-y:auto;
+  }
+  #panelArea.open { display:block; }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:flex; flex-direction:column; gap:12px; }
+
+  .panel-row { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  .panel-section-label {
+    font-size:9px; letter-spacing:0.22em; text-transform:uppercase;
+    color:var(--accent); font-weight:700; width:100%; margin-top:2px;
+    font-family:'Share Tech Mono', monospace;
+  }
+  .hairline { width:100%; height:1px; background:rgba(240,240,240,0.07); margin:2px 0; }
+
+  /* ══ CHOICE BUTTONS ══ */
+  .choice-btn {
+    background:var(--steel); border:1px solid rgba(240,240,240,0.12);
+    color:var(--dim); padding:5px 12px;
+    border-radius:0; /* no rounding */
+    font-family:'Barlow Condensed', sans-serif;
+    font-size:12px; font-weight:700; letter-spacing:0.08em;
+    cursor:pointer; transition:all 0.12s;
+    text-transform:uppercase;
+  }
+  .choice-btn:hover { background:var(--steel2); color:var(--white); border-color:rgba(240,240,240,0.3); }
+  .choice-btn.a-teal {
+    background:rgba(46,173,173,0.15); border-color:var(--teal-l); color:var(--teal-l);
+  }
+  .choice-btn.a-sp { background:var(--sp-d); border-color:var(--sp); color:var(--sp); }
+
+  /* ══ SCALE TAB ══ */
+  .root-btns, .mode-btns, .oct-btns { display:flex; flex-wrap:wrap; gap:3px; }
+  .oct-btn {
+    background:var(--steel); border:1px solid rgba(240,240,240,0.12);
+    color:var(--dim); padding:5px 14px;
+    border-radius:0;
+    font-family:'Barlow Condensed', sans-serif; font-size:12px; font-weight:700;
+    cursor:pointer; transition:all 0.12s;
+    display:flex; flex-direction:column; align-items:center; gap:1px;
+    text-transform:uppercase;
+  }
+  .oct-btn .oct-num { font-family:'Share Tech Mono', monospace; font-size:17px; font-weight:400; color:var(--white); }
+  .oct-btn .oct-note { font-size:9px; color:var(--dim); letter-spacing:0.1em; font-family:'Share Tech Mono', monospace; }
+  .oct-btn:hover { background:var(--steel2); color:var(--white); }
+  .oct-btn.a-teal { background:rgba(46,173,173,0.15); border-color:var(--teal-l); color:var(--teal-l); }
+  .oct-btn.a-teal .oct-note { color:rgba(46,173,173,0.6); }
+
+  /* ══ INSTRUMENT TAB ══ */
+  .preset-strip { display:flex; flex-wrap:wrap; gap:3px; align-content:flex-start; }
+  .preset-btn {
+    background:var(--steel); border:1px solid rgba(240,240,240,0.1);
+    color:var(--dim); padding:5px 11px;
+    border-radius:0;
+    font-family:'Barlow Condensed', sans-serif; font-size:12px; font-weight:600;
+    letter-spacing:0.06em; text-transform:uppercase;
+    cursor:pointer; transition:all 0.12s;
+  }
+  .preset-btn.active, .preset-btn:hover {
+    background:var(--sp-d); border-color:var(--sp); color:var(--sp);
+  }
+
+  /* ══ EFFECTS TAB ══ */
+  .param-strip { display:flex; flex-wrap:wrap; gap:3px; }
+  .param-btn {
+    background:var(--steel); border:1px solid rgba(155,107,222,0.2);
+    color:var(--dim); padding:5px 9px;
+    border-radius:0;
+    font-family:'Barlow Condensed', sans-serif; font-size:11px; font-weight:700;
+    letter-spacing:0.06em; text-transform:uppercase;
+    cursor:pointer; transition:all 0.12s;
+    display:flex; flex-direction:column; align-items:center; gap:1px;
+    min-width:52px;
+  }
+  .param-btn .pn { font-weight:700; font-size:11px; }
+  .param-btn .pv { font-size:10px; color:var(--dim); font-family:'Share Tech Mono', monospace; }
+  .param-btn:hover { background:var(--steel2); border-color:rgba(155,107,222,0.4); }
+  .param-btn.sel { background:var(--sp-d); border-color:var(--sp); color:var(--sp); }
+  .param-btn.sel .pv { color:rgba(155,107,222,0.6); }
+
+  .val-grid { display:grid; grid-template-columns:repeat(8,1fr); gap:3px; }
+  .vcell {
+    background:var(--steel); border:1px solid rgba(155,107,222,0.2);
+    border-radius:0; padding:7px 3px;
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    cursor:pointer; transition:all 0.12s; position:relative; overflow:hidden;
+    min-height:48px;
+  }
+  .vcell:hover { background:var(--steel2); border-color:rgba(155,107,222,0.5); }
+  .vcell.active { background:var(--sp-d); border-color:var(--sp); box-shadow:0 0 8px rgba(155,107,222,0.2); }
+  .vcell .vl { font-size:9px; color:var(--dim); font-family:'Share Tech Mono', monospace; }
+  .vcell .vv { font-size:12px; font-weight:700; color:var(--white); font-family:'Share Tech Mono', monospace; }
+  .vcell.active .vv { color:var(--sp); }
+  .dwell-bar {
+    position:absolute; bottom:0; left:0; height:3px;
+    background:var(--sp); width:0%; transition:none;
+  }
+  .vcell.dwelling .dwell-bar { transition:width 1100ms linear; }
+
+  /* ══ MIDI TAB ══ */
+  .midi-row { display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end; }
+  .mfield { display:flex; flex-direction:column; gap:3px; flex:1; min-width:110px; }
+  .mfield label {
+    font-size:9px; letter-spacing:0.15em; text-transform:uppercase;
+    color:var(--dim); display:flex; justify-content:space-between;
+    font-family:'Share Tech Mono', monospace;
+  }
+  .mfield label span { color:var(--accent); }
+  .mfield select {
+    background:var(--steel); border:1px solid rgba(240,240,240,0.12);
+    color:var(--white); padding:6px 8px; border-radius:0;
+    font-family:'Barlow Condensed', sans-serif; font-size:12px;
+    font-weight:600; letter-spacing:0.05em;
+    outline:none; cursor:pointer;
+  }
+  .mfield input[type=range] { width:100%; accent-color:var(--mg); cursor:pointer; }
+  .midi-flash {
+    font-size:11px; color:rgba(46,173,110,0.55); min-height:15px;
+    font-family:'Share Tech Mono', monospace; letter-spacing:0.05em;
+  }
+  .midi-flash.fl { color:var(--mg); font-weight:700; }
+  .conn-btn {
+    background:var(--steel); border:1px solid rgba(240,240,240,0.2);
+    color:var(--dim); padding:7px 16px; border-radius:0;
+    font-family:'Barlow Condensed', sans-serif; font-size:12px;
+    font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+    cursor:pointer; transition:all 0.15s;
+  }
+  .conn-btn.connected { background:var(--mg-d); border-color:var(--mg); color:var(--mg); }
+  .conn-btn:hover { background:var(--steel2); color:var(--white); }
+
+  /* ══ BOTTOM STATUS ══ */
+  #statusBar {
+    position:fixed; bottom:0; left:0; right:0;
+    height:28px; z-index:40;
+    display:flex; align-items:center; justify-content:center;
+    gap:14px;
+    background:linear-gradient(to top, rgba(5,5,8,0.9) 0%, transparent 100%);
+    font-size:10px; color:var(--dim);
+    pointer-events:none;
+    font-family:'Share Tech Mono', monospace; letter-spacing:0.08em;
+  }
+  #statusBar .chip {
+    padding:2px 8px;
+    background:rgba(240,240,240,0.05);
+    border:1px solid rgba(240,240,240,0.08);
+    border-radius:0;
+    font-weight:400; letter-spacing:0.1em;
+  }
+  #statusBar .chip.bright { color:var(--accent); background:var(--accent-d); border-color:rgba(232,255,0,0.3); }
+
+  /* ══ START OVERLAY ══ */
+  #startOverlay {
+    position:fixed; inset:0; z-index:100;
+    background:var(--ink);
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:20px;
+  }
+  /* Scanline texture */
+  #startOverlay::before {
+    content:''; position:absolute; inset:0;
+    background:repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(255,255,255,0.015) 2px, rgba(255,255,255,0.015) 4px
+    );
+    pointer-events:none;
+  }
+  #startOverlay h2 {
+    font-family:'Share Tech Mono', monospace;
+    font-size:11px; font-weight:400;
+    color:var(--dim); letter-spacing:0.4em; text-transform:uppercase;
+  }
+  #startOverlay h1 {
+    font-family:'Barlow Condensed', sans-serif;
+    font-size:clamp(72px,16vw,160px); font-weight:900;
+    text-align:center; line-height:0.9;
+    text-transform:uppercase; letter-spacing:0.04em;
+  }
+  #startOverlay h1 em { color:var(--accent); font-style:normal; }
+  #startOverlay p {
+    font-size:14px; font-weight:400; color:var(--dim);
+    max-width:380px; text-align:center; line-height:1.7;
+    letter-spacing:0.05em;
+  }
+  .start-btn {
+    background:var(--accent); color:var(--ink);
+    border:none; padding:14px 48px;
+    border-radius:0;
+    font-family:'Barlow Condensed', sans-serif;
+    font-size:16px; font-weight:900;
+    letter-spacing:0.2em; text-transform:uppercase;
+    cursor:pointer; transition:all 0.15s; margin-top:4px;
+    clip-path:polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .start-btn:hover { background:var(--white); transform:translateY(-1px); }
+  #startOverlay small {
+    font-size:10px; color:rgba(240,240,240,0.2);
+    font-family:'Share Tech Mono', monospace; letter-spacing:0.1em;
+  }
+
+  /* ══ DRUMS OVERLAY ══ */
+  #drumsOverlay {
+    position:fixed; top:var(--tab-h); left:0; right:0; bottom:0;
+    z-index:55; display:none; flex-direction:column; background:var(--ink);
+  }
+  #drumsOverlay.open { display:flex; }
+  #drumsTopBar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:8px 16px; background:var(--ink2);
+    border-bottom:2px solid rgba(240,240,240,0.08); flex-shrink:0;
+  }
+  #drumsTopBar .drums-title {
+    font-family:'Barlow Condensed', sans-serif;
+    font-size:14px; font-weight:900; letter-spacing:0.15em; text-transform:uppercase;
+    color:var(--white); display:flex; align-items:center; gap:8px;
+  }
+  #drumsTopBar .drums-hint {
+    font-size:10px; color:var(--dim); max-width:480px; line-height:1.5;
+    text-align:center; font-family:'Share Tech Mono', monospace; letter-spacing:0.04em;
+  }
+  #drumsTopBar .drums-hint a { color:var(--accent); text-decoration:none; }
+  #drumsTopBar .drums-hint a:hover { text-decoration:underline; }
+  #drumClose {
+    background:var(--steel); border:1px solid rgba(240,240,240,0.15);
+    color:var(--dim); padding:6px 14px; border-radius:0;
+    font-family:'Barlow Condensed', sans-serif; font-size:12px;
+    font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+    cursor:pointer; transition:all 0.15s; flex-shrink:0;
+  }
+  #drumClose:hover { background:var(--steel2); color:var(--white); }
+  /* ══ ACCESSIBILITY THEMES ══ */
+
+  /* WCAG high contrast */
+  body.theme-wcag {
+    --ink: #000000; --ink2: #111111; --steel: #1a1a1a; --steel2: #2a2a2a;
+    --white: #ffffff; --dim: rgba(255,255,255,0.75); --accent: #ffff00;
+    --accent-d: rgba(255,255,0,0.2); --panel-bg: rgba(0,0,0,0.98);
+    --panel-border: rgba(255,255,255,0.4);
+  }
+  body.theme-wcag .tab { font-size: 14px; font-weight: 900; }
+  body.theme-wcag .choice-btn, body.theme-wcag .preset-btn,
+  body.theme-wcag .param-btn, body.theme-wcag .oct-btn {
+    border-width: 2px; border-color: rgba(255,255,255,0.5);
+  }
+
+  /* Dyslexia friendly */
+  body.theme-dyslexia {
+    --ink: #fdf6e3; --ink2: #f5eed5; --steel: #ede4cc; --steel2: #e0d6b8;
+    --white: #1a1200; --dim: rgba(26,18,0,0.6); --accent: #b35a00;
+    --accent-d: rgba(179,90,0,0.15); --panel-bg: rgba(253,246,227,0.97);
+    --panel-border: rgba(26,18,0,0.2);
+    font-family: 'Arial', sans-serif !important;
+    letter-spacing: 0.06em !important; word-spacing: 0.12em !important;
+    line-height: 1.8 !important;
+  }
+  body.theme-dyslexia * { font-family: 'Arial', sans-serif !important; letter-spacing: 0.06em !important; }
+  body.theme-dyslexia .tab, body.theme-dyslexia .choice-btn,
+  body.theme-dyslexia .preset-btn, body.theme-dyslexia .param-btn {
+    font-size: 14px !important; font-weight: 600 !important;
+    border-radius: 6px !important; padding: 8px 14px !important;
+  }
+  body.theme-dyslexia #video { filter: sepia(20%) brightness(0.9); }
+
+  /* Sight impaired — maximum contrast, bigger everything */
+  body.theme-sight {
+    --ink: #000000; --ink2: #0a0a0a; --steel: #111111; --steel2: #222222;
+    --white: #ffffff; --dim: rgba(255,255,255,0.9); --accent: #00ffff;
+    --accent-d: rgba(0,255,255,0.2); --panel-bg: rgba(0,0,0,0.99);
+    --panel-border: rgba(255,255,255,0.6); --tab-h: 64px;
+  }
+  body.theme-sight .tab { font-size: 16px !important; font-weight: 900 !important; padding: 0 20px !important; }
+  body.theme-sight .choice-btn, body.theme-sight .preset-btn,
+  body.theme-sight .param-btn, body.theme-sight .oct-btn {
+    font-size: 15px !important; padding: 9px 16px !important;
+    border: 2px solid rgba(255,255,255,0.6) !important;
+  }
+  body.theme-sight .panel-section-label { font-size: 12px !important; color: #00ffff !important; }
+  body.theme-sight #video { filter: contrast(1.3) brightness(0.5); }
+
+  /* Low blue light — warm amber tones, easy on eyes */
+  body.theme-amber {
+    --ink: #1a0e00; --ink2: #241500; --steel: #2e1c00; --steel2: #3a2400;
+    --white: #ffe8b0; --dim: rgba(255,232,176,0.5); --accent: #ffaa00;
+    --accent-d: rgba(255,170,0,0.18); --panel-bg: rgba(26,14,0,0.96);
+    --panel-border: rgba(255,200,80,0.2);
+  }
+  body.theme-amber #video { filter: sepia(40%) contrast(0.9) brightness(0.7); }
+
+  /* Photosensitive — no animations, no flash, reduced motion */
+  body.theme-photosensitive * {
+    animation: none !important; transition: none !important;
+    animation-duration: 0s !important; transition-duration: 0s !important;
+  }
+  body.theme-photosensitive .note-burst { display: none !important; }
+  body.theme-photosensitive #video { opacity: 0.2 !important; }
+
+  /* ── Focus indicator (always visible, all themes) ── */
+  body.a11y-focus *:focus-visible {
+    outline: 3px solid var(--accent) !important;
+    outline-offset: 3px !important;
+  }
+
+  /* ── Large text mode ── */
+  body.a11y-large .tab      { font-size: 16px !important; }
+  body.a11y-large .choice-btn, body.a11y-large .preset-btn,
+  body.a11y-large .param-btn { font-size: 14px !important; padding: 8px 14px !important; }
+  body.a11y-large .panel-section-label { font-size: 12px !important; }
+  body.a11y-large .vcell .vv { font-size: 16px !important; }
+  body.a11y-large .oct-btn .oct-num { font-size: 22px !important; }
+
+  /* ── Accessibility panel ── */
+  .a11y-section { display:flex; flex-direction:column; gap:6px; }
+  .a11y-grid { display:flex; flex-wrap:wrap; gap:6px; }
+  .theme-btn {
+    background:var(--steel); border:2px solid rgba(240,240,240,0.15);
+    color:var(--dim); padding:8px 14px; border-radius:0;
+    font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700;
+    letter-spacing:0.08em; text-transform:uppercase; cursor:pointer;
+    transition:all 0.15s; display:flex; flex-direction:column;
+    align-items:flex-start; gap:2px; min-width:130px;
+  }
+  .theme-btn .tb-sub { font-size:9px; font-family:'Share Tech Mono',monospace;
+    color:var(--dim); letter-spacing:0.1em; font-weight:400; opacity:0.7;
+    pointer-events:none; display:block; }
+  .theme-btn:hover { background:var(--steel2); border-color:rgba(240,240,240,0.4); color:var(--white); }
+  .theme-btn.active { border-color:var(--accent); color:var(--accent); background:var(--accent-d); }
+  .theme-btn.active .tb-sub { color:var(--accent); opacity:0.7; }
+
+  .a11y-toggle-btn {
+    background:var(--steel); border:2px solid rgba(240,240,240,0.15);
+    color:var(--dim); padding:8px 16px; border-radius:0;
+    font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700;
+    letter-spacing:0.08em; text-transform:uppercase; cursor:pointer;
+    transition:all 0.15s;
+  }
+  .a11y-toggle-btn:hover { background:var(--steel2); color:var(--white); }
+  .a11y-toggle-btn.on { border-color:#4fc3f7; color:#4fc3f7; background:rgba(79,195,247,0.1); }
+
+  /* Screen reader announcement bar */
+  #srAnnounce {
+    position:fixed; bottom:32px; left:50%; transform:translateX(-50%);
+    background:rgba(0,0,0,0.9); border:2px solid var(--accent);
+    color:var(--accent); padding:8px 20px; z-index:200;
+    font-family:'Share Tech Mono',monospace; font-size:13px;
+    letter-spacing:0.05em; pointer-events:none;
+    opacity:0; transition:opacity 0.2s;
+    max-width:80vw; text-align:center;
+  }
+  #srAnnounce.show { opacity:1; }
+
+  /* ARIA live region (invisible) */
+  #ariaLive { position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+</style>
+</head>
+<body>
+
+<video id="video" autoplay playsinline muted aria-hidden="true"></video>
+<canvas id="canvas" aria-hidden="true"></canvas>
+<svg id="circleZones" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+
+<!-- ARIA live region for screen reader announcements -->
+<div id="ariaLive" role="status" aria-live="polite" aria-atomic="true"></div>
+<!-- Visual announcement bar -->
+<div id="srAnnounce" role="alert"></div>
+
+<!-- ══ TAB BAR ══ -->
+<div id="tabbar">
+  <div class="app-brand">
+    <span class="brand-name">
+      <span class="brand-fused">HEDSHOK</span>
+      <span class="brand-studio">by Fused Music Studio</span>
+    </span>
+    <span class="brand-score" id="scoreNum">0</span>
+  </div>
+  <div class="tabs">
+    <button class="tab" id="tab-scale"      onclick="switchTab('scale')">
+      <div class="tab-dot on" id="dot-scale"></div> Scale
+    </button>
+    <button class="tab" id="tab-instrument" onclick="switchTab('instrument')">
+      <div class="tab-dot on-sp"></div> Instrument
+    </button>
+    <button class="tab" id="tab-effects"    onclick="switchTab('effects')">
+      <div class="tab-dot on-sp"></div> Effects
+    </button>
+    <button class="tab" id="tab-midi"       onclick="switchTab('midi')">
+      <div class="tab-dot" id="dot-midi"></div> MIDI
+    </button>
+    <button class="tab" id="tab-range"      onclick="switchTab('range')">
+      <div class="tab-dot" style="background:#e08b2a;box-shadow:0 0 5px #e08b2a;"></div> Range
+    </button>
+    <button class="tab" id="tab-experimental" onclick="switchTab('experimental')">
+      <div class="tab-dot" style="background:#ff6bde;box-shadow:0 0 5px #ff6bde;"></div> ✦ Experimental
+    </button>
+    <div class="tab-spacer"></div>
+    <button class="tab" id="tab-drums" onclick="openDrums()" style="border-bottom:2px solid transparent;">
+      <div class="tab-dot" style="background:#de6b6b;box-shadow:0 0 5px #de6b6b;"></div>
+      🥁 Drums
+    </button>
+    <button class="tab" id="tab-access" onclick="switchTab('access')" aria-label="Accessibility settings">
+      <div class="tab-dot" style="background:#4fc3f7;box-shadow:0 0 5px #4fc3f7;"></div>
+      ♿ Access
+    </button>
+    <button class="tab" id="tab-notes" onclick="toggleNotes()" style="border-bottom:2px solid transparent;">
+      <div class="tab-dot" id="dot-notes" style="background:rgba(255,255,255,0.35);"></div>
+      <span id="notesLabel">Notes: On</span>
+    </button>
+  </div>
+</div>
+
+<!-- ══ FLOATING ACCESSIBILITY / PERFORMANCE CONTROLS ══ -->
+<div id="a11yBar" style="position:fixed;bottom:36px;right:12px;z-index:300;display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+
+  <!-- ALL LIGHTS OFF — always visible big button -->
+  <button id="lightsOffBtn"
+    style="padding:12px 20px;font-size:14px;font-weight:900;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;border:2px solid #e8ff00;background:#000;color:#e8ff00;border-radius:0;display:flex;align-items:center;gap:8px;white-space:nowrap;"
+    onclick="toggleLightsOff(this)">
+    ◎ ALL LIGHTS OFF
+  </button>
+
+  <!-- TOGGLE PANEL BUTTON -->
+  <button
+    style="padding:6px 12px;font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.7);color:rgba(255,255,255,0.5);border-radius:0;"
+    onclick="var p=document.getElementById('a11yPanel');p.style.display=p.style.display==='none'?'flex':'none';">
+    ♿ DISPLAY OPTIONS ▾
+  </button>
+
+  <!-- EXPANDED OPTIONS PANEL -->
+  <div id="a11yPanel" style="display:none;flex-direction:column;gap:10px;background:rgba(0,0,0,0.93);border:1px solid rgba(255,255,255,0.15);padding:14px;min-width:280px;max-width:340px;">
+
+    <!-- INSTRUMENT COLOURS -->
+    <div style="font-size:9px;letter-spacing:0.2em;color:#e8ff00;font-family:monospace;font-weight:700;">INSTRUMENT COLOURS</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;">
+      <button style="padding:6px 10px;font-size:11px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #2eadad;background:#001a1a;color:#2eadad;" onclick="setInstrumentPalette('teal')">Teal</button>
+      <button style="padding:6px 10px;font-size:11px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #e8ff00;background:#0a0a00;color:#e8ff00;" onclick="setInstrumentPalette('yellow')">Yellow</button>
+      <button style="padding:6px 10px;font-size:11px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #ff6bde;background:#1a001a;color:#ff6bde;" onclick="setInstrumentPalette('pink')">Pink</button>
+      <button style="padding:6px 10px;font-size:11px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #ff4444;background:#1a0000;color:#ff4444;" onclick="setInstrumentPalette('red')">Red</button>
+      <button style="padding:6px 10px;font-size:11px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #ffffff;background:#000;color:#fff;" onclick="setInstrumentPalette('white')">White</button>
+      <button style="padding:6px 10px;font-size:11px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #888;background:#111;color:#aaa;" onclick="setInstrumentPalette('mono')">Mono</button>
+    </div>
+
+    <!-- NOTE SIZE -->
+    <div style="font-size:9px;letter-spacing:0.2em;color:#e8ff00;font-family:monospace;font-weight:700;margin-top:4px;">NOTE SIZE</div>
+    <div style="display:flex;gap:5px;align-items:center;">
+      <button style="padding:6px 14px;font-size:16px;font-weight:900;font-family:sans-serif;cursor:pointer;border:1px solid #888;background:#111;color:#fff;" onclick="changeNoteSize(-2)">A−</button>
+      <button style="padding:6px 14px;font-size:16px;font-weight:900;font-family:sans-serif;cursor:pointer;border:1px solid #888;background:#111;color:#fff;" onclick="changeNoteSize(2)">A+</button>
+      <span id="noteSizeLabel" style="font-size:10px;color:rgba(255,255,255,0.4);font-family:monospace;">14px</span>
+    </div>
+
+    <!-- FACE OUTLINE -->
+    <div style="font-size:9px;letter-spacing:0.2em;color:#e8ff00;font-family:monospace;font-weight:700;margin-top:4px;">FACE OUTLINE</div>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;">
+      <button style="padding:6px 10px;font-size:11px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #2eadad;background:#001a1a;color:#2eadad;" onclick="setFaceColour('rgba(46,173,173,0.4)')">Teal</button>
+      <button style="padding:6px 10px;font-size:11px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #e8ff00;background:#0a0a00;color:#e8ff00;" onclick="setFaceColour('rgba(232,255,0,0.5)')">Yellow</button>
+      <button style="padding:6px 10px;font-size:11px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #fff;background:#000;color:#fff;" onclick="setFaceColour('rgba(255,255,255,0.5)')">White</button>
+      <button style="padding:6px 10px;font-size:11px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #444;background:#111;color:#666;" onclick="setFaceColour('rgba(255,255,255,0)')">Off</button>
+    </div>
+
+    <div style="height:1px;background:rgba(255,255,255,0.1);"></div>
+
+    <!-- MENU PRESET -->
+    <div style="font-size:9px;letter-spacing:0.2em;color:#e8ff00;font-family:monospace;font-weight:700;">MENU PRESET</div>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;">
+      <button style="padding:8px 12px;font-size:12px;font-weight:900;font-family:sans-serif;cursor:pointer;border:2px solid #333;background:#111;color:#fff;" onclick="applyMenuPreset('default')">Default</button>
+      <button style="padding:8px 12px;font-size:12px;font-weight:900;font-family:sans-serif;cursor:pointer;border:2px solid #fff;background:#000;color:#fff;" onclick="applyMenuPreset('wcag')">♿ WCAG</button>
+      <button style="padding:8px 12px;font-size:12px;font-weight:900;font-family:sans-serif;cursor:pointer;border:2px solid #b35a00;background:#fdf6e3;color:#3d2000;" onclick="applyMenuPreset('dyslexia')">✦ Dyslexia</button>
+      <button style="padding:8px 12px;font-size:12px;font-weight:900;font-family:sans-serif;cursor:pointer;border:2px solid #c60b1e;background:#f1bf00;color:#c60b1e;" onclick="applyMenuPreset('spanish')">🇪🇸 Español</button>
+    </div>
+
+    <!-- MENU TEXT SIZE -->
+    <div style="font-size:9px;letter-spacing:0.2em;color:#e8ff00;font-family:monospace;font-weight:700;margin-top:4px;" id="lbl-textsize">MENU TEXT SIZE</div>
+    <div style="display:flex;gap:5px;align-items:center;">
+      <button style="padding:6px 14px;font-size:16px;font-weight:900;font-family:sans-serif;cursor:pointer;border:1px solid #888;background:#111;color:#fff;" onclick="changeMenuSize(-1)">T−</button>
+      <button style="padding:6px 14px;font-size:16px;font-weight:900;font-family:sans-serif;cursor:pointer;border:1px solid #888;background:#111;color:#fff;" onclick="changeMenuSize(1)">T+</button>
+      <span id="menuSizeLabel" style="font-size:10px;color:rgba(255,255,255,0.4);font-family:monospace;">Normal</span>
+    </div>
+
+    <!-- BUTTON SIZE -->
+    <div style="font-size:9px;letter-spacing:0.2em;color:#e8ff00;font-family:monospace;font-weight:700;margin-top:4px;" id="lbl-btnsize">BUTTON SIZE</div>
+    <div style="display:flex;gap:5px;align-items:center;">
+      <button style="padding:6px 14px;font-size:16px;font-weight:900;font-family:sans-serif;cursor:pointer;border:1px solid #888;background:#111;color:#fff;" onclick="changeButtonSize(-1)">B−</button>
+      <button style="padding:6px 14px;font-size:16px;font-weight:900;font-family:sans-serif;cursor:pointer;border:1px solid #888;background:#111;color:#fff;" onclick="changeButtonSize(1)">B+</button>
+      <span id="btnSizeLabel" style="font-size:10px;color:rgba(255,255,255,0.4);font-family:monospace;">Normal</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ PANEL AREA ══ -->
+<div id="panelArea">
+
+  <!-- SCALE -->
+  <div class="tab-panel" id="panel-scale">
+    <div class="panel-section-label">Root Note</div>
+    <div class="panel-row"><div class="root-btns" id="rootBtns"></div></div>
+    <div class="hairline"></div>
+    <div class="panel-section-label">Scale / Mode</div>
+    <div class="panel-row"><div class="mode-btns" id="modeBtns"></div></div>
+    <div class="hairline"></div>
+    <div class="panel-section-label">Starting Octave</div>
+    <div class="panel-row"><div class="oct-btns" id="octBtns"></div></div>
+    <div class="hairline"></div>
+    <div class="panel-section-label">Note Triggering</div>
+    <div class="panel-row">
+      <button id="allNotesOffBtn" onclick="toggleAllNotesOff()"
+        style="background:var(--steel);border:1px solid rgba(240,240,240,0.15);color:var(--dim);
+               padding:8px 18px;border-radius:0;font-family:'Barlow Condensed',sans-serif;
+               font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+               cursor:pointer;transition:all 0.15s;">
+        ◎ Notes Active
+      </button>
+      <span style="font-size:11px;color:var(--dim);font-family:'Share Tech Mono',monospace;letter-spacing:0.05em;max-width:280px;line-height:1.5;">
+        Turn off to suppress note triggers — use with Drone mode for uninterrupted sustained sound.
+      </span>
+    </div>
+  </div>
+
+  <!-- INSTRUMENT -->
+  <div class="tab-panel" id="panel-instrument">
+    <div class="panel-section-label">Synth Preset</div>
+    <div class="panel-row"><div class="preset-strip" id="presetStrip"></div></div>
+  </div>
+
+  <!-- EFFECTS -->
+  <div class="tab-panel" id="panel-effects">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
+      <div class="panel-section-label">Parameters — click to edit</div>
+      <div style="display:flex;gap:6px;">
+        <button onclick="saveToPreset()" style="background:rgba(46,173,173,0.15);border:1px solid rgba(46,173,173,0.4);color:var(--teal-l);padding:4px 12px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;transition:all 0.18s;" onmouseover="this.style.background='rgba(46,173,173,0.25)'" onmouseout="this.style.background='rgba(46,173,173,0.15)'">＋ Save as preset</button>
+        <button onclick="resetEffects()" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);padding:4px 12px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;transition:all 0.18s;" onmouseover="this.style.background='rgba(255,255,255,0.13)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">↺ Reset</button>
+      </div>
+    </div>
+    <div class="panel-row"><div class="param-strip" id="paramStrip"></div></div>
+    <div id="valGridWrap" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(155,107,222,0.8);" id="valGridTitle">—</span>
+        <span style="font-size:10px;color:rgba(255,255,255,0.25);">hover 1 s to select</span>
+      </div>
+      <div class="val-grid" id="valGrid"></div>
+    </div>
+  </div>
+
+  <!-- RANGE -->
+  <div class="tab-panel" id="panel-range">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+      <div class="panel-section-label">Note Layout</div>
+      <button onclick="saveRangePreset()" style="background:rgba(224,139,42,0.15);border:1px solid rgba(224,139,42,0.4);color:var(--warn);padding:4px 12px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;" onmouseover="this.style.background='rgba(224,139,42,0.25)'" onmouseout="this.style.background='rgba(224,139,42,0.15)'">＋ Save layout</button>
+    </div>
+    <div class="panel-row" id="layoutBtns"></div>
+    <div class="hairline"></div>
+    <div style="display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start;">
+
+      <!-- LINEAR CONTROLS -->
+      <div style="display:flex;flex-direction:column;gap:8px;min-width:220px;flex:1;">
+        <div class="panel-section-label">Linear — Zone Strip</div>
+        <div class="range-row">
+          <span class="range-lbl">Width <span id="stripWidthVal">60%</span></span>
+          <div class="big-range-wrap">
+            <input type="range" class="big-range" id="stripWidth" min="10" max="100" value="60"
+              oninput="stripWidthPct=+this.value;document.getElementById('stripWidthVal').textContent=this.value+'%';if(started)drawCircleZones();">
+          </div>
+        </div>
+        <div class="range-row">
+          <span class="range-lbl">Centre <span id="stripCentreVal">50%</span></span>
+          <div class="big-range-wrap">
+            <input type="range" class="big-range" id="stripCentre" min="0" max="100" value="50"
+              oninput="stripCentrePct=+this.value;document.getElementById('stripCentreVal').textContent=this.value+'%';if(started)drawCircleZones();">
+          </div>
+        </div>
+      </div>
+
+      <div style="width:1px;background:rgba(255,255,255,0.07);align-self:stretch;"></div>
+
+      <!-- ARC CONTROLS -->
+      <div style="display:flex;flex-direction:column;gap:8px;min-width:220px;flex:1;">
+        <div class="panel-section-label">Arc — Sweep &amp; Rotation</div>
+        <div class="range-row">
+          <span class="range-lbl">Sweep <span id="arcSweepVal">360°</span></span>
+          <div class="big-range-wrap">
+            <input type="range" class="big-range" id="arcSweep" min="30" max="360" value="360"
+              oninput="arcSweepDeg=+this.value;document.getElementById('arcSweepVal').textContent=this.value+'°';">
+          </div>
+        </div>
+        <div class="range-row">
+          <span class="range-lbl">Rotate <span id="arcRotateVal">0°</span></span>
+          <div class="big-range-wrap">
+            <input type="range" class="big-range" id="arcRotate" min="-180" max="180" value="0"
+              oninput="arcRotateDeg=+this.value;document.getElementById('arcRotateVal').textContent=this.value+'°';">
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:4px;">
+      Linear: Width shrinks the zone strip — Centre moves it left/right. Arc: Sweep limits the arc angle — Rotate spins where it starts.
+    </div>
+  </div>
+  <!-- EXPERIMENTAL -->
+  <div class="tab-panel" id="panel-experimental">
+    <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;">
+
+      <!-- DRONE CONTROL -->
+      <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:200px;">
+        <div class="panel-section-label">✦ Drone Mode</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;">
+          Lock onto one note and hold it continuously. Rotate your head to morph the sound — left/right sweeps the filter, tilt changes the resonance.
+        </div>
+        <div class="panel-row" style="gap:6px;">
+          <button id="droneToggleBtn" onclick="toggleDrone()" style="background:rgba(255,107,222,0.15);border:1px solid rgba(255,107,222,0.4);color:#ff6bde;padding:8px 18px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,107,222,0.28)'" onmouseout="this.style.background=droneActive?'rgba(255,107,222,0.35)':'rgba(255,107,222,0.15)'">
+            ▶ Start Drone
+          </button>
+        </div>
+        <div class="hairline"></div>
+        <div class="panel-section-label">Drone Note</div>
+        <div class="panel-row" id="droneNoteBtns" style="flex-wrap:wrap;gap:5px;"></div>
+      </div>
+
+      <div style="width:1px;background:rgba(255,255,255,0.07);align-self:stretch;flex-shrink:0;"></div>
+
+      <!-- HEAD FILTER -->
+      <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:200px;">
+        <div class="panel-section-label">Head Rotation → Filter</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;">
+          While drone is active, rotating your head morphs the filter in real time. Choose what each axis controls.
+        </div>
+        <div class="panel-row" style="flex-direction:column;gap:6px;">
+          <div class="range-row">
+            <span class="range-lbl">Filter range</span>
+            <select id="droneFilterType" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--white);padding:5px 8px;border-radius:5px;font-family:'DM Sans',sans-serif;font-size:12px;flex:1;">
+              <option value="lowpass">Low Pass (dark→bright)</option>
+              <option value="bandpass">Band Pass (hollow sweep)</option>
+              <option value="highpass">High Pass (thin sweep)</option>
+              <option value="notch">Notch (phaser-like)</option>
+            </select>
+          </div>
+          <div class="range-row">
+            <span class="range-lbl">Resonance <span id="droneResVal">8</span></span>
+            <input type="range" class="big-range" min="0.5" max="30" step="0.5" value="8"
+              oninput="droneRes=+this.value;document.getElementById('droneResVal').textContent=this.value;" style="accent-color:#ff6bde;flex:1;">
+          </div>
+          <div class="range-row">
+            <span class="range-lbl">Sensitivity <span id="droneSensVal">1.0</span></span>
+            <input type="range" class="big-range" min="0.2" max="3" step="0.1" value="1.0"
+              oninput="droneSens=+this.value;document.getElementById('droneSensVal').textContent=this.value.toFixed(1);" style="accent-color:#ff6bde;flex:1;">
+          </div>
+        </div>
+        <div id="droneStatus" style="font-size:11px;color:rgba(255,107,222,0.5);min-height:16px;letter-spacing:0.5px;"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MIDI -->
+    <div class="panel-row" style="align-items:center;gap:12px;">
+      <button class="conn-btn" id="midiConnectBtn" onclick="toggleMidi()">Connect MIDI</button>
+      <span style="font-size:11px;color:rgba(255,255,255,0.3);" id="midiHint">Requires Chrome or Edge</span>
+    </div>
+    <div id="midiControls" style="display:none;flex-direction:column;gap:10px;">
+      <div class="midi-row">
+        <div class="mfield" style="min-width:200px;">
+          <label>Output Port</label>
+          <select id="midiPortSelect"><option value="">— no ports —</option></select>
+        </div>
+        <div class="mfield">
+          <label>Channel <span id="mChV">1</span></label>
+          <input type="range" id="mCh" min="1" max="16" value="1"
+            oninput="midiChannel=+this.value;document.getElementById('mChV').textContent=this.value">
+        </div>
+        <div class="mfield">
+          <label>Velocity <span id="mVV">100</span></label>
+          <input type="range" id="mV" min="1" max="127" value="100"
+            oninput="midiVelocity=+this.value;document.getElementById('mVV').textContent=this.value">
+        </div>
+        <div class="mfield">
+          <label>Note ms <span id="mLV">300</span></label>
+          <input type="range" id="mL" min="50" max="2000" step="50" value="300"
+            oninput="midiNoteLen=+this.value;document.getElementById('mLV').textContent=this.value">
+        </div>
+      </div>
+      <div class="midi-flash" id="midiFlash"></div>
+    </div>
+  </div>
+
+  <!-- ACCESSIBILITY -->
+  <div class="tab-panel" id="panel-access">
+
+    <div class="panel-section-label">Colour Scheme</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+      <button id="thm-default"       onclick="applyTheme('')"                    style="padding:10px 14px;font-size:13px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #e8ff00;background:#1a1a22;color:#e8ff00;letter-spacing:1px;">■ Default</button>
+      <button id="thm-wcag"          onclick="applyTheme('theme-wcag')"          style="padding:10px 14px;font-size:13px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #888;background:#1a1a22;color:#f0f0f0;letter-spacing:1px;">WCAG</button>
+      <button id="thm-dyslexia"      onclick="applyTheme('theme-dyslexia')"      style="padding:10px 14px;font-size:13px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #888;background:#1a1a22;color:#f0f0f0;letter-spacing:1px;">Dyslexia</button>
+      <button id="thm-sight"         onclick="applyTheme('theme-sight')"         style="padding:10px 14px;font-size:13px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #888;background:#1a1a22;color:#f0f0f0;letter-spacing:1px;">Sight</button>
+      <button id="thm-amber"         onclick="applyTheme('theme-amber')"         style="padding:10px 14px;font-size:13px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #888;background:#1a1a22;color:#f0f0f0;letter-spacing:1px;">Low Blue</button>
+      <button id="thm-photo"         onclick="applyTheme('theme-photosensitive')" style="padding:10px 14px;font-size:13px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #888;background:#1a1a22;color:#f0f0f0;letter-spacing:1px;">No Anim</button>
+    </div>
+
+    <div class="hairline"></div>
+    <div class="panel-section-label">Display</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+      <button id="tog-large"  onclick="togA11y(this,'a11y-large')"           style="padding:10px 14px;font-size:13px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #888;background:#1a1a22;color:#f0f0f0;letter-spacing:1px;">Aa Large Text</button>
+      <button id="tog-focus"  onclick="togA11y(this,'a11y-focus')"           style="padding:10px 14px;font-size:13px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #888;background:#1a1a22;color:#f0f0f0;letter-spacing:1px;">Focus Rings</button>
+      <button id="tog-motion" onclick="togA11y(this,'theme-photosensitive')" style="padding:10px 14px;font-size:13px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #888;background:#1a1a22;color:#f0f0f0;letter-spacing:1px;">Reduce Motion</button>
+    </div>
+
+    <div class="hairline"></div>
+    <div class="panel-section-label">Screen Reader</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+      <button id="tog-sr"   onclick="togSR(this)"         style="padding:10px 14px;font-size:13px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #888;background:#1a1a22;color:#f0f0f0;letter-spacing:1px;">🔊 Screen Reader</button>
+      <button               onclick="readCurrentPanel()"  style="padding:10px 14px;font-size:13px;font-weight:700;font-family:sans-serif;cursor:pointer;border:2px solid #888;background:#1a1a22;color:#f0f0f0;letter-spacing:1px;">▶ Read Panel</button>
+      <span style="font-size:11px;color:rgba(240,240,240,0.4);font-family:monospace;max-width:300px;line-height:1.5;">Hover any button to hear label. Uses device voice — no internet needed.</span>
+    </div>
+
+  </div>
+
+</div><!-- /panelArea -->
+
+<!-- STATUS BAR -->
+<div id="statusBar">
+  <span class="chip bright" id="statusScale">C Major</span>
+  <span class="chip" id="statusNote">—</span>
+  <span class="chip" id="statusMode">🔊 Piano</span>
+</div>
+
+<!-- DRUMS OVERLAY -->
+<div id="drumsOverlay">
+  <div id="drumsTopBar">
+    <div class="drums-title">🥁 Drum Machine</div>
+    <div class="drums-hint">
+      drumbit.app has opened in a new tab — switch between tabs to use both.
+      To remove ads: install <a href="https://ublockorigin.com" target="_blank">uBlock Origin</a> in Chrome.
+    </div>
+    <button id="drumClose" onclick="closeDrums()">✕ Dismiss</button>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;">
+    <div style="font-size:64px;">🥁</div>
+    <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--white);text-align:center;">
+    drumbit.app is open in a new tab
+    </div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.45);text-align:center;max-width:400px;line-height:1.7;">
+      Switch to the drumbit.app tab to program beats, then switch back here to play notes over the top.
+    </div>
+    <button onclick="reopenDrums()" style="background:var(--teal);color:var(--white);border:none;padding:12px 28px;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px;">
+      Open drumbit.app again
+    </button>
+  </div>
+</div>
+
+<!-- START OVERLAY -->
+<div id="startOverlay">
+  <h2>by Fused Music Studio</h2>
+  <h1><em>HEDSHOK</em></h1>
+  <p>Turn your head to play notes. Choose a scale, instrument, and effects — then just move.</p>
+  <button class="start-btn" onclick="startApp()">Enable Camera</button>
+  <small>No video is recorded or stored — everything runs locally in your browser.</small>
+  <small style="color:rgba(240,240,240,0.15);font-family:'Share Tech Mono',monospace;letter-spacing:0.12em;">© 2026 Fused Music Studio. All Rights Reserved.</small>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+
+<script>
+// ╔══════════════════════════════════════════════════════════╗
+// ║  TABS                                                    ║
+// ╚══════════════════════════════════════════════════════════╝
+let activeTab = null;
+let showNotes = true;
+let allNotesOff = false;
+
+function toggleAllNotesOff() {
+  allNotesOff = !allNotesOff;
+  const btn = document.getElementById('allNotesOffBtn');
+  if (allNotesOff) {
+    btn.textContent = '✕ Notes Silenced';
+    btn.style.background = 'rgba(255,32,32,0.18)';
+    btn.style.borderColor = 'rgba(255,32,32,0.6)';
+    btn.style.color = '#ff6060';
+  } else {
+    btn.textContent = '◎ Notes Active';
+    btn.style.background = 'var(--steel)';
+    btn.style.borderColor = 'rgba(240,240,240,0.15)';
+    btn.style.color = 'var(--dim)';
+  }
+}
+
+let drumsWindow = null;
+
+function openDrums() {
+  const overlay = document.getElementById('drumsOverlay');
+  const btn     = document.getElementById('tab-drums');
+  const isOpen  = overlay.classList.contains('open');
+
+  if (isOpen) {
+    closeDrums();
+    return;
+  }
+
+  // Open drumbit in a popup window
+  reopenDrums();
+
+  overlay.classList.add('open');
+  btn.style.color = '#de6b6b';
+  btn.style.borderBottom = '2px solid #de6b6b';
+}
+
+function reopenDrums() {
+  window.open('https://drumbit.app/', '_blank');
+}
+
+function closeDrums() {
+  document.getElementById('drumsOverlay').classList.remove('open');
+  const btn = document.getElementById('tab-drums');
+  btn.style.color = '';
+  btn.style.borderBottom = '';
+}
+
+function toggleNotes() {
+  showNotes = !showNotes;
+  // Update all existing txt elements in the SVG
+  document.querySelectorAll('[id^="txt-"]').forEach(el => {
+    el.style.display = showNotes ? '' : 'none';
+  });
+  // Update button appearance
+  const btn = document.getElementById('tab-notes');
+  const dot = document.getElementById('dot-notes');
+  const lbl = document.getElementById('notesLabel');
+  lbl.textContent = showNotes ? 'Notes: On' : 'Notes: Off';
+  dot.style.background = showNotes ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.12)';
+  btn.style.color = showNotes ? '' : 'rgba(255,255,255,0.3)';
+}
+
+function switchTab(name) {
+  const panel = document.getElementById('panelArea');
+  if (activeTab === name && panel.classList.contains('open')) {
+    panel.classList.remove('open');
+    document.querySelectorAll('.tab:not(#tab-notes)').forEach(t => t.classList.remove('active'));
+    activeTab = null;
+    return;
+  }
+  activeTab = name;
+  panel.classList.add('open');
+  document.querySelectorAll('.tab:not(#tab-notes)').forEach(t => t.classList.remove('active'));
+  document.getElementById(`tab-${name}`)?.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`panel-${name}`)?.classList.add('active');
+  // Re-attach screen reader listeners to newly visible elements
+  if (screenReaderOn) setTimeout(attachSRListeners, 100);
+  if (screenReaderOn) speak(name + ' panel open');
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  SCALE SYSTEM                                            ║
+// ╚══════════════════════════════════════════════════════════╝
+const ROOTS = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+const SCALE_INTERVALS = {
+  'Chromatic':    [0,1,2,3,4,5,6,7,8,9,10,11],
+  'Major':        [0,2,4,5,7,9,11],
+  'Natural Min':  [0,2,3,5,7,8,10],
+  'Harmonic Min': [0,2,3,5,7,8,11],
+  'Pentatonic':   [0,2,4,7,9],
+  'Min Penta':    [0,3,5,7,10],
+  'Blues':        [0,3,5,6,7,10],
+  'Dorian':       [0,2,3,5,7,9,10],
+  'Mixolydian':   [0,2,4,5,7,9,10],
+};
+
+const ZONE_COLORS = [
+  '#2eadad','#e08b2a','#9b6bde','#2ead6e',
+  '#de6b6b','#6b8ede','#ade02e','#de9b2e',
+  '#2edea8','#de2ea8','#a8de2e','#2e6bde'
+];
+
+let currentRoot   = 'C';
+let currentMode   = 'Major';
+let currentLayout = 'arc';
+let currentOctave = 3; // starting octave (2–6)
+let scaleNotes    = [];
+let numZones      = 0;
+let started       = false;
+
+// ── RANGE / SENSITIVITY ──
+let stripWidthPct  = 60;   // % of screen width used for linear zones
+let stripCentrePct = 50;   // % from left where the strip is centred
+let arcSweepDeg    = 360;  // how many degrees of the circle are active
+let arcRotateDeg   = 0;    // rotation offset in degrees (0 = top)
+
+function buildScaleNotes(root, mode) {
+  const ri  = ROOTS.indexOf(root);
+  const ivs = SCALE_INTERVALS[mode];
+  const out = [], seen = new Set();
+  const startOct = currentOctave;
+  for (let oct = startOct; oct <= startOct + 2; oct++) {
+    for (const iv of ivs) {
+      const midi = (oct + 1) * 12 + ri + iv;
+      if (!seen.has(midi) && out.length < 12) {
+        seen.add(midi);
+        out.push({ midi, freq: 440 * Math.pow(2,(midi-69)/12), name: ROOTS[(ri+iv)%12] });
+      }
+    }
+  }
+  return out;
+}
+
+function refreshScale() {
+  scaleNotes = buildScaleNotes(currentRoot, currentMode);
+  numZones   = scaleNotes.length;
+  document.getElementById('statusScale').textContent = `${currentRoot} ${currentMode}`;
+  if (started) drawCircleZones();
+  buildDroneNoteBtns();
+}
+
+function buildRootBtns() {
+  const el = document.getElementById('rootBtns'); el.innerHTML = '';
+  ROOTS.forEach(r => {
+    const b = document.createElement('button');
+    b.className = 'choice-btn' + (r===currentRoot?' a-teal':'');
+    b.textContent = r;
+    b.onclick = () => {
+      currentRoot = r;
+      document.querySelectorAll('#rootBtns .choice-btn').forEach(x=>x.classList.remove('a-teal'));
+      b.classList.add('a-teal'); refreshScale();
+    };
+    el.appendChild(b);
+  });
+}
+
+function buildModeBtns() {
+  const el = document.getElementById('modeBtns'); el.innerHTML = '';
+  Object.keys(SCALE_INTERVALS).forEach(m => {
+    const b = document.createElement('button');
+    b.className = 'choice-btn' + (m===currentMode?' a-teal':'');
+    b.textContent = m;
+    b.onclick = () => {
+      currentMode = m;
+      document.querySelectorAll('#modeBtns .choice-btn').forEach(x=>x.classList.remove('a-teal'));
+      b.classList.add('a-teal'); refreshScale();
+    };
+    el.appendChild(b);
+  });
+}
+
+// Note name of C in each octave helps the user pick the right range
+const OCT_C_FREQ = [16, 33, 65, 131, 262, 523, 1047]; // Hz for C0-C6 approx
+
+function buildOctBtns() {
+  const el = document.getElementById('octBtns'); el.innerHTML = '';
+  // Offer octaves 1–6 (octave 1 = very low, 5 = high)
+  [1, 2, 3, 4, 5, 6].forEach(oct => {
+    const b = document.createElement('button');
+    b.className = 'oct-btn' + (oct === currentOctave ? ' a-teal' : '');
+    // Show the MIDI note number of C in this octave as a hint
+    const cMidi = (oct + 1) * 12; // C in this octave
+    const freqHz = Math.round(440 * Math.pow(2, (cMidi - 69) / 12));
+    b.innerHTML = `<span class="oct-num">${oct}</span><span class="oct-note">C${oct} · ${freqHz}Hz</span>`;
+    b.onclick = () => {
+      currentOctave = oct;
+      document.querySelectorAll('#octBtns .oct-btn').forEach(x => x.classList.remove('a-teal'));
+      b.classList.add('a-teal');
+      refreshScale();
+    };
+    el.appendChild(b);
+  });
+}
+
+function buildLayoutBtns() {
+  const el = document.getElementById('layoutBtns'); el.innerHTML = '';
+  [['arc','🔵 Arc (circular)'],['linear','▬ Linear (zones)']].forEach(([k,label]) => {
+    const b = document.createElement('button');
+    b.className = 'choice-btn' + (k===currentLayout?' a-teal':'');
+    b.textContent = label;
+    b.onclick = () => {
+      currentLayout = k;
+      document.querySelectorAll('#layoutBtns .choice-btn').forEach(x=>x.classList.remove('a-teal'));
+      b.classList.add('a-teal');
+      if (started) drawCircleZones();
+    };
+    el.appendChild(b);
+  });
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  CIRCULAR / LINEAR ZONE DRAWING                          ║
+// ╚══════════════════════════════════════════════════════════╝
+const svgEl   = document.getElementById('circleZones');
+var TAU = Math.PI * 2;
+
+// Arc layout state
+let arcCx = 0, arcCy = 0, arcR = 0;
+let faceCentreX = 0, faceCentreY = 0; // updated every frame from landmarks
+let activeZone = -1;
+let lastZone = -1;
+
+function drawCircleZones() {
+  svgEl.innerHTML = '';
+  if (!scaleNotes.length) return;
+
+  const W = window.innerWidth, H = window.innerHeight;
+
+  if (currentLayout === 'arc') {
+    // Arc mode: all drawing is done on the canvas around the face.
+    // SVG is left empty — no static screen-centred ring needed.
+    return;
+
+  } else {
+    // ── LINEAR: vertical column backgrounds in SVG within the strip ──
+    const n      = numZones;
+    const halfW  = (stripWidthPct / 100) / 2;
+    const centre = stripCentrePct / 100;
+    const leftX  = (centre - halfW) * W;
+    const stripW = (stripWidthPct / 100) * W;
+    scaleNotes.forEach((note, i) => {
+      const x1 = leftX + (i / n) * stripW;
+      const x2 = leftX + ((i+1) / n) * stripW;
+      const col = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      col.setAttribute('x', x1); col.setAttribute('y', 0);
+      col.setAttribute('width', x2-x1); col.setAttribute('height', H);
+      col.setAttribute('fill', hexToRgba(ZONE_COLORS[i % ZONE_COLORS.length], 0.1));
+      col.setAttribute('stroke', hexToRgba(ZONE_COLORS[i % ZONE_COLORS.length], 0.22));
+      col.setAttribute('stroke-width','0.5');
+      col.setAttribute('id', `seg-${i}`);
+      svgEl.appendChild(col);
+    });
+  }
+}
+
+function hexToRgba(hex, a) {
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function activateZoneSVG(zi) {
+  // Only relevant in linear mode (arc mode highlighting is done on canvas)
+  if (currentLayout === 'arc') return;
+  scaleNotes.forEach((_,i) => {
+    const seg = document.getElementById(`seg-${i}`);
+    if (!seg) return;
+    const col = ZONE_COLORS[i % ZONE_COLORS.length];
+    seg.setAttribute('fill', hexToRgba(col, 0.13));
+    seg.setAttribute('stroke', hexToRgba(col, 0.3));
+  });
+  const seg = document.getElementById(`seg-${zi}`);
+  if (seg) {
+    const col = ZONE_COLORS[zi % ZONE_COLORS.length];
+    seg.setAttribute('fill', hexToRgba(col, 0.45));
+    seg.setAttribute('stroke', col);
+  }
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  HEAD TRACKING → ZONE MAPPING                            ║
+// ╚══════════════════════════════════════════════════════════╝
+// Returns zone index from nose position (nx, ny in 0..1)
+function zoneFromNose(nx, ny) {
+  // nx here is the MIRRORED x (1 - raw MediaPipe x), matching what user sees
+  if (currentLayout === 'linear') {
+    const halfW  = (stripWidthPct / 100) / 2;
+    const centre = stripCentrePct / 100;
+    const left   = centre - halfW;
+    const right  = centre + halfW;
+    if (nx < left || nx > right) return -1;
+    const t = (nx - left) / (right - left);
+    return Math.min(Math.floor(t * numZones), numZones - 1);
+  }
+
+  // ARC: angle from face centre (both in mirrored space)
+  const W = window.innerWidth, H = window.innerHeight;
+  const dx = nx * W - faceCentreX;
+  const dy = ny * H - faceCentreY;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  if (dist < 8) return -1;
+
+  let angle = Math.atan2(dy, dx) + Math.PI / 2 - (arcRotateDeg * Math.PI / 180);
+  if (angle < 0) angle += TAU;
+  if (angle >= TAU) angle -= TAU;
+
+  const sweep = arcSweepDeg * Math.PI / 180;
+  const half  = sweep / 2;
+  let a = angle; if (a > Math.PI) a -= TAU;
+  if (a < -half || a > half) return -1;
+
+  const t = (a + half) / sweep;
+  // Flip index so zone 0 is on user's left (matches mirrored label drawing)
+  return Math.min(Math.floor((1 - t) * numZones), numZones - 1);
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  GAME CORE                                               ║
+// ╚══════════════════════════════════════════════════════════╝
+let score = 0, cooldown = false;
+
+function playNote(zi) {
+  const note = scaleNotes[zi]; if (!note) return;
+  if (midiEnabled && midiOutput) sendMidi(note);
+  else playWebAudio(note);
+  document.getElementById('statusNote').textContent = note.name;
+}
+
+function spawnBurst(x, y, name, color) {
+  const b = document.createElement('div');
+  b.className = 'note-burst';
+  b.textContent = name;
+  b.style.left  = `${x * 100}vw`;
+  b.style.top   = `${y * 100}vh`;
+  b.style.color = color || '#2eadad';
+  document.body.appendChild(b);
+  setTimeout(() => b.remove(), 900);
+}
+
+function triggerZone(zi, nx, ny) {
+  if (allNotesOff) return;
+  if (zi < 0 || zi >= numZones || zi === lastZone || cooldown) return;
+  activateZoneSVG(zi);
+  playNote(zi);
+  spawnBurst(nx, ny, scaleNotes[zi].name, ZONE_COLORS[zi % ZONE_COLORS.length]);
+  score++;
+  document.getElementById('scoreNum').textContent = score;
+  lastZone = zi;
+  cooldown = true;
+  setTimeout(() => cooldown = false, 130);
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  MEDIAPIPE                                               ║
+// ╚══════════════════════════════════════════════════════════╝
+const videoEl  = document.getElementById('video');
+const canvasEl = document.getElementById('canvas');
+const ctx2     = canvasEl.getContext('2d');
+
+// Face mesh landmark indices for face oval + key points
+const FACE_OVAL = [10,338,297,332,284,251,389,356,454,323,361,288,397,365,379,378,400,377,152,148,176,149,150,136,172,58,132,93,234,127,162,21,54,103,67,109];
+
+function onResults(res) {
+  const W = window.innerWidth, H = window.innerHeight;
+  canvasEl.width = W; canvasEl.height = H;
+  ctx2.clearRect(0, 0, W, H);
+
+  // Mirror the canvas to match the mirrored video feed
+  // We flip x coordinates here rather than via CSS so text can be un-flipped separately
+  ctx2.save();
+  ctx2.translate(W, 0);
+  ctx2.scale(-1, 1);
+
+  if (!res.multiFaceLandmarks?.length) { ctx2.restore(); return; }
+
+  const lm   = res.multiFaceLandmarks[0];
+  const nose = lm[1];
+  // nx/ny are in MediaPipe space (0=left, 1=right from camera's perspective)
+  // After our CSS mirror on video, left/right feel natural to user
+  // We mirror x here to match: (1 - nx) maps to the flipped canvas space
+  const nx   = nose.x, ny = nose.y;
+  const cx   = nx * W,  cy = ny * H;
+
+  // ── Compute face bounding box from oval landmarks ──
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  FACE_OVAL.forEach(idx => {
+    const p = lm[idx];
+    if (p.x * W < minX) minX = p.x * W;
+    if (p.x * W > maxX) maxX = p.x * W;
+    if (p.y * H < minY) minY = p.y * H;
+    if (p.y * H > maxY) maxY = p.y * H;
+  });
+  const faceCx = (minX + maxX) / 2;
+  const faceCy = (minY + maxY) / 2;
+  const faceRx = (maxX - minX) / 2;
+  const faceRy = (maxY - minY) / 2;
+
+  // Update globals — mirror x so user's natural left/right matches
+  // faceCx is in raw (unmirrored) landmark space; mirror it for screen coords
+  faceCentreX = W - faceCx;
+  faceCentreY = faceCy;
+
+  // ── Draw face outline (in mirrored space) ──
+  ctx2.save();
+  ctx2.beginPath();
+  FACE_OVAL.forEach((idx, i) => {
+    const p = lm[idx];
+    i === 0 ? ctx2.moveTo(p.x * W, p.y * H) : ctx2.lineTo(p.x * W, p.y * H);
+  });
+  ctx2.closePath();
+  ctx2.strokeStyle = droneActive ? 'rgba(255,107,222,0.4)' : faceOutlineColour;
+  ctx2.lineWidth = 1.5;
+  ctx2.stroke();
+  ctx2.fillStyle = droneActive ? 'rgba(255,107,222,0.04)' : faceOutlineGlow;
+  ctx2.fill();
+  ctx2.restore();
+
+  // ── Zone logic — use mirrored x so left/right matches what user sees ──
+  const nxMirror = 1 - nx;
+  const zi = zoneFromNose(nxMirror, ny);
+
+  // ── Draw range boundary guides ──
+  if (currentLayout === 'linear') {
+    // Highlight the active strip zone with vertical boundary lines
+    const halfW  = (stripWidthPct / 100) / 2;
+    const centre = stripCentrePct / 100;
+    const leftX  = (centre - halfW) * W;
+    const rightX = (centre + halfW) * W;
+
+    // Shaded outside zones (very subtle)
+    ctx2.save();
+    ctx2.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx2.fillRect(0, 0, leftX, H);
+    ctx2.fillRect(rightX, 0, W - rightX, H);
+    ctx2.restore();
+
+    // Boundary lines
+    ctx2.save();
+    ctx2.strokeStyle = 'rgba(224,139,42,0.6)';
+    ctx2.lineWidth = 2;
+    ctx2.setLineDash([8, 6]);
+    ctx2.beginPath(); ctx2.moveTo(leftX, 0);  ctx2.lineTo(leftX, H);  ctx2.stroke();
+    ctx2.beginPath(); ctx2.moveTo(rightX, 0); ctx2.lineTo(rightX, H); ctx2.stroke();
+    ctx2.setLineDash([]);
+    ctx2.restore();
+
+  } else if (arcSweepDeg < 360) {
+    // Draw arc sweep boundary lines from face centre
+    const sweepRad  = arcSweepDeg * Math.PI / 180;
+    const rotRad    = arcRotateDeg * Math.PI / 180;
+    const baseAngle = -Math.PI / 2 + rotRad;
+    const a1 = baseAngle - sweepRad / 2;
+    const a2 = baseAngle + sweepRad / 2;
+    const lineLen = Math.max(W, H);
+
+    ctx2.save();
+    ctx2.strokeStyle = 'rgba(224,139,42,0.55)';
+    ctx2.lineWidth = 1.5;
+    ctx2.setLineDash([8, 6]);
+    [a1, a2].forEach(a => {
+      ctx2.beginPath();
+      ctx2.moveTo(faceCx, faceCy);
+      ctx2.lineTo(faceCx + lineLen * Math.cos(a), faceCy + lineLen * Math.sin(a));
+      ctx2.stroke();
+    });
+    ctx2.setLineDash([]);
+    ctx2.restore();
+  }
+
+  // ── Draw note labels (suppressed in drone mode — HUD takes over) ──
+  if (showNotes && scaleNotes.length > 0 && !droneActive) {
+    if (currentLayout === 'arc') {
+      const n       = scaleNotes.length;
+      const pad     = 38;
+      const labelRx = faceRx + pad;
+      const labelRy = faceRy + pad;
+      // Arc: distribute labels within the sweep range
+      const sweepRad  = arcSweepDeg * Math.PI / 180;
+      const rotRad    = arcRotateDeg * Math.PI / 180;
+      const startAng  = -Math.PI / 2 + rotRad - sweepRad / 2;
+
+      ctx2.save();
+      ctx2.textAlign    = 'center';
+      ctx2.textBaseline = 'middle';
+
+      scaleNotes.forEach((note, i) => {
+        // Place label at the zone's midpoint angle within the sweep
+        // Negate t direction so note 0 is on user's left, N on right (matches mirrored context)
+        const t     = (i + 0.5) / n;
+        const angle = startAng + (1 - t) * sweepRad;
+        const lx    = faceCx + labelRx * Math.cos(angle);
+        const ly    = faceCy + labelRy * Math.sin(angle);
+        const col   = ZONE_COLORS[i % ZONE_COLORS.length];
+        const isActive = (i === zi);
+        const fs    = isActive ? noteLabelSize + 4 : noteLabelSize;
+        const pad2  = isActive ? 10 : 7;
+
+        ctx2.font = `900 ${fs}px 'Playfair Display', serif`;
+        const tw = ctx2.measureText(note.name).width;
+        const bw = tw + pad2 * 2, bh = fs + pad2;
+        const br = bh / 2;
+
+        ctx2.save();
+        roundRect(ctx2, lx - bw/2, ly - bh/2, bw, bh, br);
+        ctx2.fillStyle = isActive ? hexToRgba(col, 0.88) : hexToRgba(col, 0.18);
+        ctx2.fill();
+        if (isActive) {
+          ctx2.shadowColor = col; ctx2.shadowBlur = 18;
+          ctx2.strokeStyle = col; ctx2.lineWidth  = 2;
+          ctx2.stroke(); ctx2.shadowBlur = 0;
+        }
+        ctx2.restore();
+
+        ctx2.font      = `900 ${fs}px 'Playfair Display', serif`;
+        ctx2.fillStyle = isActive ? '#ffffff' : hexToRgba(col, 0.9);
+        drawTextMirror(ctx2, note.name, lx, ly);
+
+        const edgeX = faceCx + faceRx * Math.cos(angle);
+        const edgeY = faceCy + faceRy * Math.sin(angle);
+        ctx2.save();
+        ctx2.strokeStyle = isActive ? hexToRgba(col, 0.7) : hexToRgba(col, 0.22);
+        ctx2.lineWidth   = isActive ? 1.5 : 0.8;
+        ctx2.beginPath();
+        ctx2.moveTo(edgeX, edgeY);
+        ctx2.lineTo(lx - (bw / 2) * Math.cos(angle) * 0.8,
+                    ly - (bh / 2) * Math.sin(angle) * 0.8);
+        ctx2.stroke();
+        ctx2.restore();
+      });
+      ctx2.restore();
+
+    } else {
+      // Linear: draw labels inside the strip
+      const n      = scaleNotes.length;
+      const halfW  = (stripWidthPct / 100) / 2;
+      const centre = stripCentrePct / 100;
+      const leftX  = (centre - halfW) * W;
+      const rightX = (centre + halfW) * W;
+      const stripW = rightX - leftX;
+
+      ctx2.save();
+      ctx2.textAlign    = 'center';
+      ctx2.textBaseline = 'middle';
+      scaleNotes.forEach((note, i) => {
+        const zoneW    = stripW / n;
+        const lx       = leftX + zoneW * i + zoneW / 2;
+        const ly       = H - 48;
+        const col      = ZONE_COLORS[i % ZONE_COLORS.length];
+        const isActive = (i === zi);
+        const fs       = isActive ? noteLabelSize + 6 : noteLabelSize;
+        const pad2     = isActive ? 11 : 7;
+
+        ctx2.font = `900 ${fs}px 'Playfair Display', serif`;
+        const tw = ctx2.measureText(note.name).width;
+        const bw = Math.min(tw + pad2 * 2, zoneW - 4), bh = fs + pad2;
+        const br = bh / 2;
+
+        ctx2.save();
+        roundRect(ctx2, lx - bw/2, ly - bh/2, bw, bh, br);
+        ctx2.fillStyle = isActive ? hexToRgba(col, 0.88) : hexToRgba(col, 0.15);
+        ctx2.fill();
+        if (isActive) {
+          ctx2.shadowColor = col; ctx2.shadowBlur = 16;
+          ctx2.strokeStyle = col; ctx2.lineWidth  = 2;
+          ctx2.stroke(); ctx2.shadowBlur = 0;
+        }
+        ctx2.restore();
+
+        ctx2.font      = `900 ${fs}px 'Playfair Display', serif`;
+        ctx2.fillStyle = isActive ? '#ffffff' : hexToRgba(col, 0.85);
+        drawTextMirror(ctx2, note.name, lx, ly);
+
+        // Vertical zone divider (except after last)
+        if (i < n - 1) {
+          const divX = leftX + zoneW * (i + 1);
+          ctx2.save();
+          ctx2.strokeStyle = hexToRgba(col, 0.2);
+          ctx2.lineWidth = 1;
+          ctx2.beginPath(); ctx2.moveTo(divX, 0); ctx2.lineTo(divX, H); ctx2.stroke();
+          ctx2.restore();
+        }
+      });
+      ctx2.restore();
+    }
+  }
+
+  // ── Nose tracking dot ──
+  ctx2.save();
+  ctx2.beginPath(); ctx2.arc(cx, cy, 9, 0, TAU);
+  ctx2.fillStyle = droneActive ? 'rgba(255,107,222,0.95)' : 'rgba(46,173,173,0.95)'; ctx2.fill();
+  ctx2.beginPath(); ctx2.arc(cx, cy, 15, 0, TAU);
+  ctx2.strokeStyle = droneActive ? 'rgba(255,107,222,0.4)' : 'rgba(46,173,173,0.4)'; ctx2.lineWidth = 2; ctx2.stroke();
+  ctx2.restore();
+
+  // ── Drone industrial HUD (replaces note labels when drone is active) ──
+  if (droneActive) drawDroneHUD(ctx2, faceCx, faceCy, faceRx, faceRy);
+
+  // ── Restore mirror transform ──
+  ctx2.restore();
+
+  // ── Drone head tracking ──
+  if (droneActive) updateDroneFromHead(lm, W, H);
+
+  // ── Trigger ──
+  triggerZone(zi, nxMirror, ny);
+
+  const mode = midiEnabled && midiOutput ? `🎹 MIDI Ch${midiChannel}` : `🔊 ${sp.label}`;
+  document.getElementById('statusMode').textContent = mode;
+}
+
+// Helper: draw text un-mirrored inside a mirrored canvas context
+// The canvas has scaleX(-1) applied, so text would be backwards.
+// This flips back to normal at the text position, draws, then restores.
+function drawTextMirror(ctx, text, x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(-1, 1);
+  ctx.fillText(text, 0, 0);
+  ctx.restore();
+}
+
+// Helper: rounded rect path
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y,     x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x,     y + h, r);
+  ctx.arcTo(x,     y + h, x,     y,     r);
+  ctx.arcTo(x,     y,     x + w, y,     r);
+  ctx.closePath();
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  SYNTH                                                   ║
+// ╚══════════════════════════════════════════════════════════╝
+const PRESETS = {
+  // ── KEYBOARD ──
+  piano:    { wave:'triangle', attack:0.005, decay:0.6,  sustain:0.1,  release:1.2, filter:5000, res:0.8, reverb:0.2,  chorus:0.1,  flange:0,    delay:0,    detune:0,  sub:0.15, vol:0.65, eqLow:0, eqMid:0,  eqHigh:0,  label:'🎹 Piano' },
+  epiano:   { wave:'sine',     attack:0.008, decay:0.8,  sustain:0.15, release:1.5, filter:3500, res:1.2, reverb:0.25, chorus:0.35, flange:0,    delay:0.1,  detune:4,  sub:0.1,  vol:0.6,  eqLow:3, eqMid:0,  eqHigh:-3, label:'🎹 E.Piano' },
+  organ:    { wave:'square',   attack:0.01,  decay:0.05, sustain:0.9,  release:0.08,filter:4000, res:0.5, reverb:0.18, chorus:0.45, flange:0.1,  delay:0,    detune:6,  sub:0.3,  vol:0.55, eqLow:3, eqMid:3,  eqHigh:-3, label:'🎵 Organ' },
+  harpsi:   { wave:'sawtooth', attack:0.001, decay:0.18, sustain:0.0,  release:0.3, filter:6000, res:1.5, reverb:0.12, chorus:0.05, flange:0,    delay:0,    detune:0,  sub:0.0,  vol:0.6,  eqLow:-3,eqMid:0,  eqHigh:6,  label:'🎼 Harpsichord' },
+  // ── STRINGS ──
+  strings:  { wave:'sawtooth', attack:0.35,  decay:0.4,  sustain:0.75, release:1.8, filter:2200, res:1.8, reverb:0.55, chorus:0.5,  flange:0,    delay:0,    detune:10, sub:0.05, vol:0.55, eqLow:3, eqMid:0,  eqHigh:-3, label:'🎻 Strings' },
+  cello:    { wave:'sawtooth', attack:0.12,  decay:0.5,  sustain:0.65, release:1.4, filter:1400, res:2.5, reverb:0.4,  chorus:0.2,  flange:0,    delay:0,    detune:3,  sub:0.2,  vol:0.6,  eqLow:6, eqMid:-3, eqHigh:-6, label:'🎻 Cello' },
+  harp:     { wave:'triangle', attack:0.001, decay:0.9,  sustain:0.05, release:2.0, filter:7000, res:0.8, reverb:0.5,  chorus:0.08, flange:0,    delay:0.1,  detune:0,  sub:0.0,  vol:0.6,  eqLow:-3,eqMid:0,  eqHigh:3,  label:'🎵 Harp' },
+  // ── BRASS & WINDS ──
+  brass:    { wave:'sawtooth', attack:0.08,  decay:0.2,  sustain:0.7,  release:0.4, filter:3000, res:3.5, reverb:0.22, chorus:0.15, flange:0,    delay:0,    detune:5,  sub:0.1,  vol:0.65, eqLow:0, eqMid:6,  eqHigh:0,  label:'🎺 Brass' },
+  flute:    { wave:'sine',     attack:0.12,  decay:0.1,  sustain:0.75, release:0.6, filter:8000, res:0.6, reverb:0.35, chorus:0.25, flange:0,    delay:0,    detune:2,  sub:0.0,  vol:0.55, eqLow:-6,eqMid:0,  eqHigh:6,  label:'🪈 Flute' },
+  clarinet: { wave:'square',   attack:0.06,  decay:0.15, sustain:0.7,  release:0.4, filter:2500, res:2.0, reverb:0.28, chorus:0.12, flange:0,    delay:0,    detune:0,  sub:0.05, vol:0.58, eqLow:-3,eqMid:6,  eqHigh:-3, label:'🎵 Clarinet' },
+  // ── SYNTH ──
+  pad:      { wave:'sine',     attack:0.6,   decay:0.8,  sustain:0.7,  release:2.5, filter:1200, res:2.5, reverb:0.7,  chorus:0.5,  flange:0.1,  delay:0.2,  detune:8,  sub:0.1,  vol:0.55, eqLow:3, eqMid:-3, eqHigh:-6, label:'🌊 Pad' },
+  lead:     { wave:'sawtooth', attack:0.01,  decay:0.1,  sustain:0.8,  release:0.3, filter:4000, res:8,   reverb:0.25, chorus:0.4,  flange:0.2,  delay:0,    detune:12, sub:0.1,  vol:0.65, eqLow:0, eqMid:6,  eqHigh:3,  label:'⚡ Lead' },
+  pluck:    { wave:'sawtooth', attack:0.001, decay:0.25, sustain:0.05, release:0.4, filter:3500, res:4,   reverb:0.15, chorus:0.3,  flange:0,    delay:0.1,  detune:2,  sub:0.05, vol:0.6,  eqLow:0, eqMid:0,  eqHigh:3,  label:'🎸 Pluck' },
+  bass:     { wave:'sawtooth', attack:0.01,  decay:0.3,  sustain:0.6,  release:0.5, filter:600,  res:6,   reverb:0.05, chorus:0.05, flange:0,    delay:0,    detune:0,  sub:0.5,  vol:0.7,  eqLow:9, eqMid:0,  eqHigh:-6, label:'🎸 Bass' },
+  // ── WORLD & PERC ──
+  bell:     { wave:'sine',     attack:0.001, decay:1.2,  sustain:0.05, release:2.0, filter:8000, res:1,   reverb:0.5,  chorus:0.05, flange:0,    delay:0.3,  detune:0,  sub:0.0,  vol:0.55, eqLow:-6,eqMid:0,  eqHigh:9,  label:'🔔 Bell' },
+  marimba:  { wave:'sine',     attack:0.001, decay:0.35, sustain:0.0,  release:0.5, filter:9000, res:0.5, reverb:0.3,  chorus:0.05, flange:0,    delay:0,    detune:0,  sub:0.08, vol:0.65, eqLow:-3,eqMid:3,  eqHigh:6,  label:'🪘 Marimba' },
+  sitar:    { wave:'sawtooth', attack:0.001, decay:0.5,  sustain:0.1,  release:0.8, filter:4500, res:7,   reverb:0.2,  chorus:0.55, flange:0.3,  delay:0.1,  detune:18, sub:0.05, vol:0.6,  eqLow:0, eqMid:6,  eqHigh:0,  label:'🎸 Sitar' },
+  // ── AMBIENT ──
+  dreamy:   { wave:'sine',     attack:1.2,   decay:1.0,  sustain:0.6,  release:4.0, filter:900,  res:3.0, reverb:0.9,  chorus:0.65, flange:0.2,  delay:0.4,  detune:14, sub:0.08, vol:0.5,  eqLow:6, eqMid:-6, eqHigh:-9, label:'✨ Dreamy' },
+};
+const PARAMS = [
+  { key:'attack',  label:'Attack',  unit:'s',  values:[0.001,0.01,0.05,0.1,0.3,0.6,1.0,2.0] },
+  { key:'decay',   label:'Decay',   unit:'s',  values:[0.05,0.15,0.3,0.5,0.8,1.2,2.0,3.0] },
+  { key:'sustain', label:'Sustain', unit:'',   values:[0,0.1,0.2,0.4,0.6,0.75,0.9,1.0] },
+  { key:'release', label:'Release', unit:'s',  values:[0.05,0.2,0.5,0.8,1.2,2.0,3.0,5.0] },
+  { key:'filter',  label:'Filter',  unit:'Hz', values:[120,400,800,1500,3000,5000,8000,16000] },
+  { key:'res',     label:'Res',     unit:'Q',  values:[0.5,1,2,4,6,8,12,20] },
+  { key:'reverb',  label:'Reverb',  unit:'',   values:[0,0.1,0.2,0.3,0.5,0.65,0.8,1.0] },
+  { key:'chorus',  label:'Chorus',  unit:'',   values:[0,0.1,0.2,0.35,0.5,0.65,0.8,1.0] },
+  { key:'flange',  label:'Flange',  unit:'',   values:[0,0.1,0.2,0.35,0.5,0.65,0.8,1.0] },
+  { key:'delay',   label:'Delay',   unit:'',   values:[0,0.1,0.2,0.3,0.4,0.55,0.7,0.9] },
+  { key:'sub',     label:'Sub',     unit:'',   values:[0,0.05,0.15,0.25,0.4,0.6,0.8,1.0] },
+  { key:'vol',     label:'Vol',     unit:'',   values:[0.1,0.2,0.35,0.5,0.6,0.7,0.85,1.0] },
+  { key:'eqLow',  label:'EQ Low',  unit:'dB', values:[-12,-9,-6,-3,0,3,6,9,12] },
+  { key:'eqMid',  label:'EQ Mid',  unit:'dB', values:[-12,-9,-6,-3,0,3,6,9,12] },
+  { key:'eqHigh', label:'EQ High', unit:'dB', values:[-12,-9,-6,-3,0,3,6,9,12] },
+];
+
+let sp = {...PRESETS.piano};
+let selParam = null;
+let dwellTimer = null, dwellCell = null;
+
+function fmtVal(p, v) {
+  if (p.unit==='Hz') return v>=1000?(v/1000).toFixed(1)+'k':v+'Hz';
+  if (p.unit==='s')  return v<1?v+'s':parseFloat(v).toFixed(1)+'s';
+  if (p.unit==='Q')  return 'Q'+v;
+  if (p.unit==='dB') return (v>=0?'+':'')+v+'dB';
+  return parseFloat(v).toFixed(2);
+}
+
+// ── CUSTOM PRESETS (localStorage) ──
+let customPresets = {};
+
+function loadCustomPresets() {
+  try {
+    const saved = localStorage.getItem('fusedMusicPresets');
+    if (saved) customPresets = JSON.parse(saved);
+  } catch(e) { customPresets = {}; }
+}
+
+function saveCustomPresets() {
+  try { localStorage.setItem('fusedMusicPresets', JSON.stringify(customPresets)); } catch(e) {}
+}
+
+function saveToPreset() {
+  const name = prompt('Name this preset:', 'My Sound');
+  if (!name || !name.trim()) return;
+  const key = 'custom_' + Date.now();
+  customPresets[key] = { ...sp, label: '⭐ ' + name.trim() };
+  saveCustomPresets();
+  buildPresetStrip(); // rebuild to show new preset
+  // Auto-select it
+  setTimeout(() => {
+    const btn = document.querySelector(`.preset-btn[data-key="${key}"]`);
+    if (btn) btn.click();
+  }, 50);
+}
+
+function deleteCustomPreset(key, e) {
+  e.stopPropagation();
+  if (!confirm('Delete this preset?')) return;
+  delete customPresets[key];
+  saveCustomPresets();
+  buildPresetStrip();
+}
+
+const PRESET_GROUPS = [
+  { label: 'Keyboard',     keys: ['piano','epiano','organ','harpsi'] },
+  { label: 'Strings',      keys: ['strings','cello','harp'] },
+  { label: 'Brass & Winds',keys: ['brass','flute','clarinet'] },
+  { label: 'Synth',        keys: ['pad','lead','pluck','bass'] },
+  { label: 'World & Perc', keys: ['bell','marimba','sitar'] },
+  { label: 'Ambient',      keys: ['dreamy'] },
+];
+
+function buildPresetStrip() {
+  const el = document.getElementById('presetStrip'); el.innerHTML = '';
+
+  const renderGroup = (groupLabel, entries) => {
+    const lbl = document.createElement('div');
+    lbl.style.cssText = 'width:100%;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.28);font-weight:600;margin-top:6px;margin-bottom:2px;';
+    lbl.textContent = groupLabel;
+    el.appendChild(lbl);
+
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;flex-wrap:wrap;gap:5px;width:100%;';
+
+    entries.forEach(([key, p]) => {
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'position:relative;display:inline-flex;';
+
+      const b = document.createElement('button');
+      b.className = 'preset-btn' + (key === 'piano' ? ' active' : '');
+      b.textContent = p.label;
+      b.dataset.key = key;
+      b.onclick = () => {
+        sp = {...p}; updateAudioParams();
+        document.querySelectorAll('.preset-btn').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        document.getElementById('statusMode').textContent = `🔊 ${p.label}`;
+        refreshParamBtns();
+        if (selParam) { const pd = PARAMS.find(x => x.key === selParam); if (pd) buildValGrid(pd); }
+      };
+      wrap.appendChild(b);
+
+      // Delete button for custom presets
+      if (key.startsWith('custom_')) {
+        const del = document.createElement('button');
+        del.textContent = '✕';
+        del.style.cssText = 'position:absolute;top:-5px;right:-5px;width:16px;height:16px;border-radius:50%;background:#de6b6b;border:none;color:#fff;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;z-index:2;';
+        del.onclick = (e) => deleteCustomPreset(key, e);
+        wrap.appendChild(del);
+      }
+      row.appendChild(wrap);
+    });
+    el.appendChild(row);
+  };
+
+  // Built-in groups
+  PRESET_GROUPS.forEach(group => {
+    renderGroup(group.label, group.keys.map(k => [k, PRESETS[k]]).filter(([,p]) => p));
+  });
+
+  // Custom presets group
+  const customEntries = Object.entries(customPresets);
+  if (customEntries.length > 0) {
+    renderGroup('⭐ My Presets', customEntries);
+  }
+}
+
+function buildParamStrip() {
+  const el = document.getElementById('paramStrip'); el.innerHTML='';
+  PARAMS.forEach(p => {
+    const b = document.createElement('button');
+    b.className='param-btn'; b.id=`pb-${p.key}`;
+    b.innerHTML=`<span class="pn">${p.label}</span><span class="pv" id="pv-${p.key}">${fmtVal(p,sp[p.key])}</span>`;
+    b.onclick=()=>toggleParamGrid(p.key);
+    el.appendChild(b);
+  });
+}
+
+function refreshParamBtns() {
+  PARAMS.forEach(p=>{const el=document.getElementById(`pv-${p.key}`);if(el)el.textContent=fmtVal(p,sp[p.key]);});
+  // Keep the selected param button highlighted
+  document.querySelectorAll('.param-btn').forEach(b=>b.classList.toggle('sel', b.id===`pb-${selParam}`));
+}
+
+function resetEffects() {
+  // Find which preset is currently active and reload it
+  const activeBtn = document.querySelector('.preset-btn.active');
+  if (!activeBtn) return;
+  const label = activeBtn.textContent.trim();
+  const entry = Object.entries(PRESETS).find(([,p]) => p.label === label);
+  if (entry) {
+    sp = {...entry[1]};
+    updateAudioParams();
+    refreshParamBtns();
+    // Rebuild the grid if one is open
+    if (selParam) {
+      const pd = PARAMS.find(p => p.key === selParam);
+      if (pd) buildValGrid(pd);
+    }
+  }
+}
+
+function toggleParamGrid(key) {
+  const wrap = document.getElementById('valGridWrap');
+  // If clicking the already-open param, close it
+  if (selParam === key && wrap.style.display !== 'none') {
+    selParam = null;
+    wrap.style.display = 'none';
+    document.querySelectorAll('.param-btn').forEach(b => b.classList.remove('sel'));
+    return;
+  }
+  // Open new param grid — previous stays highlighted until new one selected
+  selParam = key;
+  document.querySelectorAll('.param-btn').forEach(b => b.classList.toggle('sel', b.id === `pb-${key}`));
+  const pd = PARAMS.find(p => p.key === key);
+  document.getElementById('valGridTitle').textContent = pd.label;
+  buildValGrid(pd);
+  wrap.style.display = 'block';
+}
+
+function buildValGrid(pd) {
+  const grid=document.getElementById('valGrid'); grid.innerHTML='';
+  pd.values.forEach((v,i)=>{
+    const cell=document.createElement('div');
+    cell.className='vcell'+(sp[pd.key]===v?' active':'');
+    cell.dataset.v=v;
+    cell.innerHTML=`<span class="vl">${i===0?'min':i===pd.values.length-1?'max':''}</span><span class="vv">${fmtVal(pd,v)}</span><div class="dwell-bar"></div>`;
+    cell.onclick=()=>pickVal(pd,v,cell);
+    cell.onpointerenter=()=>startDwell(pd,v,cell);
+    cell.onpointerleave=cancelDwell;
+    grid.appendChild(cell);
+  });
+}
+
+function pickVal(pd,v,cell){
+  sp[pd.key]=v; updateAudioParams();
+  document.querySelectorAll('#valGrid .vcell').forEach(c=>c.classList.toggle('active',parseFloat(c.dataset.v)===v));
+  const el=document.getElementById(`pv-${pd.key}`);if(el)el.textContent=fmtVal(pd,v);
+  // Keep param button highlighted
+  document.querySelectorAll('.param-btn').forEach(b=>b.classList.toggle('sel',b.id===`pb-${pd.key}`));
+  cancelDwell();
+}
+function startDwell(pd,v,cell){
+  cancelDwell(); dwellCell=cell;
+  const bar=cell.querySelector('.dwell-bar');
+  cell.classList.add('dwelling'); bar.style.transition='none'; bar.style.width='0%';
+  requestAnimationFrame(()=>{bar.style.transition='width 1100ms linear';bar.style.width='100%';});
+  dwellTimer=setTimeout(()=>{pickVal(pd,v,cell);cell.classList.remove('dwelling');},1100);
+}
+function cancelDwell(){
+  if(dwellTimer){clearTimeout(dwellTimer);dwellTimer=null;}
+  if(dwellCell){
+    const bar=dwellCell.querySelector('.dwell-bar');
+    if(bar){bar.style.transition='none';bar.style.width='0%';}
+    dwellCell.classList.remove('dwelling');dwellCell=null;
+  }
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  AUDIO ENGINE                                            ║
+// ╚══════════════════════════════════════════════════════════╝
+let audioCtx,masterGain,dryGain,reverbNode,reverbGain,chorusGain,chorusL,chorusR;
+let flangeGain,flangeL,flangeR;
+let delayNode,delayGain,delayFeedback;
+let eqLowNode,eqMidNode,eqHighNode;
+
+function initAudio(){
+  if(audioCtx){if(audioCtx.state==='suspended')audioCtx.resume();return;}
+  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+
+  // EQ chain (voices → eqLow → eqMid → eqHigh → masterGain)
+  eqLowNode=audioCtx.createBiquadFilter(); eqLowNode.type='lowshelf';  eqLowNode.frequency.value=250;  eqLowNode.gain.value=sp.eqLow||0;
+  eqMidNode=audioCtx.createBiquadFilter(); eqMidNode.type='peaking';   eqMidNode.frequency.value=1800; eqMidNode.Q.value=1; eqMidNode.gain.value=sp.eqMid||0;
+  eqHighNode=audioCtx.createBiquadFilter();eqHighNode.type='highshelf'; eqHighNode.frequency.value=6000;eqHighNode.gain.value=sp.eqHigh||0;
+  eqLowNode.connect(eqMidNode); eqMidNode.connect(eqHighNode);
+
+  masterGain=audioCtx.createGain();masterGain.gain.value=sp.vol;masterGain.connect(audioCtx.destination);
+  eqHighNode.connect(masterGain);
+
+  dryGain=audioCtx.createGain();dryGain.gain.value=0.7;dryGain.connect(eqLowNode);
+
+  // Reverb
+  reverbNode=audioCtx.createConvolver();reverbNode.buffer=makeIR(2.5);
+  reverbGain=audioCtx.createGain();reverbGain.gain.value=sp.reverb;
+  reverbNode.connect(reverbGain);reverbGain.connect(eqLowNode);
+
+  // Chorus
+  chorusGain=audioCtx.createGain();chorusGain.gain.value=sp.chorus;
+  chorusL=mkChorus(0.025,0.004,0.9);chorusR=mkChorus(0.027,0.005,1.3);
+  chorusL.out.connect(chorusGain);chorusR.out.connect(chorusGain);chorusGain.connect(eqLowNode);
+
+  // Flange
+  flangeGain=audioCtx.createGain();flangeGain.gain.value=sp.flange||0;
+  flangeL=mkChorus(0.005,0.002,0.4);flangeR=mkChorus(0.006,0.002,0.5);
+  flangeL.out.connect(flangeGain);flangeR.out.connect(flangeGain);flangeGain.connect(eqLowNode);
+
+  // Delay
+  delayNode=audioCtx.createDelay(2.0);delayNode.delayTime.value=0.38;
+  delayFeedback=audioCtx.createGain();delayFeedback.gain.value=0.45;
+  delayGain=audioCtx.createGain();delayGain.gain.value=sp.delay||0;
+  delayNode.connect(delayFeedback);delayFeedback.connect(delayNode);
+  delayNode.connect(delayGain);delayGain.connect(eqLowNode);
+}
+function makeIR(dur){
+  const sr=audioCtx.sampleRate,len=sr*dur,buf=audioCtx.createBuffer(2,len,sr);
+  for(let c=0;c<2;c++){const d=buf.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.5);}
+  return buf;
+}
+function mkChorus(dly,dep,rate){
+  const d=audioCtx.createDelay(0.1);d.delayTime.value=dly;
+  const lfo=audioCtx.createOscillator(),lg=audioCtx.createGain();lg.gain.value=dep;
+  lfo.frequency.value=rate;lfo.connect(lg);lg.connect(d.delayTime);lfo.start();
+  const inp=audioCtx.createGain();inp.connect(d);const out=audioCtx.createGain();d.connect(out);
+  return{inp,out};
+}
+function playWebAudio(note){
+  if(!audioCtx)return;
+  const freq=note.freq,now=audioCtx.currentTime;
+  const flt=audioCtx.createBiquadFilter();flt.type='lowpass';flt.frequency.value=sp.filter;flt.Q.value=sp.res;
+  const o1=audioCtx.createOscillator();o1.type=sp.wave;o1.frequency.value=freq;o1.detune.value=sp.detune;
+  const o2=audioCtx.createOscillator();o2.type=sp.wave;o2.frequency.value=freq;o2.detune.value=-sp.detune+7;
+  const sb=audioCtx.createOscillator();sb.type='sine';sb.frequency.value=freq/2;
+  const sg=audioCtx.createGain();sg.gain.value=sp.sub;
+  const env=audioCtx.createGain();
+  env.gain.setValueAtTime(0,now);
+  env.gain.linearRampToValueAtTime(0.65,now+sp.attack);
+  env.gain.linearRampToValueAtTime(0.65*sp.sustain,now+sp.attack+sp.decay);
+  const he=now+sp.attack+sp.decay+0.05;
+  env.gain.setValueAtTime(0.65*sp.sustain,he);
+  env.gain.linearRampToValueAtTime(0.0001,he+sp.release);
+  const st=he+sp.release+0.05;
+  o1.connect(flt);o2.connect(flt);sb.connect(sg);sg.connect(flt);flt.connect(env);
+  env.connect(dryGain);
+  env.connect(reverbNode);
+  env.connect(chorusL.inp);env.connect(chorusR.inp);
+  env.connect(flangeL.inp);env.connect(flangeR.inp);
+  env.connect(delayNode);
+  o1.start(now);o1.stop(st);o2.start(now);o2.stop(st);sb.start(now);sb.stop(st);
+}
+function updateAudioParams(){
+  if(!audioCtx)return;
+  const t=audioCtx.currentTime;
+  masterGain.gain.setTargetAtTime(sp.vol,t,0.05);
+  reverbGain.gain.setTargetAtTime(sp.reverb,t,0.05);
+  chorusGain.gain.setTargetAtTime(sp.chorus,t,0.05);
+  if(flangeGain) flangeGain.gain.setTargetAtTime(sp.flange||0,t,0.05);
+  if(delayGain)  delayGain.gain.setTargetAtTime(sp.delay||0,t,0.05);
+  if(eqLowNode)  eqLowNode.gain.setTargetAtTime(sp.eqLow||0,t,0.05);
+  if(eqMidNode)  eqMidNode.gain.setTargetAtTime(sp.eqMid||0,t,0.05);
+  if(eqHighNode) eqHighNode.gain.setTargetAtTime(sp.eqHigh||0,t,0.05);
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  MIDI                                                    ║
+// ╚══════════════════════════════════════════════════════════╝
+let midiAccess=null,midiOutput=null,midiEnabled=false;
+let midiChannel=1,midiVelocity=100,midiNoteLen=300;
+let noteTimeouts={};
+
+async function toggleMidi(){
+  if(!midiEnabled){
+    if(!navigator.requestMIDIAccess){alert('WebMIDI needs Chrome or Edge.');return;}
+    try{
+      midiAccess=await navigator.requestMIDIAccess({sysex:false});
+      midiEnabled=true;populatePorts();
+      midiAccess.onstatechange=populatePorts;
+      document.getElementById('midiControls').style.display='flex';
+      document.getElementById('midiHint').style.display='none';
+      const btn=document.getElementById('midiConnectBtn');
+      btn.textContent='Disconnect MIDI';btn.classList.add('connected');
+      document.getElementById('dot-midi').classList.add('on-mg');
+    }catch(e){alert('MIDI access denied.');}
+  }else{
+    midiEnabled=false;midiOutput=null;
+    document.getElementById('midiControls').style.display='none';
+    document.getElementById('midiHint').style.display='inline';
+    const btn=document.getElementById('midiConnectBtn');
+    btn.textContent='Connect MIDI';btn.classList.remove('connected');
+    document.getElementById('dot-midi').classList.remove('on-mg');
+  }
+}
+function populatePorts(){
+  const sel=document.getElementById('midiPortSelect'),prev=sel.value;sel.innerHTML='';
+  const outs=Array.from(midiAccess.outputs.values());
+  if(!outs.length){sel.innerHTML='<option>— no outputs —</option>';midiOutput=null;return;}
+  outs.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;sel.appendChild(o);});
+  if(prev&&outs.find(p=>p.id===prev))sel.value=prev;
+  selectPort(sel.value);
+}
+function selectPort(id){
+  if(!midiAccess)return;
+  midiOutput=midiAccess.outputs.get(id)||null;
+}
+document.getElementById('midiPortSelect').addEventListener('change',e=>selectPort(e.target.value));
+
+function sendMidi(note){
+  if(!midiOutput)return false;
+  const n=note.midi,ch=midiChannel-1;
+  if(noteTimeouts[n]){clearTimeout(noteTimeouts[n]);try{midiOutput.send([0x80|ch,n,0]);}catch(e){}}
+  try{midiOutput.send([0x90|ch,n,midiVelocity]);}catch(e){return false;}
+  noteTimeouts[n]=setTimeout(()=>{try{midiOutput.send([0x80|ch,n,0]);}catch(e){}delete noteTimeouts[n];},midiNoteLen);
+  const f=document.getElementById('midiFlash');
+  f.textContent=`▶ Ch${midiChannel}  Note ${n} (${note.name})  vel ${midiVelocity}`;
+  f.classList.add('fl');setTimeout(()=>f.classList.remove('fl'),200);
+  return true;
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  START                                                   ║
+// ╚══════════════════════════════════════════════════════════╝
+async function startApp(){
+  document.getElementById('startOverlay').style.display='none';
+  initAudio();
+  refreshScale();
+  started=true;
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
+    videoEl.srcObject=stream;await videoEl.play();
+    canvasEl.width=window.innerWidth;canvasEl.height=window.innerHeight;
+    const fm=new FaceMesh({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`});
+    fm.setOptions({maxNumFaces:1,refineLandmarks:true,minDetectionConfidence:0.5,minTrackingConfidence:0.5});
+    fm.onResults(onResults);
+    (async function loop(){if(videoEl.readyState>=2)await fm.send({image:videoEl});requestAnimationFrame(loop);})();
+  }catch(e){
+    document.getElementById('startOverlay').style.display='flex';
+    document.getElementById('startOverlay').querySelector('p').textContent='Camera access denied. Please allow camera access and try again.';
+    console.error(e);
+  }
+}
+
+window.addEventListener('resize',()=>{
+  canvasEl.width=window.innerWidth;canvasEl.height=window.innerHeight;
+  if(started)drawCircleZones();
+});
+
+// ── RANGE SAVE AS PRESET ──
+let customRangeLayouts = {};
+
+function loadRangeLayouts() {
+  try { const s = localStorage.getItem('fusedRangeLayouts'); if (s) customRangeLayouts = JSON.parse(s); } catch(e) {}
+}
+function saveRangeLayouts() {
+  try { localStorage.setItem('fusedRangeLayouts', JSON.stringify(customRangeLayouts)); } catch(e) {}
+}
+function saveRangePreset() {
+  const name = prompt('Name this layout:', 'My Layout');
+  if (!name || !name.trim()) return;
+  const key = 'rl_' + Date.now();
+  customRangeLayouts[key] = {
+    name: name.trim(),
+    layout: currentLayout,
+    stripWidthPct, stripCentrePct, arcSweepDeg, arcRotateDeg
+  };
+  saveRangeLayouts();
+  buildSavedLayoutBtns();
+}
+function buildSavedLayoutBtns() {
+  let el = document.getElementById('savedLayoutBtns');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'savedLayoutBtns';
+    el.style.cssText = 'display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;';
+    document.getElementById('panel-range').appendChild(el);
+  }
+  el.innerHTML = '';
+  const entries = Object.entries(customRangeLayouts);
+  if (!entries.length) return;
+  const lbl = document.createElement('div');
+  lbl.style.cssText = 'width:100%;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.28);font-weight:600;margin-top:4px;';
+  lbl.textContent = 'Saved Layouts';
+  el.appendChild(lbl);
+  entries.forEach(([key, rl]) => {
+    const wrap = document.createElement('div'); wrap.style.cssText = 'position:relative;display:inline-flex;';
+    const b = document.createElement('button');
+    b.className = 'choice-btn';
+    b.textContent = '📐 ' + rl.name;
+    b.onclick = () => {
+      currentLayout = rl.layout;
+      stripWidthPct  = rl.stripWidthPct;  stripCentrePct = rl.stripCentrePct;
+      arcSweepDeg    = rl.arcSweepDeg;    arcRotateDeg   = rl.arcRotateDeg;
+      document.getElementById('stripWidth').value  = stripWidthPct;   document.getElementById('stripWidthVal').textContent  = stripWidthPct+'%';
+      document.getElementById('stripCentre').value = stripCentrePct;  document.getElementById('stripCentreVal').textContent = stripCentrePct+'%';
+      document.getElementById('arcSweep').value    = arcSweepDeg;     document.getElementById('arcSweepVal').textContent    = arcSweepDeg+'°';
+      document.getElementById('arcRotate').value   = arcRotateDeg;    document.getElementById('arcRotateVal').textContent   = arcRotateDeg+'°';
+      document.querySelectorAll('#layoutBtns .choice-btn').forEach(x => x.classList.toggle('a-teal', x.textContent.toLowerCase().includes(rl.layout)));
+      if (started) drawCircleZones();
+    };
+    const del = document.createElement('button');
+    del.textContent = '✕';
+    del.style.cssText = 'position:absolute;top:-5px;right:-5px;width:16px;height:16px;border-radius:50%;background:#e08b2a;border:none;color:#fff;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;';
+    del.onclick = (e) => { e.stopPropagation(); delete customRangeLayouts[key]; saveRangeLayouts(); buildSavedLayoutBtns(); };
+    wrap.appendChild(b); wrap.appendChild(del); el.appendChild(wrap);
+  });
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  EXPERIMENTAL — DRONE + HEAD FILTER                      ║
+// ╚══════════════════════════════════════════════════════════╝
+let droneActive     = false;
+let droneNoteIdx    = 0;    // index into scaleNotes
+let droneOsc        = null; // main osc
+let droneOsc2       = null; // sub
+let droneFilter     = null;
+let droneGainNode   = null;
+let droneRes        = 8;
+let droneSens       = 1.0;
+let droneBaseAngle  = null; // initial head angle on start
+let droneRafId      = null;
+// Head rotation tracking (pitch = nod, yaw = turn)
+let droneHeadYaw    = 0;    // updated per frame from landmarks
+
+function buildDroneNoteBtns() {
+  const el = document.getElementById('droneNoteBtns');
+  if (!el) return;
+  el.innerHTML = '';
+  scaleNotes.forEach((note, i) => {
+    const b = document.createElement('button');
+    b.className = 'choice-btn' + (i === droneNoteIdx ? ' a-teal' : '');
+    b.textContent = note.name;
+    b.style.minWidth = '40px';
+    b.onclick = () => {
+      droneNoteIdx = i;
+      document.querySelectorAll('#droneNoteBtns .choice-btn').forEach(x => x.classList.remove('a-teal'));
+      b.classList.add('a-teal');
+      if (droneActive) restartDroneOsc();
+    };
+    el.appendChild(b);
+  });
+}
+
+function toggleDrone() {
+  if (droneActive) stopDrone(); else startDrone();
+}
+
+function startDrone() {
+  if (!audioCtx) initAudio();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  droneActive = true;
+  droneBaseAngle = null;
+
+  const btn = document.getElementById('droneToggleBtn');
+  btn.textContent = '■ Stop Drone';
+  btn.style.background = 'rgba(255,107,222,0.35)';
+
+  createDroneOsc();
+  document.getElementById('droneStatus').textContent = '● Drone active — rotate head to sweep filter';
+}
+
+function createDroneOsc() {
+  cleanDroneOsc();
+  const note = scaleNotes[droneNoteIdx];
+  if (!note) return;
+
+  droneFilter = audioCtx.createBiquadFilter();
+  droneFilter.type = document.getElementById('droneFilterType').value;
+  droneFilter.frequency.value = 500;
+  droneFilter.Q.value = droneRes;
+
+  droneGainNode = audioCtx.createGain();
+  droneGainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+  droneGainNode.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.3);
+
+  droneOsc = audioCtx.createOscillator();
+  droneOsc.type = sp.wave || 'sine';
+  droneOsc.frequency.value = note.freq;
+  droneOsc.detune.value = sp.detune || 0;
+
+  droneOsc2 = audioCtx.createOscillator();
+  droneOsc2.type = 'sine';
+  droneOsc2.frequency.value = note.freq / 2;
+  const sub2 = audioCtx.createGain(); sub2.gain.value = sp.sub || 0.15;
+  droneOsc2.connect(sub2); sub2.connect(droneFilter);
+
+  droneOsc.connect(droneFilter);
+  droneFilter.connect(droneGainNode);
+  droneGainNode.connect(masterGain);
+
+  droneOsc.start(); droneOsc2.start();
+}
+
+function restartDroneOsc() {
+  if (droneActive) createDroneOsc();
+}
+
+function cleanDroneOsc() {
+  try { droneOsc?.stop();  } catch(e) {}
+  try { droneOsc2?.stop(); } catch(e) {}
+  droneOsc = null; droneOsc2 = null;
+  try { droneFilter?.disconnect();   } catch(e) {}
+  try { droneGainNode?.disconnect(); } catch(e) {}
+}
+
+function stopDrone() {
+  droneActive = false;
+  if (droneGainNode) {
+    droneGainNode.gain.setValueAtTime(droneGainNode.gain.value, audioCtx.currentTime);
+    droneGainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+    setTimeout(cleanDroneOsc, 400);
+  } else { cleanDroneOsc(); }
+  const btn = document.getElementById('droneToggleBtn');
+  btn.textContent = '▶ Start Drone';
+  btn.style.background = 'rgba(255,107,222,0.15)';
+  document.getElementById('droneStatus').textContent = '';
+}
+
+// Called every frame from onResults with head landmarks
+// ── DRONE HUD STATE ──
+let droneHudFreq      = 500;
+let droneHudRes       = 8;
+let droneHudNormYaw   = 0;
+let droneHudNormPitch = 0;
+
+function drawDroneHUD(ctx, fcx, fcy, frx, fry) {
+  const pad    = 48;
+  const ringR  = Math.max(frx, fry) + pad;
+  const t      = (droneHudNormYaw + 1) / 2;
+  const pitch  = (droneHudNormPitch + 1) / 2;
+  const pink   = '#ff6bde';
+  const yellow = '#e8ff00';
+
+  ctx.save();
+
+  // ── Outer frequency sweep ring ──
+  ctx.beginPath(); ctx.arc(fcx, fcy, ringR, 0, TAU);
+  ctx.strokeStyle = 'rgba(255,107,222,0.12)'; ctx.lineWidth = 1.5; ctx.stroke();
+
+  const sweepStart = Math.PI;
+  const sweepEnd   = sweepStart + t * TAU;
+  ctx.beginPath(); ctx.arc(fcx, fcy, ringR, sweepStart, sweepEnd);
+  ctx.strokeStyle = pink; ctx.lineWidth = 3;
+  ctx.shadowColor = pink; ctx.shadowBlur = 12;
+  ctx.stroke(); ctx.shadowBlur = 0;
+
+  // Frequency pointer tick
+  const tx1 = fcx + (ringR - 10) * Math.cos(sweepEnd);
+  const ty1 = fcy + (ringR - 10) * Math.sin(sweepEnd);
+  const tx2 = fcx + (ringR + 10) * Math.cos(sweepEnd);
+  const ty2 = fcy + (ringR + 10) * Math.sin(sweepEnd);
+  ctx.beginPath(); ctx.moveTo(tx1, ty1); ctx.lineTo(tx2, ty2);
+  ctx.strokeStyle = yellow; ctx.lineWidth = 2.5;
+  ctx.shadowColor = yellow; ctx.shadowBlur = 8;
+  ctx.stroke(); ctx.shadowBlur = 0;
+
+  // ── Resonance inner arc ──
+  const resR    = ringR - 22;
+  const resArc  = pitch * TAU * 0.75;
+  const resStart = -Math.PI / 2 + Math.PI * 0.125;
+  ctx.beginPath(); ctx.arc(fcx, fcy, resR, resStart, resStart + TAU * 0.75);
+  ctx.strokeStyle = 'rgba(255,107,222,0.1)'; ctx.lineWidth = 1; ctx.stroke();
+  if (resArc > 0.01) {
+    ctx.beginPath(); ctx.arc(fcx, fcy, resR, resStart, resStart + resArc);
+    ctx.strokeStyle = `rgba(255,107,222,${0.3 + pitch * 0.6})`;
+    ctx.lineWidth = 2.5; ctx.stroke();
+  }
+
+  // ── EQ bars below face ──
+  const barBaseY = fcy + fry + pad + 12;
+  const barW     = 14, barMaxH = 50, barGap = 24;
+  const eqVals   = [
+    { label:'LO',  val: sp.eqLow  || 0 },
+    { label:'MID', val: sp.eqMid  || 0 },
+    { label:'HI',  val: sp.eqHigh || 0 },
+  ];
+  eqVals.forEach((eq, i) => {
+    const bx   = fcx - barGap + i * barGap;
+    const norm = (eq.val + 12) / 24;
+    const h    = norm * barMaxH;
+    const colA = norm > 0.5 ? 1 : norm * 2;
+    ctx.fillStyle = 'rgba(255,107,222,0.08)';
+    ctx.fillRect(bx - barW/2, barBaseY - barMaxH, barW, barMaxH);
+    const grad = ctx.createLinearGradient(0, barBaseY, 0, barBaseY - barMaxH);
+    grad.addColorStop(0, `rgba(255,107,222,${0.2 + colA * 0.6})`);
+    grad.addColorStop(1, `rgba(232,255,0,${colA * 0.8})`);
+    ctx.fillStyle = grad;
+    ctx.fillRect(bx - barW/2, barBaseY - h, barW, h);
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.fillRect(bx - barW/2, barBaseY - barMaxH/2, barW, 1);
+    // Label (un-mirrored)
+    ctx.save();
+    ctx.font = '700 9px "Share Tech Mono",monospace';
+    ctx.fillStyle = 'rgba(255,107,222,0.7)';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.translate(bx, barBaseY + 5); ctx.scale(-1, 1);
+    ctx.fillText(eq.label, 0, 0);
+    ctx.restore();
+  });
+
+  // ── Filter type label top ──
+  const filterType = droneFilter ? droneFilter.type.toUpperCase() : '';
+  const ftMap = { LOWPASS:'▼ LPF', HIGHPASS:'▲ HPF', BANDPASS:'◈ BPF', NOTCH:'⊗ NOTCH' };
+  ctx.save();
+  ctx.font = '900 14px "Barlow Condensed",sans-serif';
+  ctx.fillStyle = yellow; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.shadowColor = yellow; ctx.shadowBlur = 8;
+  ctx.translate(fcx, fcy - ringR - 20); ctx.scale(-1, 1);
+  ctx.fillText(ftMap[filterType] || filterType, 0, 0);
+  ctx.shadowBlur = 0;
+  ctx.restore();
+
+  // ── Freq readout bottom-right ──
+  const fLabel = droneHudFreq >= 1000
+    ? (droneHudFreq/1000).toFixed(1)+'k'
+    : Math.round(droneHudFreq)+'Hz';
+  ctx.save();
+  ctx.font = '700 12px "Share Tech Mono",monospace';
+  ctx.fillStyle = pink; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.translate(fcx + ringR * 0.65, fcy + ringR * 0.65); ctx.scale(-1, 1);
+  ctx.fillText(fLabel, 0, 0);
+  ctx.restore();
+
+  // ── Resonance readout bottom-left ──
+  ctx.save();
+  ctx.font = '700 12px "Share Tech Mono",monospace';
+  ctx.fillStyle = `rgba(255,107,222,${0.4 + pitch * 0.6})`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.translate(fcx - ringR * 0.65, fcy + ringR * 0.65); ctx.scale(-1, 1);
+  ctx.fillText('Q' + droneHudRes.toFixed(1), 0, 0);
+  ctx.restore();
+
+  // ── Corner brackets ──
+  const bsz = 16, bpad = 6;
+  const corners = [
+    [fcx - frx - bpad, fcy - fry - bpad,  1,  1],
+    [fcx + frx + bpad, fcy - fry - bpad, -1,  1],
+    [fcx - frx - bpad, fcy + fry + bpad,  1, -1],
+    [fcx + frx + bpad, fcy + fry + bpad, -1, -1],
+  ];
+  ctx.strokeStyle = 'rgba(232,255,0,0.55)'; ctx.lineWidth = 1.5;
+  corners.forEach(([bx, by, sx, sy]) => {
+    ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx + sx * bsz, by); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx, by + sy * bsz); ctx.stroke();
+  });
+
+  ctx.restore();
+}
+
+function updateDroneFromHead(lm, W, H) {
+  if (!droneActive || !droneFilter) return;
+
+  const leftEar  = lm[234];
+  const rightEar = lm[454];
+  const noseT    = lm[1];
+
+  const earMidX  = (leftEar.x + rightEar.x) / 2;
+  const yaw      = (noseT.x - earMidX) * 2;
+  const earMidY  = (leftEar.y + rightEar.y) / 2;
+  const pitch    = (noseT.y - earMidY) * 4;
+
+  droneHeadYaw = yaw;
+
+  const normYaw   = Math.max(-1, Math.min(1, yaw   * droneSens));
+  const normPitch = Math.max(-1, Math.min(1, pitch  * droneSens));
+  const t   = (normYaw + 1) / 2;
+  const minF = 80, maxF = 16000;
+  const freq = minF * Math.pow(maxF / minF, t);
+  droneFilter.frequency.setTargetAtTime(freq, audioCtx.currentTime, 0.04);
+
+  const res = droneRes * (1 + normPitch * 0.8);
+  droneFilter.Q.setTargetAtTime(Math.max(0.5, res), audioCtx.currentTime, 0.04);
+
+  const newType = document.getElementById('droneFilterType').value;
+  if (droneFilter.type !== newType) droneFilter.type = newType;
+
+  // Store for HUD
+  droneHudFreq      = freq;
+  droneHudRes       = Math.max(0.5, res);
+  droneHudNormYaw   = normYaw;
+  droneHudNormPitch = normPitch;
+
+  const fLabel = freq >= 1000 ? (freq/1000).toFixed(1)+'kHz' : Math.round(freq)+'Hz';
+  document.getElementById('droneStatus').textContent =
+    `● ${fLabel}  Q:${res.toFixed(1)}  ← rotate head →`;
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  ACCESSIBILITY                                           ║
+// ╚══════════════════════════════════════════════════════════╝
+let screenReaderOn = false;
+let currentTheme   = '';
+let srAnnounceTimer = null;
+
+const ALL_THEMES = ['theme-wcag','theme-dyslexia','theme-sight','theme-amber','theme-photosensitive'];
+
+// ── ALL LIGHTS OFF ──
+let lightsOff = false;
+function toggleLightsOff(btn) {
+  lightsOff = !lightsOff;
+  // Hide/show: tab bar, panel area, status bar, access options panel
+  const els = ['tabbar','panelArea','statusBar','a11yPanel'];
+  els.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.visibility = lightsOff ? 'hidden' : '';
+  });
+  // Keep the lights-off button and toggle button visible
+  btn.textContent = lightsOff ? '◉ LIGHTS BACK ON' : '◎ ALL LIGHTS OFF';
+  btn.style.borderColor = lightsOff ? '#ff4444' : '#e8ff00';
+  btn.style.color = lightsOff ? '#ff4444' : '#e8ff00';
+}
+
+// ── INSTRUMENT PALETTES ──
+let instrumentPalette = 'teal';
+const PALETTES = {
+  teal:   ['#2eadad','#e08b2a','#9b6bde','#2ead6e','#de6b6b','#6b8ede','#ade02e','#de9b2e','#2edea8','#de2ea8','#a8de2e','#2e6bde'],
+  yellow: ['#e8ff00','#ffaa00','#ffdd00','#ccff00','#ff8800','#ffe000','#aabb00','#ffcc00','#ddff00','#ff9900','#bbdd00','#ffbb00'],
+  pink:   ['#ff6bde','#ff6ba8','#de6bff','#ff6b6b','#a86bff','#ff88cc','#cc6bff','#ff6b88','#ee6bff','#ff6bcc','#bb6bff','#ff6b99'],
+  red:    ['#ff4444','#ff6644','#ff2244','#ff8844','#ff1144','#ff5544','#ff3344','#ff7744','#ff0044','#ff4433','#ff3300','#ff6600'],
+  white:  ['#ffffff','#dddddd','#bbbbbb','#eeeeee','#cccccc','#aaaaaa','#f0f0f0','#e0e0e0','#d0d0d0','#c0c0c0','#b0b0b0','#a0a0a0'],
+  mono:   ['#888888','#666666','#aaaaaa','#555555','#999999','#444444','#bbbbbb','#333333','#777777','#222222','#cccccc','#111111'],
+};
+let faceOutlineColour = 'rgba(46,173,173,0.4)';
+let faceOutlineGlow   = 'rgba(46,173,173,0.05)';
+
+function setInstrumentPalette(name) {
+  instrumentPalette = name;
+  // Reassign ZONE_COLORS array in place
+  const p = PALETTES[name];
+  p.forEach((c, i) => { ZONE_COLORS[i] = c; });
+  // Update face outline too to match palette lead colour
+  const lead = p[0];
+  faceOutlineColour = lead + 'aa';
+  faceOutlineGlow   = lead + '22';
+}
+
+function setFaceColour(col) {
+  faceOutlineColour = col;
+  faceOutlineGlow   = col.replace(/[\d.]+\)$/, '0.04)');
+}
+
+// ── NOTE SIZE ──
+let noteLabelSize = 14;
+function changeNoteSize(delta) {
+  noteLabelSize = Math.max(8, Math.min(32, noteLabelSize + delta));
+  document.getElementById('noteSizeLabel').textContent = noteLabelSize + 'px';
+}
+
+// ── MENU PRESETS ──
+const MENU_PRESETS = {
+  default: {
+    panelBg: 'rgba(5,5,8,0.97)', tabBg: 'var(--ink)',
+    textCol: '#f0f0f0', labelCol: 'rgba(232,255,0,1)',
+    btnBg: '#1a1a22', btnBorder: 'rgba(240,240,240,0.15)', btnText: 'rgba(240,240,240,0.65)',
+    sectionCol: 'rgba(232,255,0,0.8)', hairlineCol: 'rgba(240,240,240,0.07)',
+    font: "'Barlow Condensed', sans-serif", letterSpacing: '0.03em', lineHeight: '1.4',
+    strings: null, // no translation
+  },
+  wcag: {
+    panelBg: 'rgba(0,0,0,1)', tabBg: '#000000',
+    textCol: '#ffffff', labelCol: '#ffff00',
+    btnBg: '#1a1a1a', btnBorder: '#ffffff', btnText: '#ffffff',
+    sectionCol: '#ffff00', hairlineCol: 'rgba(255,255,255,0.4)',
+    font: "Arial, sans-serif", letterSpacing: '0.02em', lineHeight: '1.5',
+    strings: null,
+  },
+  dyslexia: {
+    panelBg: 'rgba(253,246,227,0.98)', tabBg: '#fdf6e3',
+    textCol: '#2d1800', labelCol: '#8b3a00',
+    btnBg: '#f0e6cc', btnBorder: '#8b5c00', btnText: '#2d1800',
+    sectionCol: '#8b3a00', hairlineCol: 'rgba(61,32,0,0.2)',
+    font: "Arial, sans-serif", letterSpacing: '0.06em', lineHeight: '1.9',
+    strings: null,
+  },
+  spanish: {
+    panelBg: 'rgba(5,5,8,0.97)', tabBg: 'var(--ink)',
+    textCol: '#f0f0f0', labelCol: 'rgba(232,255,0,1)',
+    btnBg: '#1a1a22', btnBorder: 'rgba(240,240,240,0.15)', btnText: 'rgba(240,240,240,0.65)',
+    sectionCol: 'rgba(232,255,0,0.8)', hairlineCol: 'rgba(240,240,240,0.07)',
+    font: "'Barlow Condensed', sans-serif", letterSpacing: '0.03em', lineHeight: '1.4',
+    strings: {
+      // Tab labels
+      'Scale':'Escala', 'Instrument':'Instrumento', 'Effects':'Efectos',
+      'MIDI':'MIDI', 'Range':'Rango', '✦ Experimental':'✦ Experimental',
+      '🥁 Drums':'🥁 Batería', '♿ Access':'♿ Acceso',
+      'Notes: On':'Notas: Sí', 'Notes: Off':'Notas: No',
+      // Section labels
+      'Root Note':'Nota raíz', 'Scale / Mode':'Escala / Modo', 'Starting Octave':'Octava inicial',
+      'Note Triggering':'Activar notas',
+      'Synth Preset':'Preset de sintetizador',
+      'Parameters — click to edit':'Parámetros — clic para editar',
+      'Note Layout':'Disposición de notas',
+      'Linear — Zone Strip':'Lineal — Banda de zona',
+      'Arc — Sweep & Rotation':'Arco — Barrido y rotación',
+      '✦ Drone Mode':'✦ Modo Drone',
+      'Head Rotation → Filter':'Rotación cabeza → Filtro',
+      'Drone Note':'Nota drone',
+      'Output Port':'Puerto de salida',
+      // Buttons
+      '◎ Notes Active':'◎ Notas activas', '✕ Notes Silenced':'✕ Notas silenciadas',
+      '▶ Start Drone':'▶ Iniciar drone', '■ Stop Drone':'■ Detener drone',
+      '↺ Reset':'↺ Restablecer', '＋ Save as preset':'＋ Guardar preset',
+      '＋ Save layout':'＋ Guardar diseño',
+      'Connect MIDI':'Conectar MIDI', 'Disconnect MIDI':'Desconectar MIDI',
+      'Enable Camera':'Activar cámara',
+      '◎ ALL LIGHTS OFF':'◎ APAGAR TODO',
+      '◉ LIGHTS BACK ON':'◉ ENCENDER TODO',
+      '▾ DISPLAY OPTIONS':'▾ OPCIONES DE PANTALLA',
+      // Scale modes
+      'Major':'Mayor', 'Natural Min':'Men. Natural', 'Harmonic Min':'Men. Armónico',
+      'Pentatonic':'Pentatónica', 'Min Penta':'Penta. Menor',
+      'Blues':'Blues', 'Dorian':'Dórico', 'Mixolydian':'Mixolidio',
+      'Chromatic':'Cromático',
+      // Instrument groups
+      'Keyboard':'Teclado', 'Strings':'Cuerdas', 'Brass & Winds':'Viento metal y madera',
+      'Synth':'Sintetizador', 'World & Perc':'Mundo y Percusión', 'Ambient':'Ambiente',
+      '⭐ My Presets':'⭐ Mis presets',
+      // Effects
+      'Attack':'Ataque', 'Decay':'Caída', 'Sustain':'Sustain', 'Release':'Liberación',
+      'Filter':'Filtro', 'Res':'Res', 'Reverb':'Reverb', 'Chorus':'Coro',
+      'Flange':'Flange', 'Delay':'Delay', 'Sub':'Sub', 'Vol':'Vol',
+      'EQ Low':'EQ Bajo', 'EQ Mid':'EQ Medio', 'EQ High':'EQ Alto',
+      // Access bar labels
+      'INSTRUMENT COLOURS':'COLORES DEL INSTRUMENTO',
+      'NOTE SIZE':'TAMAÑO DE NOTAS',
+      'FACE OUTLINE':'CONTORNO FACIAL',
+      'MENU PRESET':'PRESET DE MENÚ',
+      'MENU TEXT SIZE':'TAMAÑO DE TEXTO',
+      'BUTTON SIZE':'TAMAÑO DE BOTONES',
+      'Teal':'Verde azul', 'Yellow':'Amarillo', 'Pink':'Rosa',
+      'Red':'Rojo', 'White':'Blanco', 'Mono':'Mono',
+      'Default':'Predeterminado', 'Off':'Apagado', 'Black':'Negro',
+      // Section labels in panels
+      'hover 1 s to select':'pasa 1 s para seleccionar',
+      'by Fused Music Studio':'por Fused Music Studio',
+    }
+  }
+};
+
+let currentMenuPreset = 'default';
+
+function applyMenuPreset(name) {
+  const cfg = MENU_PRESETS[name];
+  if (!cfg) return;
+
+  // ── Full reset before applying ──
+  ['panelArea','tabbar','statusBar'].forEach(id => {
+    const el = document.getElementById(id); if (el) { el.style.cssText = ''; }
+  });
+  document.querySelectorAll('.tab, .choice-btn, .preset-btn, .param-btn, .oct-btn, .conn-btn, .vcell, .range-lbl, .mfield label, .panel-section-label, .hairline, .tab-panel, .panel-row, .brand-name, .brand-score, .brand-studio, .dwell-bar, .vcell .vv, .vcell .vl, .oct-btn .oct-note, .oct-btn .oct-num, .param-btn .pv, .param-btn .pn').forEach(el => { el.style.cssText = ''; });
+  ['noteSizeLabel','menuSizeLabel','btnSizeLabel','midiHint'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.style.color = '';
+  });
+  document.querySelectorAll('#statusBar .chip').forEach(el => { el.style.cssText = ''; });
+
+  currentMenuPreset = name;
+
+  // Apply panel/tab backgrounds
+  const pa = document.getElementById('panelArea');
+  const tb = document.getElementById('tabbar');
+  if (pa) { pa.style.background = cfg.panelBg; pa.style.color = cfg.textCol; }
+  if (tb) { tb.style.background = cfg.tabBg; }
+
+  // Apply to all tab buttons
+  document.querySelectorAll('.tab').forEach(el => {
+    el.style.fontFamily = cfg.font;
+    el.style.letterSpacing = cfg.letterSpacing;
+    el.style.color = el.classList.contains('active') ? cfg.labelCol : cfg.textCol;
+  });
+
+  // Apply to all section labels
+  document.querySelectorAll('.panel-section-label').forEach(el => {
+    el.style.color = cfg.sectionCol;
+    el.style.fontFamily = cfg.font;
+  });
+
+  // Apply to all buttons in panels
+  document.querySelectorAll('.choice-btn, .preset-btn, .param-btn, .oct-btn, .conn-btn, .theme-btn, .a11y-toggle-btn').forEach(el => {
+    el.style.background = cfg.btnBg;
+    el.style.borderColor = cfg.btnBorder;
+    el.style.color = cfg.btnText;
+    el.style.fontFamily = cfg.font;
+    el.style.letterSpacing = cfg.letterSpacing;
+  });
+
+  // Apply to hairlines
+  document.querySelectorAll('.hairline').forEach(el => {
+    el.style.background = cfg.hairlineCol;
+  });
+
+  // Apply line height to panel rows
+  document.querySelectorAll('.tab-panel, .panel-row').forEach(el => {
+    el.style.lineHeight = cfg.lineHeight;
+    el.style.fontFamily = cfg.font;
+    el.style.color = cfg.textCol;
+  });
+
+  // Dyslexia: also style value cells, param values, labels
+  if (name === 'dyslexia') {
+    const dark = '#2d1800', mid = '#5a3300', cream = '#fdf6e3', lightCream = '#f0e6cc';
+
+    document.querySelectorAll('.vcell').forEach(el => {
+      el.style.background = lightCream; el.style.borderColor = '#8b5c00'; el.style.borderWidth = '2px';
+    });
+    document.querySelectorAll('.vcell .vv').forEach(el => { el.style.color = dark; el.style.fontFamily = 'Arial, sans-serif'; });
+    document.querySelectorAll('.vcell .vl').forEach(el => { el.style.color = mid; el.style.fontFamily = 'Arial, sans-serif'; });
+    document.querySelectorAll('.param-btn .pv').forEach(el => { el.style.color = mid; el.style.fontFamily = 'Arial, sans-serif'; });
+    document.querySelectorAll('.param-btn .pn').forEach(el => { el.style.color = dark; el.style.fontFamily = 'Arial, sans-serif'; });
+    document.querySelectorAll('.oct-btn .oct-note').forEach(el => { el.style.color = mid; el.style.fontFamily = 'Arial, sans-serif'; });
+    document.querySelectorAll('.oct-btn .oct-num').forEach(el => { el.style.color = dark; });
+
+    // Preset group labels
+    document.querySelectorAll('.preset-strip > div, #presetStrip > div').forEach(el => {
+      if (el.tagName !== 'BUTTON') { el.style.color = mid; el.style.fontFamily = 'Arial, sans-serif'; }
+    });
+
+    // Range labels
+    document.querySelectorAll('.range-lbl').forEach(el => { el.style.color = dark; el.style.fontFamily = 'Arial, sans-serif'; });
+    document.querySelectorAll('.range-lbl span').forEach(el => { el.style.color = '#8b3a00'; });
+
+    // MIDI
+    document.querySelectorAll('.mfield label').forEach(el => { el.style.color = dark; el.style.fontFamily = 'Arial, sans-serif'; });
+    document.querySelectorAll('.mfield label span').forEach(el => { el.style.color = '#8b3a00'; });
+    const midiHint = document.getElementById('midiHint');
+    if (midiHint) midiHint.style.color = dark;
+
+    // Tab inactive
+    document.querySelectorAll('.tab:not(.active)').forEach(el => { el.style.color = mid; });
+
+    // Status bar
+    document.querySelectorAll('#statusBar .chip').forEach(el => {
+      el.style.background = lightCream; el.style.border = '1px solid #8b5c00'; el.style.color = dark;
+    });
+    document.querySelectorAll('#statusBar .chip.bright').forEach(el => {
+      el.style.color = '#8b3a00'; el.style.borderColor = '#8b3a00'; el.style.background = '#f5dda0';
+    });
+    document.getElementById('statusBar') && (document.getElementById('statusBar').style.background = 'linear-gradient(to top, rgba(253,246,227,0.9) 0%, transparent 100%)');
+
+    // All inline rgba-coloured text
+    document.querySelectorAll('[style*="rgba(255,255,255,0"], [style*="rgba(240,240,240,0"]').forEach(el => {
+      const s = el.style.color || '';
+      if (s.includes('rgba')) el.style.color = mid;
+    });
+
+    // Hint texts in panels
+    document.querySelectorAll('#panel-experimental div[style]').forEach(el => {
+      if (el.style.color) el.style.color = dark;
+    });
+    document.querySelectorAll('#valGridWrap span').forEach(el => { el.style.color = mid; });
+    document.querySelectorAll('#panel-range div[style]').forEach(el => {
+      if (el.style.color) el.style.color = dark;
+    });
+
+    ['noteSizeLabel','menuSizeLabel','btnSizeLabel'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.style.color = mid;
+    });
+
+    document.querySelectorAll('.dwell-bar').forEach(el => { el.style.background = '#8b3a00'; });
+
+    const score = document.querySelector('.brand-score');
+    if (score) { score.style.border = '1px solid #8b5c00'; score.style.color = '#8b3a00'; score.style.background = '#f5dda0'; }
+
+    const pa2 = document.getElementById('panelArea');
+    if (pa2) pa2.style.borderBottomColor = '#8b5c00';
+    const tb2 = document.getElementById('tabbar');
+    if (tb2) tb2.style.borderBottomColor = '#8b5c00';
+
+    document.querySelectorAll('.brand-name, .brand-studio').forEach(el => { el.style.color = dark; });
+
+  } else {
+    // Restore defaults for non-dyslexia
+    document.querySelectorAll('.vcell').forEach(el => { el.style.background = ''; el.style.borderColor = ''; el.style.borderWidth = ''; });
+    document.querySelectorAll('.vcell .vv, .vcell .vl, .pv, .pn').forEach(el => { el.style.color = ''; el.style.fontFamily = ''; });
+    document.querySelectorAll('.brand-name, .brand-studio').forEach(el => { el.style.color = ''; });
+    document.getElementById('statusBar') && (document.getElementById('statusBar').style.background = '');
+  }
+
+  // WCAG: add thick borders to everything AND fix ALL subtext contrast
+  if (name === 'wcag') {
+    document.querySelectorAll('.choice-btn, .preset-btn, .param-btn, .oct-btn').forEach(el => {
+      el.style.borderWidth = '2px';
+      el.style.borderColor = '#ffffff';
+    });
+
+    // Value cells
+    document.querySelectorAll('.vcell').forEach(el => {
+      el.style.background = '#1a1a1a';
+      el.style.borderColor = '#ffffff';
+      el.style.borderWidth = '2px';
+    });
+    document.querySelectorAll('.vcell .vv').forEach(el => { el.style.color = '#ffffff'; el.style.fontFamily = 'Arial, sans-serif'; });
+    document.querySelectorAll('.vcell .vl').forEach(el => { el.style.color = '#cccccc'; el.style.fontFamily = 'Arial, sans-serif'; });
+
+    // Param button sub-values
+    document.querySelectorAll('.param-btn .pv').forEach(el => { el.style.color = '#cccccc'; el.style.fontFamily = 'Arial, sans-serif'; });
+    document.querySelectorAll('.param-btn .pn').forEach(el => { el.style.color = '#ffffff'; el.style.fontFamily = 'Arial, sans-serif'; });
+
+    // Oct button sub-labels (Hz readout)
+    document.querySelectorAll('.oct-btn .oct-note').forEach(el => { el.style.color = '#cccccc'; el.style.fontFamily = 'Arial, sans-serif'; });
+    document.querySelectorAll('.oct-btn .oct-num').forEach(el => { el.style.color = '#ffffff'; });
+
+    // Preset group labels (built via JS innerText)
+    document.querySelectorAll('.preset-strip > div, #presetStrip > div').forEach(el => {
+      if (el.tagName !== 'BUTTON') { el.style.color = '#cccccc'; el.style.fontFamily = 'Arial, sans-serif'; }
+    });
+
+    // Range labels (range-lbl spans)
+    document.querySelectorAll('.range-lbl').forEach(el => { el.style.color = '#ffffff'; el.style.fontFamily = 'Arial, sans-serif'; });
+    document.querySelectorAll('.range-lbl span').forEach(el => { el.style.color = '#ffff00'; });
+
+    // MIDI labels and hint text
+    document.querySelectorAll('.mfield label').forEach(el => { el.style.color = '#ffffff'; });
+    document.querySelectorAll('.mfield label span').forEach(el => { el.style.color = '#ffff00'; });
+    document.querySelectorAll('.midi-flash').forEach(el => { el.style.color = '#00ff88'; });
+    const midiHint = document.getElementById('midiHint');
+    if (midiHint) midiHint.style.color = '#ffffff';
+
+    // All inline hint/description divs and spans throughout panels
+    document.querySelectorAll('[style*="rgba(255,255,255,0"], [style*="rgba(240,240,240,0"]').forEach(el => {
+      // Only text-bearing elements (not borders/backgrounds)
+      const s = el.style.color || '';
+      if (s.includes('rgba') && (s.includes(',0.') || s.includes(', 0.'))) {
+        el.style.color = '#cccccc';
+      }
+    });
+
+    // Tab bar: inactive tabs
+    document.querySelectorAll('.tab:not(.active)').forEach(el => { el.style.color = '#cccccc'; });
+
+    // Status bar chips
+    document.querySelectorAll('#statusBar .chip').forEach(el => {
+      el.style.background = '#1a1a1a';
+      el.style.border = '2px solid #ffffff';
+      el.style.color = '#ffffff';
+    });
+    document.querySelectorAll('#statusBar .chip.bright').forEach(el => {
+      el.style.color = '#ffff00';
+      el.style.borderColor = '#ffff00';
+    });
+
+    // Start overlay text
+    document.querySelectorAll('#startOverlay p, #startOverlay h2').forEach(el => { el.style.color = '#ffffff'; });
+    document.querySelectorAll('#startOverlay small').forEach(el => { el.style.color = '#cccccc'; });
+
+    // Access bar readout labels
+    ['noteSizeLabel','menuSizeLabel','btnSizeLabel'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.color = '#cccccc';
+    });
+
+    // Drone/experimental hint text
+    document.querySelectorAll('#panel-experimental div[style*="rgba"]').forEach(el => {
+      if (el.style.color && el.style.color.includes('rgba')) el.style.color = '#cccccc';
+    });
+
+    // "hover 1 s to select" in effects panel
+    document.querySelectorAll('#valGridWrap span').forEach(el => { el.style.color = '#cccccc'; });
+
+    // Range info text at bottom of range panel
+    document.querySelectorAll('#panel-range div[style*="rgba"]').forEach(el => {
+      if (el.style.color && el.style.color.includes('rgba')) el.style.color = '#cccccc';
+    });
+
+    // Dwell bar colour update
+    document.querySelectorAll('.dwell-bar').forEach(el => { el.style.background = '#ffff00'; });
+
+    // Brand score badge
+    const score = document.querySelector('.brand-score');
+    if (score) { score.style.border = '2px solid #ffff00'; score.style.color = '#ffff00'; score.style.background = '#1a1a00'; }
+
+    // Panel border bottom
+    const pa2 = document.getElementById('panelArea');
+    if (pa2) pa2.style.borderBottomColor = '#ffffff';
+    const tb2 = document.getElementById('tabbar');
+    if (tb2) { tb2.style.borderBottomColor = '#ffffff'; tb2.style.borderBottomWidth = '2px'; }
+  }
+
+  // Apply translations if Spanish
+  if (cfg.strings) applyTranslations(cfg.strings);
+  else if (name !== 'spanish') restoreTranslations();
+}
+
+// ── TRANSLATION ENGINE ──
+const originalTexts = new Map(); // element → original text
+
+function applyTranslations(strings) {
+  // Translate text nodes in buttons, labels, spans, etc.
+  const targets = document.querySelectorAll(
+    '.tab, .panel-section-label, .choice-btn, .preset-btn, .conn-btn, ' +
+    '.tab-dot ~ *, #notesLabel, .mfield label, button:not([id^="thm-"]):not([id^="tog-"])'
+  );
+  targets.forEach(el => {
+    // Only translate leaf text (no complex children like tab-dots)
+    const key = el.textContent.trim();
+    if (!originalTexts.has(el)) originalTexts.set(el, el.innerHTML);
+    const translated = strings[key];
+    if (translated) el.textContent = translated;
+  });
+
+  // Translate specific span text inside tabs (avoid clobbering tab-dot divs)
+  document.querySelectorAll('.tab').forEach(tab => {
+    // Find text node directly (not inside child divs)
+    tab.childNodes.forEach(node => {
+      if (node.nodeType === 3) { // text node
+        const key = node.textContent.trim();
+        if (strings[key]) node.textContent = ' ' + strings[key];
+      }
+    });
+  });
+
+  // Translate status bar, drone status, section labels in access bar
+  document.querySelectorAll('#lightsOffBtn, #a11yBar button').forEach(el => {
+    const key = el.textContent.trim();
+    if (!originalTexts.has(el)) originalTexts.set(el, el.innerHTML);
+    if (strings[key]) el.textContent = strings[key];
+  });
+}
+
+function restoreTranslations() {
+  originalTexts.forEach((html, el) => {
+    el.innerHTML = html;
+  });
+  originalTexts.clear();
+}
+
+function setMenuBg(col) {
+  const pa = document.getElementById('panelArea');
+  const tb = document.getElementById('tabbar');
+  if (pa) pa.style.background = col;
+  if (tb) tb.style.background = col;
+}
+
+// ── MENU TEXT SIZE ──
+let menuSizeStep = 0;
+const menuSizeSteps = [
+  { label:'Small', tab:11, btn:11, lbl:8  },
+  { label:'Normal',tab:12, btn:12, lbl:9  },
+  { label:'Large', tab:15, btn:14, lbl:10 },
+  { label:'XLarge',tab:18, btn:17, lbl:12 },
+];
+function changeMenuSize(delta) {
+  menuSizeStep = Math.max(0, Math.min(menuSizeSteps.length - 1, menuSizeStep + delta));
+  const s = menuSizeSteps[menuSizeStep];
+  document.getElementById('menuSizeLabel').textContent = s.label;
+  // Apply to tabs
+  document.querySelectorAll('.tab').forEach(el => el.style.fontSize = s.tab + 'px');
+  // Apply to all choice/preset/param buttons
+  document.querySelectorAll('.choice-btn,.preset-btn,.param-btn,.oct-btn,.conn-btn').forEach(el => el.style.fontSize = s.btn + 'px');
+  document.querySelectorAll('.panel-section-label').forEach(el => el.style.fontSize = s.lbl + 'px');
+}
+
+// ── BUTTON SIZE ──
+let btnSizeStep = 1;
+const btnSizeSteps = [
+  { label:'Small', pad:'4px 8px'   },
+  { label:'Normal',pad:'6px 12px'  },
+  { label:'Large', pad:'10px 18px' },
+  { label:'XLarge',pad:'14px 24px' },
+];
+function changeButtonSize(delta) {
+  btnSizeStep = Math.max(0, Math.min(btnSizeSteps.length - 1, btnSizeStep + delta));
+  const s = btnSizeSteps[btnSizeStep];
+  document.getElementById('btnSizeLabel').textContent = s.label;
+  document.querySelectorAll('.choice-btn,.preset-btn,.param-btn,.oct-btn,.conn-btn,.tab').forEach(el => el.style.padding = s.pad);
+}
+
+function applyTheme(cls) {
+  ALL_THEMES.forEach(t => document.body.classList.remove(t));
+  if (cls) document.body.classList.add(cls);
+  currentTheme = cls;
+  // Reset all theme button borders
+  ['thm-default','thm-wcag','thm-dyslexia','thm-sight','thm-amber','thm-photo'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.style.borderColor = '#888';
+  });
+  // Highlight active one
+  const map = {'':'thm-default','theme-wcag':'thm-wcag','theme-dyslexia':'thm-dyslexia','theme-sight':'thm-sight','theme-amber':'thm-amber','theme-photosensitive':'thm-photo'};
+  const activeId = map[cls];
+  if (activeId) { const b = document.getElementById(activeId); if (b) b.style.borderColor = '#e8ff00'; }
+  try { localStorage.setItem('hedshokTheme', cls); } catch(e) {}
+  announce(cls ? cls.replace('theme-','') + ' theme' : 'Default theme');
+}
+
+function togA11y(btn, cls) {
+  const on = document.body.classList.toggle(cls);
+  btn.style.borderColor = on ? '#4fc3f7' : '#888';
+  btn.style.color = on ? '#4fc3f7' : '#f0f0f0';
+  try { localStorage.setItem('hedshok_'+cls, on?'1':'0'); } catch(e) {}
+  announce(btn.textContent.trim() + (on?' on':' off'));
+}
+
+function togSR(btn) {
+  screenReaderOn = !screenReaderOn;
+  btn.style.borderColor = screenReaderOn ? '#4fc3f7' : '#888';
+  btn.style.color = screenReaderOn ? '#4fc3f7' : '#f0f0f0';
+  try { localStorage.setItem('hedshokSR', screenReaderOn?'1':'0'); } catch(e) {}
+  if (screenReaderOn) {
+    speak('Screen reader on. Hover any button to hear its label.');
+    attachSRListeners();
+  } else {
+    window.speechSynthesis?.cancel();
+  }
+}
+
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 1.1;
+  window.speechSynthesis.speak(u);
+}
+
+function announce(text) {
+  const el = document.getElementById('srAnnounce');
+  const live = document.getElementById('ariaLive');
+  if (el) { el.textContent = text; el.classList.add('show'); }
+  if (live) live.textContent = text;
+  clearTimeout(srAnnounceTimer);
+  srAnnounceTimer = setTimeout(() => {
+    if (el) el.classList.remove('show');
+    if (live) live.textContent = '';
+  }, 2200);
+}
+
+function attachSRListeners() {
+  document.querySelectorAll('button, select').forEach(el => {
+    if (el._sr) return;
+    el._sr = true;
+    el.addEventListener('mouseenter', () => {
+      if (!screenReaderOn) return;
+      const txt = el.getAttribute('aria-label') || el.textContent?.trim().replace(/\s+/g,' ').substring(0,80) || '';
+      if (txt) speak(txt);
+    });
+  });
+}
+
+function readCurrentPanel() {
+  if (!window.speechSynthesis) { announce('Speech not available'); return; }
+  window.speechSynthesis.cancel();
+  const panelEl = activeTab ? document.getElementById('panel-'+activeTab) : null;
+  if (!panelEl) { speak('No panel open'); return; }
+  const items = [];
+  panelEl.querySelectorAll('.panel-section-label').forEach(el => items.push('Section: '+el.textContent.trim()));
+  panelEl.querySelectorAll('button').forEach(el => {
+    const t = el.getAttribute('aria-label') || el.textContent.trim().replace(/\s+/g,' ');
+    if (t) items.push(t);
+  });
+  if (!items.length) { speak('Nothing to read'); return; }
+  let i = 0;
+  function next() {
+    if (i >= items.length) return;
+    const u = new SpeechSynthesisUtterance(items[i++]);
+    u.rate = 1.0; u.onend = () => setTimeout(next, 120);
+    window.speechSynthesis.speak(u);
+  }
+  speak('Reading ' + items.length + ' items');
+  setTimeout(next, 900);
+}
+
+function loadA11ySettings() {
+  try {
+    const t = localStorage.getItem('hedshokTheme');
+    if (t) applyTheme(t);
+    // Toggles
+    [['a11y-large','tog-large'],['a11y-focus','tog-focus'],['theme-photosensitive','tog-motion']].forEach(([cls,id]) => {
+      if (localStorage.getItem('hedshok_'+cls)==='1') {
+        document.body.classList.add(cls);
+        const b = document.getElementById(id);
+        if (b) { b.style.borderColor='#4fc3f7'; b.style.color='#4fc3f7'; }
+      }
+    });
+    if (localStorage.getItem('hedshokSR')==='1') {
+      screenReaderOn = true;
+      const b = document.getElementById('tog-sr');
+      if (b) { b.style.borderColor='#4fc3f7'; b.style.color='#4fc3f7'; }
+      attachSRListeners();
+    }
+  } catch(e) {}
+}
+
+function labelTabs() {
+  const labels = {
+    'tab-scale':'Scale — root note, scale mode, octave',
+    'tab-instrument':'Instrument — synth preset',
+    'tab-effects':'Effects — ADSR, filter, reverb, EQ',
+    'tab-midi':'MIDI — connect to DAW',
+    'tab-range':'Range — note layout and sensitivity',
+    'tab-experimental':'Experimental — drone and head filter',
+    'tab-drums':'Drums — open drum machine',
+    'tab-access':'Accessibility — colour schemes and screen reader',
+    'tab-notes':'Toggle note labels on or off',
+  };
+  Object.entries(labels).forEach(([id,lbl]) => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('aria-label', lbl);
+  });
+}
+
+// ── INIT ──
+loadCustomPresets();
+loadRangeLayouts();
+buildRootBtns();buildModeBtns();buildOctBtns();buildLayoutBtns();
+buildPresetStrip();buildParamStrip();
+buildDroneNoteBtns();buildSavedLayoutBtns();
+refreshScale();
+labelTabs();
+loadA11ySettings();
+setTimeout(attachSRListeners, 800);
+</script>
+</body>
+</html>
