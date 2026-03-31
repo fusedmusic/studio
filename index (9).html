@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fused Music Studio — Assistive Music Technology Specialist</title>
+  <meta name="description" content="Rebecca is a specialist in assistive music technology, stroke rehabilitation, music and neurorehabilitation, and music education for disabled children and adults across the UK.">
+  <link rel="stylesheet" href="/studio/css/style.css">
+  <style>
+    /* ---- HERO ---- */
+    .hero {
+      background: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 140px 60px 100px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-glow-1 {
+      position: absolute; top: -80px; right: -80px;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(26,107,107,0.25) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-glow-2 {
+      position: absolute; bottom: -100px; left: 20%;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(184,130,58,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      position: relative; z-index: 1;
+      max-width: 1200px;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 11px; font-weight: 500; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--teal-light);
+      margin-bottom: 24px;
+    }
+    .hero-eyebrow::before {
+      content: ''; display: block;
+      width: 32px; height: 1px; background: var(--teal-light);
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(42px, 5.5vw, 74px);
+      font-weight: 900; color: var(--white);
+      line-height: 1.05; margin-bottom: 28px;
+    }
+    .hero h1 em { font-style: italic; color: var(--teal-light); }
+    .hero-sub {
+      font-size: 18px; font-weight: 300;
+      color: rgba(255,255,255,0.82);
+      line-height: 1.75; max-width: 520px; margin-bottom: 48px;
+    }
+    .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    .hero-stats {
+      display: flex; flex-direction: column; gap: 32px;
+      padding-left: 40px;
+      border-left: 1px solid rgba(255,255,255,0.1);
+    }
+    .stat-item {}
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 52px; font-weight: 900;
+      color: var(--white); line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-num span { color: var(--teal-light); }
+    .stat-label {
+      font-size: 14px; font-weight: 300;
+      color: rgba(255,255,255,0.6); line-height: 1.5;
+    }
+    .stat-divider {
+      width: 40px; height: 1px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* ---- CLIENTS STRIP ---- */
+    .clients-strip {
+      background: var(--teal);
+      padding: 18px 60px;
+      display: flex; align-items: center; gap: 32px; flex-wrap: wrap;
+    }
+    .clients-strip .cl-label {
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(255,255,255,0.82); font-weight: 500; white-space: nowrap;
+    }
+    .clients-strip .cl-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+    .cl-tag {
+      background: rgba(255,255,255,0.15); color: var(--white);
+      padding: 5px 14px; border-radius: 100px; font-size: 13px;
+    }
+
+    /* ---- INTRO ---- */
+    .intro-section {
+      padding: 96px 60px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .intro-section h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(30px, 3.5vw, 46px);
+      font-weight: 700; line-height: 1.2; margin-bottom: 24px;
+    }
+    .intro-section p {
+      font-size: 17px; font-weight: 300; line-height: 1.8;
+      color: #2e2e3a; margin-bottom: 16px;
+    }
+    .intro-section .btn { margin-top: 16px; }
+
+    .intro-credentials {
+      background: var(--ink);
+      border-radius: 4px;
+      padding: 48px;
+      display: flex; flex-direction: column; gap: 24px;
+    }
+    .cred-item { display: flex; gap: 16px; align-items: flex-start; }
+    .cred-icon {
+      width: 40px; height: 40px; min-width: 40px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .cred-text strong {
+      display: block; font-size: 14px; font-weight: 500;
+      color: var(--white); margin-bottom: 3px;
+    }
+    .cred-text span { font-size: 13px; color: rgba(255,255,255,0.55); font-weight: 300; }
+
+    /* ---- SERVICES PREVIEW ---- */
+    .services-preview {
+      background: var(--cream);
+      padding: 96px 60px;
+    }
+    .services-preview-inner { max-width: 1200px; margin: 0 auto; }
+    .preview-header {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 56px;
+    }
+    .preview-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(30px, 3.5vw, 46px); font-weight: 700; line-height: 1.2;
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2px;
+    }
+    .service-card {
+      background: var(--white);
+      padding: 48px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s;
+      text-decoration: none; color: inherit;
+      display: block;
+    }
+    .service-card::before {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 3px; background: var(--teal);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.3s;
+    }
+    .service-card:hover::before { transform: scaleX(1); }
+    .service-card:hover { transform: translateY(-3px); }
+    .service-card:focus-visible {
+      outline: 3px solid var(--teal); outline-offset: 2px;
+    }
+    .card-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 64px; font-weight: 900;
+      color: rgba(26,107,107,0.08); line-height: 1;
+      position: absolute; top: 20px; right: 24px;
+      user-select: none; pointer-events: none;
+    }
+    .card-icon { font-size: 32px; margin-bottom: 20px; }
+    .service-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px; font-weight: 700; margin-bottom: 10px;
+    }
+    .service-card p {
+      font-size: 15px; font-weight: 300; line-height: 1.7;
+      color: var(--muted);
+    }
+    .card-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 500; color: var(--teal);
+      text-decoration: none; margin-top: 20px;
+      transition: gap 0.2s;
+    }
+    .card-link::after { content: '→'; }
+    .service-card:hover .card-link { gap: 12px; }
+
+    /* ---- QUOTE SECTION ---- */
+    .quote-section {
+      background: var(--teal);
+      padding: 96px 60px;
+      text-align: center;
+    }
+    .quote-section blockquote {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(24px, 3vw, 38px);
+      font-weight: 400; font-style: italic;
+      color: var(--white); line-height: 1.4;
+      max-width: 820px; margin: 0 auto 32px;
+    }
+    .quote-section blockquote::before { content: '\201C'; }
+    .quote-section blockquote::after  { content: '\201D'; }
+    .quote-cta { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 40px; }
+
+    /* ---- CTA SECTION ---- */
+    .cta-band {
+      background: var(--ink);
+      padding: 80px 60px;
+      display: flex; justify-content: space-between;
+      align-items: center; gap: 40px; flex-wrap: wrap;
+    }
+    .cta-band h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(26px, 3vw, 40px); font-weight: 700;
+      color: var(--white); line-height: 1.2; max-width: 560px;
+    }
+    .cta-band h2 em { font-style: italic; color: var(--teal-light); }
+    .cta-band-btns { display: flex; flex-direction: column; gap: 12px; min-width: 200px; }
+
+    @media (max-width: 900px) {
+      .hero { padding: 120px 24px 80px; }
+      .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+      .hero-stats { padding-left: 0; border-left: none; flex-direction: row; flex-wrap: wrap; gap: 24px; }
+      .stat-divider { display: none; }
+      .clients-strip { padding: 18px 24px; }
+      .intro-section { grid-template-columns: 1fr; padding: 60px 24px; gap: 40px; }
+      .services-preview { padding: 60px 24px; }
+      .preview-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+      .services-grid { grid-template-columns: 1fr; }
+      .quote-section { padding: 60px 24px; }
+      .cta-band { padding: 60px 24px; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-nav">Skip to main content</a>
+
+<!-- NAV -->
+<nav class="site-nav" aria-label="Main navigation">
+  <a href="/studio/index.html" class="nav-logo" aria-label="Fused Music Studio - Home">Fused<span>Music</span>.studio</a>
+  <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" role="list">
+    <li><a href="/studio/index.html">Home</a></li>
+    <li><a href="/studio/services.html">Services</a></li>
+    <li><a href="/studio/about.html">About</a></li>
+    <li><a href="/studio/blog.html">Blog</a></li>
+    <li><a href="/studio/contact.html" class="nav-cta">Book a Call</a></li>
+  </ul>
+</nav>
+
+<main id="main-content">
+
+  <!-- HERO -->
+  <section class="hero" aria-labelledby="hero-heading">
+    <div class="hero-glow-1" aria-hidden="true"></div>
+    <div class="hero-glow-2" aria-hidden="true"></div>
+    <div class="hero-grid">
+      <div class="hero-content">
+        <div class="hero-eyebrow">Assistive Music Technology Specialist</div>
+        <h1 id="hero-heading">Fused Music <em>Studio</em></h1>
+        <p class="hero-sub">We are an innovative research and design studio creating bespoke solutions for disabled people. We understand the wide-reaching scope and impact of accessible music-making, drawing on over 25 years of experience in music education and music engineering, and a wealth of knowledge from specialist accessible software developers and technology makers. We work directly with disabled children and adults, teachers, carers, and parents and train others to create accessible ways to ensure music can be enjoyed by everyone.</p>
+        <div class="hero-btns">
+          <a href="/studio/contact.html" class="btn btn-primary">Book a Discovery Call</a>
+          <a href="/studio/services.html" class="btn btn-outline-white">Explore Services</a>
+        </div>
+      </div>
+      <div class="hero-stats" aria-label="Key facts">
+        <div class="stat-item">
+          <div class="stat-num">25<span>+</span></div>
+          <div class="stat-label">Years experience in music<br>education & accessible technology</div>
+        </div>
+        <div class="stat-divider" aria-hidden="true"></div>
+        <div class="stat-item">
+          <div class="stat-num">4</div>
+          <div class="stat-label">Specialist service areas<br>across education & healthcare</div>
+        </div>
+        <div class="stat-divider" aria-hidden="true"></div>
+        <div class="stat-item">
+          <div class="stat-num">PhD</div>
+          <div class="stat-label">Research in music digital gaming<br>and upper limb stroke rehabilitation</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLIENTS STRIP -->
+  <div class="clients-strip" role="region" aria-label="Organisations I work with">
+    <span class="cl-label">I work with</span>
+    <div class="cl-tags">
+      <span class="cl-tag">SEN Departments</span>
+      <span class="cl-tag">NHS & Neurorehabilitation</span>
+      <span class="cl-tag">Music Therapists</span>
+      <span class="cl-tag">Families & Carers</span>
+      <span class="cl-tag">BSMT</span>
+      <span class="cl-tag">Royal Hospital for Neuro-Disability</span>
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <section class="intro-section" aria-labelledby="intro-heading">
+    <div class="reveal">
+      <div class="section-label">About</div>
+      <h2 id="intro-heading">Where music technology meets inclusion</h2>
+      <p>Over 25 years working directly with disabled children, adults, stroke survivors, and the teams who support them. Specialising in music and stroke rehabilitation, co-design, and configuring apps, hardware and music software into practical, useable setups that open up music-making for each individual client.</p>
+      <p>PhD research used co-design with stroke survivors to adapt a rhythm game for upper limb rehabilitation.</p>
+      <a href="/studio/about.html" class="btn btn-dark">Read Rebecca's Story</a>
+    </div>
+    <div class="intro-credentials reveal reveal-delay-1" aria-label="Qualifications and credentials">
+      <div class="cred-item">
+        <div class="cred-icon" aria-hidden="true">🎓</div>
+        <div class="cred-text">
+          <strong>PhD, Anglia Ruskin University</strong>
+          <span>Music technology & neurorehabilitation (submitted)</span>
+        </div>
+      </div>
+      <div class="cred-item">
+        <div class="cred-icon" aria-hidden="true">📜</div>
+        <div class="cred-text">
+          <strong>MA Music Education</strong>
+          <span>University College London (UCL)</span>
+        </div>
+      </div>
+      <div class="cred-item">
+        <div class="cred-icon" aria-hidden="true">🧠</div>
+        <div class="cred-text">
+          <strong>Associated Professional in NMT</strong>
+          <span>Neurological Music Therapy Academy</span>
+        </div>
+      </div>
+      <div class="cred-item">
+        <div class="cred-icon" aria-hidden="true">🤟</div>
+        <div class="cred-text">
+          <strong>British Sign Language</strong>
+          <span>Spoken language proficiency</span>
+        </div>
+      </div>
+      <div class="cred-item">
+        <div class="cred-icon" aria-hidden="true">🏫</div>
+        <div class="cred-text">
+          <strong>Head of Music, SEN</strong>
+          <span>Secondary & primary schools</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES PREVIEW -->
+  <section class="services-preview reveal" aria-labelledby="services-heading">
+    <div class="services-preview-inner">
+      <div class="preview-header">
+        <div>
+          <div class="section-label">What I Offer</div>
+          <h2 id="services-heading">Four ways I can help</h2>
+        </div>
+        <a href="/studio/services.html" class="btn btn-outline">View all services</a>
+      </div>
+      <div class="services-grid">
+        <a href="/studio/services.html#one-to-one" class="service-card reveal" aria-label="One-to-One Training — learn more">
+          <div class="card-num" aria-hidden="true">01</div>
+          <div class="card-icon" aria-hidden="true">🎵</div>
+          <h3>One-to-One Training</h3>
+          <p>Personalised sessions teaching disabled children and adults to use assistive music technology to access mainstream software.</p>
+          <span class="card-link">Learn more</span>
+        </a>
+        <a href="/studio/services.html#sen-workshops" class="service-card reveal reveal-delay-1" aria-label="School and SEN Workshops — learn more">
+          <div class="card-num" aria-hidden="true">02</div>
+          <div class="card-icon" aria-hidden="true">🏫</div>
+          <h3>School & SEN Workshops</h3>
+          <p>Practical in-person workshops for SEN departments and specialist schools — building sustainable music technology provision.</p>
+          <span class="card-link">Learn more</span>
+        </a>
+        <a href="/studio/services.html#nhs" class="service-card reveal reveal-delay-2" aria-label="NHS and Neurorehabilitation Consultancy — learn more">
+          <div class="card-num" aria-hidden="true">03</div>
+          <div class="card-icon" aria-hidden="true">🏥</div>
+          <h3>NHS & Neurorehabilitation Consultancy</h3>
+          <p>Specialist consultancy integrating music technology into therapeutic practice for NHS and neurorehabilitation teams.</p>
+          <span class="card-link">Learn more</span>
+        </a>
+        <a href="/studio/services.html#cpd" class="service-card reveal reveal-delay-3" aria-label="CPD for Music Therapists and Practitioners — learn more">
+          <div class="card-num" aria-hidden="true">04</div>
+          <div class="card-icon" aria-hidden="true">🎓</div>
+          <h3>CPD for Music Therapists</h3>
+          <p>Continuing professional development for qualified music therapists who want to expand their use of assistive technology.</p>
+          <span class="card-link">Learn more</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUOTE -->
+  <section class="quote-section reveal" aria-label="Mission statement">
+    <blockquote>
+      Every disabled person deserves access to the creative, therapeutic, and expressive power of music. Technology makes that possible — and training makes technology accessible.
+    </blockquote>
+    <p style="color:rgba(255,255,255,0.75); font-size:15px; font-weight:300;">— Rebecca, Fused Music Studio</p>
+    <div class="quote-cta">
+      <a href="/studio/about.html" class="btn btn-outline-white">About Rebecca</a>
+      <a href="/studio/contact.html" class="btn btn-primary">Get in touch</a>
+    </div>
+  </section>
+
+  <!-- CTA BAND -->
+  <section class="cta-band reveal" aria-labelledby="cta-heading">
+    <h2 id="cta-heading">Ready to explore what's <em>possible?</em></h2>
+    <div class="cta-band-btns">
+      <a href="/studio/contact.html" class="btn btn-primary">Book a Discovery Call</a>
+      <a href="/studio/services.html" class="btn btn-outline-white">View Services</a>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="site-footer" aria-label="Site footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="/studio/index.html" class="nav-logo" aria-label="Fused Music Studio Home">Fused<span>Music</span>.studio</a>
+      <p>Specialist training in assistive music technology for disabled children and adults. Delivered in person across the UK.</p>
+    </div>
+    <nav aria-label="Footer navigation">
+      <h4>Navigation</h4>
+      <ul role="list">
+        <li><a href="/studio/index.html">Home</a></li>
+        <li><a href="/studio/services.html">Services</a></li>
+        <li><a href="/studio/about.html">About</a></li>
+        <li><a href="/studio/blog.html">Blog & Videos</a></li>
+        <li><a href="/studio/contact.html">Contact</a></li>
+      </ul>
+    </nav>
+    <div>
+      <h4>Also</h4>
+      <ul role="list">
+        <li><a href="https://www.fusedmusic.org" target="_blank" rel="noopener">Research (fusedmusic.org)</a></li>
+        <li><a href="/studio/contact.html">Book a Call</a></li>
+        <li><a href="/studio/contact.html">Send an Enquiry</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Fused Music Studio. All rights reserved.</span>
+    <span>Designed for accessibility — <a href="/studio/contact.html">get in touch</a></span>
+  </div>
+</footer>
+
+<script src="/studio/js/main.js"></script>
+</body>
+</html>
