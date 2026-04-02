@@ -350,6 +350,36 @@
     .quote-section blockquote::after  { content: '\201D'; }
     .quote-cta { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 40px; }
 
+    /* ---- FEES SECTION ---- */
+.fees-section {
+  background: var(--white);
+  padding: 80px 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.fees-section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(26px, 3vw, 40px);
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 24px;
+  line-height: 1.2;
+}
+.fees-section p {
+  font-size: 16px;
+  font-weight: 300;
+  color: #2e2e3a;
+  line-height: 1.8;
+  max-width: 680px;
+  margin-bottom: 16px;
+}
+.fees-section .btn {
+  margin-top: 16px;
+}
+@media (max-width: 900px) {
+  .fees-section { padding: 60px 24px; }
+}
+
     /* ---- CTA SECTION ---- */
     .cta-band {
       background: var(--ink);
