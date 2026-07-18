@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — Fused Music Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=OpenDyslexic:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1a1a2e;
+      --cream: #f8f6f1;
+      --teal: #1a6b6b;
+      --teal-light: #26b5b5;
+      --white: #ffffff;
+      --muted: #5a5a6e;
+      --gold: #b8823a;
+      --text-muted: #4a4a5a;
+    }
+    html { font-size: 16px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--ink);
+      background: var(--cream);
+    }
+    .btn {
+      display: inline-block;
+      padding: 14px 32px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 2px;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--teal);
+      color: var(--white);
+    }
+    .btn-primary:hover {
+      background: #145555;
+      transform: translateY(-2px);
+    }
+    .section-label {
+      font-size: 0.6875rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--teal);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    /* HEADER (shared with index.html) */
+    header {
+      background: var(--ink);
+      padding: 20px 60px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .logo em {
+      font-style: italic;
+      color: var(--teal-light);
+    }
+    nav {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+    nav a {
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 400;
+      transition: color 0.2s;
+    }
+    nav a:hover {
+      color: var(--teal-light);
+    }
+    nav a.current {
+      color: var(--teal-light);
+      font-weight: 600;
+    }
+    .accessibility-btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.8);
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+    .accessibility-btn:hover {
+      background: rgba(255,255,255,0.15);
+      color: var(--teal-light);
+    }
+    .accessibility-panel {
+      position: fixed;
+      top: 80px;
+      right: 60px;
+      background: var(--white);
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 24px;
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      max-width: 280px;
+      display: none;
+    }
+    .accessibility-panel.active {
+      display: block;
+    }
+    .accessibility-panel h3 {
+      font-size: 0.875rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--ink);
+    }
+    .accessibility-option {
+      margin-bottom: 16px;
+    }
+    .accessibility-option label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8125rem;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .accessibility-option input[type="checkbox"] {
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+    }
+    .accessibility-option input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+    .accessibility-option select {
+      cursor: pointer;
+    }
+    body.filter-deuteranopia { filter: url(#deuteranopia-filter); }
+    body.filter-protanopia { filter: url(#protanopia-filter); }
+    body.filter-tritanopia { filter: url(#tritanopia-filter); }
+    body.filter-achromatopsia { filter: grayscale(100%); }
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--teal);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: 0 0 4px 0;
+    }
+    .skip-link:focus { top: 0; }
+    .read-aloud-btn {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--teal);
+      border: none;
+      color: white;
+      font-size: 1.25rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      z-index: 50;
+    }
+    .read-aloud-btn:hover { background: var(--teal-light); transform: scale(1.1); }
+    .read-aloud-btn.active { background: #ef4444; }
+    .read-aloud-btn:focus { outline: 3px solid var(--teal); outline-offset: 2px; }
+    .reading-guide {
+      position: fixed; left: 0; right: 0; height: 3px;
+      background: var(--teal); pointer-events: none; z-index: 40; display: none;
+    }
+    .reading-guide.active { display: block; }
+    .keyboard-shortcuts {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--white);
+      border: 2px solid var(--teal);
+      border-radius: 8px;
+      padding: 32px;
+      z-index: 2000;
+      max-height: 80vh;
+      overflow-y: auto;
+      display: none;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .keyboard-shortcuts.active { display: block; }
+    .keyboard-shortcuts h2 { font-size: 1.125rem; margin: 0 0 20px; color: var(--ink); }
+    .shortcut-item {
+      display: flex; justify-content: space-between; padding: 8px 0;
+      border-bottom: 1px solid #eee; font-size: 0.8125rem;
+    }
+    .shortcut-item:last-child { border-bottom: none; }
+    .shortcut-key {
+      background: #f0f0f0; padding: 2px 8px; border-radius: 3px;
+      font-family: 'Courier New', monospace; font-weight: 600; color: var(--teal);
+    }
+    .keyboard-shortcuts-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); z-index: 1999; display: none;
+    }
+    .keyboard-shortcuts-overlay.active { display: block; }
+    body.high-contrast {
+      --ink: #000000; --cream: #ffffff; --teal: #0066cc; --white: #ffffff;
+      --text-muted: #000000;
+    }
+    /* Dark, fixed-background sections: force full white text everywhere inside them */
+    body.high-contrast header,
+    body.high-contrast header *,
+    body.high-contrast .blog-hero,
+    body.high-contrast .blog-hero *,
+    body.high-contrast footer,
+    body.high-contrast footer * {
+      color: #ffffff !important;
+    }
+    /* Light, fixed-background sections/panels: force full black text everywhere inside them */
+    body.high-contrast .journal-section,
+    body.high-contrast .journal-entry,
+    body.high-contrast .journal-entry *,
+    body.high-contrast .howto-note,
+    body.high-contrast .howto-note *,
+    body.high-contrast .accessibility-panel,
+    body.high-contrast .accessibility-panel *,
+    body.high-contrast .keyboard-shortcuts,
+    body.high-contrast .keyboard-shortcuts * {
+      color: #000000 !important;
+      background-color: transparent;
+    }
+    body.high-contrast .journal-entry,
+    body.high-contrast .howto-note,
+    body.high-contrast .accessibility-panel,
+    body.high-contrast .keyboard-shortcuts {
+      background-color: #ffffff !important;
+      border-color: #000000 !important;
+    }
+    /* Small badges/buttons need their own explicit pair, not the blanket rule above */
+    body.high-contrast .entry-tag {
+      background-color: #000000 !important;
+      color: #ffffff !important;
+    }
+    body.high-contrast .howto-note code,
+    body.high-contrast .shortcut-key {
+      background-color: #e0e0e0 !important;
+      color: #000000 !important;
+    }
+    body.high-contrast .coffee-btn {
+      background-color: #ffdd00 !important;
+      color: #000000 !important;
+    }
+    body.high-contrast .btn-primary {
+      background-color: #000000 !important;
+      color: #ffffff !important;
+    }
+    body.high-contrast .tag-search-cloud .entry-tag.active-filter {
+      background-color: #0066cc !important;
+      color: #ffffff !important;
+    }
+    body.high-contrast .blog-tab {
+      color: #000000 !important;
+    }
+    body.high-contrast .blog-tab.active {
+      border-bottom-color: #0066cc !important;
+    }
+    body.high-contrast .sessions-intro,
+    body.high-contrast .sessions-status {
+      color: #000000 !important;
+    }
+    body.high-contrast .session-card {
+      background-color: #ffffff !important;
+      border-color: #000000 !important;
+    }
+    body.high-contrast .session-title,
+    body.high-contrast .session-desc,
+    body.high-contrast .session-date {
+      color: #000000 !important;
+    }
+    body.high-contrast a {
+      text-decoration: underline !important;
+    }
+    body.dyslexia-friendly {
+      font-family: 'OpenDyslexic', sans-serif;
+      letter-spacing: 0.15em;
+      line-height: 1.9;
+      background: #fafaf8 !important;
+    }
+    body.dyslexia-friendly p, body.dyslexia-friendly .entry-body {
+      font-size: 1.05em;
+      letter-spacing: 0.1em;
+    }
+    body.dyslexia-friendly h1, body.dyslexia-friendly h2, body.dyslexia-friendly h3 {
+      letter-spacing: 0.08em;
+      line-height: 1.4;
+    }
+
+    /* ───────── BLOG PAGE HEADER BANNER ───────── */
+    .blog-hero {
+      background: var(--ink);
+      padding: 160px 60px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .blog-hero-glow {
+      position: absolute; top: -80px; right: -80px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(26,107,107,0.25) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .blog-hero-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .blog-hero .section-label { color: var(--teal-light); }
+    .blog-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.25rem, 5vw, 3.625rem);
+      font-weight: 900;
+      color: var(--white);
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .blog-hero h1 em { font-style: italic; color: var(--teal-light); }
+    .blog-hero-sub {
+      font-size: 1rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.7;
+      max-width: 640px;
+      margin-bottom: 24px;
+    }
+    .coffee-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 26px;
+      background: var(--gold);
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 700;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+    .coffee-btn:hover {
+      background: #cc9b4c;
+      transform: translateY(-2px);
+    }
+
+    /* ───────── JOURNAL / EXPERIMENTS SECTION ───────── */
+    .journal-section {
+      background: var(--cream);
+      padding: 72px 60px 96px;
+    }
+    .journal-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .howto-note {
+      background: var(--white);
+      padding: 24px 32px;
+      border-left: 4px solid var(--gold);
+      border-radius: 2px;
+      margin-bottom: 48px;
+    }
+    .howto-note h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.0625rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+    .howto-note ol {
+      padding-left: 20px;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+    .howto-note code {
+      background: var(--cream);
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8125rem;
+      color: var(--teal);
+    }
+
+    /* ───────── BLOG TABS (Journal / Sessions) ───────── */
+    .blog-tabs {
+      display: flex;
+      gap: 28px;
+      border-bottom: 2px solid #e5e2da;
+      margin-bottom: 32px;
+    }
+    .blog-tab {
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      padding: 4px 2px 12px;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .blog-tab:hover { color: var(--ink); }
+    .blog-tab.active { color: var(--ink); border-bottom-color: var(--teal); }
+    .tab-panel[hidden] { display: none; }
+    .sessions-intro {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    .sessions-intro a { color: var(--teal); }
+    .sessions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .session-card {
+      background: var(--white);
+      border-radius: 4px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #eee;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .session-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+    .session-thumb {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: var(--ink) center/cover no-repeat;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .session-thumb.no-image {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+    .session-thumb.no-image::after { content: "♪"; color: rgba(255,255,255,0.35); }
+    .session-play-badge {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      padding: 2px 9px;
+      border-radius: 10px;
+    }
+    .session-body {
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .session-date {
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--teal);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .session-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.0625rem;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .session-desc {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .sessions-status {
+      font-size: 0.9375rem;
+      color: var(--text-muted);
+      padding: 20px 0;
+    }
+    .sessions-status a { color: var(--teal); }
+
+    /* ───────── TAG SEARCH ───────── */
+    .tag-search {
+      margin-bottom: 32px;
+    }
+    .tag-search input[type="text"] {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 0.9375rem;
+      font-family: 'Inter', sans-serif;
+      border: 1.5px solid #ddd;
+      border-radius: 4px;
+      background: var(--white);
+      color: var(--ink);
+    }
+    .tag-search input[type="text"]:focus {
+      outline: none;
+      border-color: var(--teal);
+    }
+    .tag-search-clear {
+      margin-top: 10px;
+      padding: 6px 16px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      background: transparent;
+      border: 1.5px solid var(--teal);
+      color: var(--teal);
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    .tag-search-clear:hover { background: rgba(26,107,107,0.08); }
+    .tag-search-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .tag-search-cloud .entry-tag {
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+    }
+    .tag-search-cloud .entry-tag.active-filter {
+      background: var(--teal);
+      color: var(--white);
+    }
+    .tag-search-status {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+    .journal-entry.hidden-by-search { display: none; }
+
+    /* ───────── ENTRY IMAGES ───────── */
+    .entry-images {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .entry-images img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 4px;
+      display: block;
+    }
+
+    .journal-entries {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+    .journal-entry {
+      background: var(--white);
+      padding: 32px 40px;
+      border-radius: 4px;
+      border-left: 4px solid var(--teal);
+    }
+    .entry-date {
+      font-size: 0.6875rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--teal);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .entry-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 14px;
+    }
+    .entry-body p {
+      font-size: 0.9375rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      line-height: 1.75;
+      margin-bottom: 12px;
+    }
+    .entry-body p:last-child { margin-bottom: 0; }
+    .entry-tags {
+      display: flex;
+      gap: 8px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+    .entry-tag {
+      font-size: 0.6875rem;
+      padding: 4px 12px;
+      background: var(--cream);
+      border-radius: 20px;
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+      header, .blog-hero, .journal-section { padding-left: 24px; padding-right: 24px; }
+      .journal-entry { padding: 24px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- SKIP TO CONTENT LINK -->
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <!-- COLOR BLINDNESS SIMULATION FILTERS -->
+  <svg style="display: none;">
+    <defs>
+      <filter id="deuteranopia-filter">
+        <feColorMatrix type="matrix" values="0.625 0.375 0 0 0
+                                            0.7 0.3 0 0 0
+                                            0 0.3 0.7 0 0
+                                            0 0 0 1 0"/>
+      </filter>
+      <filter id="protanopia-filter">
+        <feColorMatrix type="matrix" values="0.567 0.433 0 0 0
+                                            0.558 0.442 0 0 0
+                                            0 0.242 0.758 0 0
+                                            0 0 0 1 0"/>
+      </filter>
+      <filter id="tritanopia-filter">
+        <feColorMatrix type="matrix" values="0.95 0.05 0 0 0
+                                            0 0.433 0.567 0 0
+                                            0 0.475 0.525 0 0
+                                            0 0 0 1 0"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <a href="/" class="logo">Fused Music <em>Studio</em></a>
+      <nav>
+        <a href="/blog.html" class="current">Blog</a>
+        <a href="/app-development.html">App Development</a>
+        <a href="https://fusedmusicstudio.bandcamp.com/" target="_blank" rel="noopener">Label</a>
+        <a href="/#about">About</a>
+        <a href="mailto:hello@fusedmusic.studio">Contact</a>
+        <button id="accessibilityToggle" class="accessibility-btn" aria-label="Accessibility options" aria-expanded="false" aria-controls="accessibilityPanel" title="Accessibility options">A</button>
+      </nav>
+    </div>
+  </header>
+  <!-- KEYBOARD SHORTCUTS OVERLAY & PANEL -->
+  <div class="keyboard-shortcuts-overlay" id="shortcutsOverlay"></div>
+  <div class="keyboard-shortcuts" id="keyboardShortcuts" role="dialog" aria-modal="true" aria-labelledby="shortcutsHeading">
+    <h2 id="shortcutsHeading">Keyboard Shortcuts</h2>
+    <div class="shortcut-item"><span>Skip to content</span><span class="shortcut-key">Tab</span></div>
+    <div class="shortcut-item"><span>Accessibility menu</span><span class="shortcut-key">Alt + A</span></div>
+    <div class="shortcut-item"><span>Read aloud</span><span class="shortcut-key">Alt + R</span></div>
+    <div class="shortcut-item"><span>Keyboard shortcuts</span><span class="shortcut-key">?</span></div>
+    <div class="shortcut-item"><span>Contact email</span><span class="shortcut-key">Alt + C</span></div>
+  </div>
+  <!-- READ ALOUD BUTTON -->
+  <button class="read-aloud-btn" id="readAloudBtn" aria-label="Read page aloud" title="Read aloud (Alt+R)">🔊</button>
+  <!-- READING GUIDE -->
+  <div class="reading-guide" id="readingGuide"></div>
+  <div class="accessibility-panel" id="accessibilityPanel" role="region" aria-labelledby="a11yHeading">
+    <h3 id="a11yHeading">Accessibility</h3>
+    <div class="accessibility-option"><label><input type="checkbox" id="highContrast"> High Contrast</label></div>
+    <div class="accessibility-option"><label><input type="checkbox" id="dyslexiaFriendly"> Dyslexia Friendly</label></div>
+    <div class="accessibility-option"><label><input type="checkbox" id="noAnimations"> Reduce Animations</label></div>
+    <div class="accessibility-option">
+      <label for="colorFilter">Color Filter:</label>
+      <select id="colorFilter" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ddd;">
+        <option value="none">Default</option>
+        <option value="deuteranopia">Red-Green (Deuteranopia)</option>
+        <option value="protanopia">Red-Green (Protanopia)</option>
+        <option value="tritanopia">Blue-Yellow (Tritanopia)</option>
+        <option value="achromatopsia">Monochrome</option>
+      </select>
+    </div>
+    <div class="accessibility-option">
+      <label for="textSize">Text Size: <span id="textSizeValue">100%</span></label>
+      <input type="range" id="textSize" min="80" max="150" value="100" step="10">
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main id="main" tabindex="-1">
+
+    <!-- BLOG HERO -->
+    <section class="blog-hero">
+      <div class="blog-hero-glow"></div>
+      <div class="blog-hero-inner">
+        <h1>Fused <em>Blog</em></h1>
+        <a href="https://buymeacoffee.com/fusedmusicstudio" target="_blank" rel="noopener" class="coffee-btn">☕ Buy me a coffee</a>
+      </div>
+    </section>
+
+    <!-- JOURNAL / EXPERIMENTS -->
+    <section class="journal-section">
+      <div class="journal-inner">
+
+        <!--
+          HOW TO ADD A NEW ENTRY (do this daily) — visible only in the source,
+          not rendered on the page, so visitors don't see maintenance notes.
+          1. Open blog.html in a text editor, or use the add-blog-entry.html form tool.
+          2. Find the "ADD NEW ENTRIES ABOVE THIS LINE" comment inside <div class="journal-entries">.
+          3. Add your new <article class="journal-entry">...</article> block just above that comment
+             (newest entries stay at the top).
+          4. Save, then upload/replace blog.html on your host.
+        -->
+
+        <div class="blog-tabs" role="tablist" aria-label="Blog sections">
+          <button type="button" class="blog-tab active" id="tabBtnJournal" data-tab="journal" role="tab" aria-selected="true" aria-controls="panel-journal">Journal</button>
+          <button type="button" class="blog-tab" id="tabBtnSessions" data-tab="sessions" role="tab" aria-selected="false" aria-controls="panel-sessions">Sessions</button>
+        </div>
+
+        <div class="tab-panel" id="panel-journal" data-panel="journal" role="tabpanel" aria-labelledby="tabBtnJournal">
+
+          <div class="tag-search">
+            <input type="text" id="tagSearchInput" placeholder="Search entries or tags (e.g. rehab, EEG, a name)…" aria-label="Search blog entries and tags">
+            <button type="button" id="tagSearchClear" class="tag-search-clear" style="display:none;">Clear</button>
+            <div class="tag-search-cloud" id="tagCloud"></div>
+            <div class="tag-search-status" id="tagSearchStatus" role="status" aria-live="polite"></div>
+          </div>
+
+          <div class="journal-entries">
+
+            <!-- ═══════════════════════════════════════════════════════
+                 ADD NEW ENTRIES HERE — copy an <article> block below,
+                 paste it ABOVE this comment, edit date/title/body/tags.
+                 Newest entries go at the TOP of the list.
+                 ═══════════════════════════════════════════════════════ -->
+            <!-- ADD NEW ENTRIES ABOVE THIS LINE -->
+
+            <article class="journal-entry">
+              <div class="entry-date">18 July 2026 — Cycle Day 2 (Menses)</div>
+              <div class="entry-title">First Muse 2 recording + meditation band breakdown</div>
+              <div class="entry-body">
+                <p>Got the Muse 2 → Mind Monitor pipeline working end to end after a few Bluetooth connection issues (turned out the official Muse app was still running in the background and blocking the connection). First real 3.4-minute resting-state recording produced a frontal alpha asymmetry (FAA) score of −0.78, right-lateralised.</p>
+                <p>Also ran a 3-minute meditation session through the full band breakdown script: Beta was dominant throughout (Alpha − Beta = −0.13, Theta − Beta = −0.34), meaning the session stayed more alert/active than settled. Gamma read highest of all, but that's most likely a muscle/jaw-tension artifact on dry electrodes rather than a real meditative-gamma state, so treating that one with caution.</p>
+                <p>Next: record a session in the late follicular phase (~day 10–14) and one in the luteal phase (~day 21–28) to build the phase comparison. Also starting a daily morning meditation habit and tracking Alpha–Beta trend across sessions over time.</p>
+              </div>
+              <div class="entry-tags">
+                <span class="entry-tag">EEG</span>
+                <span class="entry-tag">Muse 2</span>
+                <span class="entry-tag">Cycle Tracking</span>
+                <span class="entry-tag">Meditation</span>
+              </div>
+            </article>
+
+          </div>
+        </div>
+
+        <div class="tab-panel" id="panel-sessions" data-panel="sessions" role="tabpanel" aria-labelledby="tabBtnSessions" hidden>
+          <p class="sessions-intro">Session recordings and videos, pulled in automatically from <a href="https://www.fusedmusic.org" target="_blank" rel="noopener">fusedmusic.org</a>. Updated daily.</p>
+          <div class="sessions-grid" id="sessionsGrid">
+            <p class="sessions-status">Loading sessions…</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer style="background: var(--ink); padding: 64px 60px 32px; color: rgba(255,255,255,0.7);">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 24px; padding-top: 0;">
+      <div>
+        <div style="font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--white); margin-bottom: 12px;">Fused Music <em style="font-style: italic; color: var(--teal-light);">Studio</em></div>
+      </div>
+      <div>
+        <h4 style="font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-light); margin-bottom: 16px; font-weight: 600;">Get in Touch</h4>
+        <a href="mailto:hello@fusedmusic.studio" style="color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.875rem;">hello@fusedmusic.studio</a>
+      </div>
+    </div>
+    <div style="max-width: 1200px; margin: 32px auto 0; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; font-size: 0.8125rem; color: rgba(255,255,255,0.5); flex-wrap: wrap; gap: 12px;">
+      <div>© 2026 Fused Music Studio</div>
+      <div>Based in London, UK</div>
+    </div>
+  </footer>
+
+<script>
+// ══ TAG SEARCH / FILTER ══
+(function() {
+  const input = document.getElementById('tagSearchInput');
+  const clearBtn = document.getElementById('tagSearchClear');
+  const cloud = document.getElementById('tagCloud');
+  const status = document.getElementById('tagSearchStatus');
+  const entries = Array.from(document.querySelectorAll('.journal-entry'));
+  if (!input || entries.length === 0) return;
+
+  // Build the tag cloud from whatever tags actually exist across entries
+  const allTags = new Set();
+  entries.forEach(entry => {
+    entry.querySelectorAll('.entry-tags .entry-tag').forEach(tagEl => {
+      allTags.add(tagEl.textContent.trim());
+    });
+  });
+  Array.from(allTags).sort((a, b) => a.localeCompare(b)).forEach(tag => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'entry-tag';
+    btn.textContent = tag;
+    btn.addEventListener('click', () => {
+      input.value = tag;
+      runFilter();
+      input.focus();
+    });
+    cloud.appendChild(btn);
+  });
+
+  function runFilter() {
+    const query = input.value.trim().toLowerCase();
+    clearBtn.style.display = query ? 'inline-block' : 'none';
+
+    // highlight matching tag(s) in the cloud
+    cloud.querySelectorAll('.entry-tag').forEach(btn => {
+      btn.classList.toggle('active-filter', query !== '' && btn.textContent.trim().toLowerCase() === query);
+    });
+
+    if (!query) {
+      entries.forEach(e => e.classList.remove('hidden-by-search'));
+      status.textContent = '';
+      return;
+    }
+
+    let visibleCount = 0;
+    entries.forEach(entry => {
+      const title = entry.querySelector('.entry-title')?.textContent.toLowerCase() || '';
+      const date = entry.querySelector('.entry-date')?.textContent.toLowerCase() || '';
+      const tags = Array.from(entry.querySelectorAll('.entry-tags .entry-tag'))
+        .map(t => t.textContent.toLowerCase());
+      const body = entry.querySelector('.entry-body')?.textContent.toLowerCase() || '';
+
+      const matches = title.includes(query) || date.includes(query) ||
+        tags.some(t => t.includes(query)) || body.includes(query);
+
+      entry.classList.toggle('hidden-by-search', !matches);
+      if (matches) visibleCount++;
+    });
+
+    status.textContent = visibleCount === 0
+      ? `No entries match "${input.value.trim()}".`
+      : `Showing ${visibleCount} of ${entries.length} entr${visibleCount === 1 ? 'y' : 'ies'}.`;
+  }
+
+  input.addEventListener('input', runFilter);
+  clearBtn.addEventListener('click', () => {
+    input.value = '';
+    runFilter();
+    input.focus();
+  });
+})();
+// ══ BLOG TABS (Journal / Sessions) ══
+(function() {
+  const tabBtns = Array.from(document.querySelectorAll('.blog-tab'));
+  const panels = {
+    journal: document.getElementById('panel-journal'),
+    sessions: document.getElementById('panel-sessions'),
+  };
+  if (tabBtns.length === 0) return;
+
+  let sessionsLoaded = false;
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      tabBtns.forEach(b => {
+        const active = b === btn;
+        b.classList.toggle('active', active);
+        b.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      Object.keys(panels).forEach(key => {
+        if (panels[key]) panels[key].hidden = key !== target;
+      });
+      if (target === 'sessions' && !sessionsLoaded) {
+        sessionsLoaded = true;
+        loadSessions();
+      }
+    });
+  });
+
+  function formatSessionDate(pubDate) {
+    if (!pubDate) return '';
+    const d = new Date(pubDate);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  function sessionCardHtml(item) {
+    const dateStr = formatSessionDate(item.pubDate);
+    const desc = item.description || '';
+    const isVideo = item.mediaType === 'video';
+    const thumbInner = item.image
+      ? `style="background-image:url('${item.image.replace(/'/g, "%27")}');"`
+      : '';
+    const thumbClass = item.image ? 'session-thumb' : 'session-thumb no-image';
+    const badge = isVideo ? '<span class="session-play-badge">▶ Video</span>' : '';
+    return `
+      <a class="session-card" href="${item.link || '#'}" target="_blank" rel="noopener">
+        <div class="${thumbClass}" ${thumbInner}>${badge}</div>
+        <div class="session-body">
+          ${dateStr ? `<div class="session-date">${dateStr}</div>` : ''}
+          <div class="session-title">${item.title || 'Untitled session'}</div>
+          ${desc ? `<div class="session-desc">${desc}</div>` : ''}
+        </div>
+      </a>`;
+  }
+
+  function loadSessions() {
+    const grid = document.getElementById('sessionsGrid');
+    if (!grid) return;
+    fetch('data/sessions-feed.json', { cache: 'no-store' })
+      .then(res => {
+        if (!res.ok) throw new Error('Feed not found');
+        return res.json();
+      })
+      .then(data => {
+        const items = (data && data.items) || [];
+        if (items.length === 0) {
+          grid.innerHTML = '<p class="sessions-status">No sessions yet — check back soon.</p>';
+          return;
+        }
+        grid.innerHTML = items.map(sessionCardHtml).join('');
+      })
+      .catch(() => {
+        grid.innerHTML = '<p class="sessions-status">Couldn\'t load sessions right now. You can view them directly on <a href="https://www.fusedmusic.org" target="_blank" rel="noopener">fusedmusic.org</a>.</p>';
+      });
+  }
+})();
+// ══ ACCESSIBILITY PANEL ══
+(function() {
+  const accessibilityToggle = document.getElementById('accessibilityToggle');
+  const accessibilityPanel = document.getElementById('accessibilityPanel');
+  const highContrastCheckbox = document.getElementById('highContrast');
+  const dyslexiaFriendlyCheckbox = document.getElementById('dyslexiaFriendly');
+  const noAnimationsCheckbox = document.getElementById('noAnimations');
+  const colorFilterSelect = document.getElementById('colorFilter');
+  const textSizeSlider = document.getElementById('textSize');
+  const textSizeValue = document.getElementById('textSizeValue');
+
+  accessibilityToggle.addEventListener('click', () => {
+    const isOpen = accessibilityPanel.classList.toggle('active');
+    accessibilityToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.accessibility-btn') && !e.target.closest('.accessibility-panel')) {
+      accessibilityPanel.classList.remove('active');
+      accessibilityToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+  function loadPreferences() {
+    highContrastCheckbox.checked = localStorage.getItem('accessibility-high-contrast') === 'true';
+    dyslexiaFriendlyCheckbox.checked = localStorage.getItem('accessibility-dyslexia') === 'true';
+    noAnimationsCheckbox.checked = localStorage.getItem('accessibility-no-animations') === 'true';
+    const colorFilter = localStorage.getItem('accessibility-color-filter') || 'none';
+    colorFilterSelect.value = colorFilter;
+    const textSize = localStorage.getItem('accessibility-text-size') || '100';
+    textSizeSlider.value = textSize;
+    applyPreferences();
+  }
+  function applyPreferences() {
+    const body = document.body;
+    const textSize = textSizeSlider.value;
+    const colorFilter = colorFilterSelect.value;
+    if (highContrastCheckbox.checked) body.classList.add('high-contrast');
+    else body.classList.remove('high-contrast');
+    if (dyslexiaFriendlyCheckbox.checked) body.classList.add('dyslexia-friendly');
+    else body.classList.remove('dyslexia-friendly');
+    body.classList.remove('filter-deuteranopia', 'filter-protanopia', 'filter-tritanopia', 'filter-achromatopsia');
+    if (colorFilter !== 'none') body.classList.add('filter-' + colorFilter);
+    if (noAnimationsCheckbox.checked) body.style.setProperty('--animation-duration', '0s');
+    else body.style.removeProperty('--animation-duration');
+    document.documentElement.style.fontSize = textSize + '%';
+    textSizeValue.textContent = textSize + '%';
+  }
+  function savePreferences() {
+    localStorage.setItem('accessibility-high-contrast', highContrastCheckbox.checked);
+    localStorage.setItem('accessibility-dyslexia', dyslexiaFriendlyCheckbox.checked);
+    localStorage.setItem('accessibility-no-animations', noAnimationsCheckbox.checked);
+    localStorage.setItem('accessibility-color-filter', colorFilterSelect.value);
+    localStorage.setItem('accessibility-text-size', textSizeSlider.value);
+  }
+  highContrastCheckbox.addEventListener('change', () => { applyPreferences(); savePreferences(); });
+  dyslexiaFriendlyCheckbox.addEventListener('change', () => { applyPreferences(); savePreferences(); });
+  noAnimationsCheckbox.addEventListener('change', () => { applyPreferences(); savePreferences(); });
+  colorFilterSelect.addEventListener('change', () => { applyPreferences(); savePreferences(); });
+  textSizeSlider.addEventListener('input', () => { applyPreferences(); savePreferences(); });
+  loadPreferences();
+})();
+// ══ READ ALOUD FUNCTIONALITY ══
+(function() {
+  const readAloudBtn = document.getElementById('readAloudBtn');
+  const readingGuide = document.getElementById('readingGuide');
+  let utterance = null;
+  let isReading = false;
+  readAloudBtn.addEventListener('click', toggleReadAloud);
+  function toggleReadAloud() {
+    if (isReading) {
+      speechSynthesis.cancel();
+      isReading = false;
+      readAloudBtn.classList.remove('active');
+      readingGuide.classList.remove('active');
+    } else {
+      startReadAloud();
+    }
+  }
+  function startReadAloud() {
+    const textContent = document.body.innerText;
+    utterance = new SpeechSynthesisUtterance(textContent);
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    utterance.onstart = () => { isReading = true; readAloudBtn.classList.add('active'); readingGuide.classList.add('active'); };
+    utterance.onend = () => { isReading = false; readAloudBtn.classList.remove('active'); readingGuide.classList.remove('active'); };
+    utterance.onerror = () => { isReading = false; readAloudBtn.classList.remove('active'); readingGuide.classList.remove('active'); };
+    speechSynthesis.speak(utterance);
+  }
+})();
+// ══ KEYBOARD SHORTCUTS ══
+(function() {
+  const shortcutsPanel = document.getElementById('keyboardShortcuts');
+  const shortcutsOverlay = document.getElementById('shortcutsOverlay');
+  const readAloudBtn = document.getElementById('readAloudBtn');
+  const accessibilityPanel = document.getElementById('accessibilityPanel');
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '?') { e.preventDefault(); toggleShortcuts(); }
+    if (e.altKey && e.key === 'a') {
+      e.preventDefault();
+      const isOpen = accessibilityPanel.classList.toggle('active');
+      const toggleBtn = document.getElementById('accessibilityToggle');
+      if (toggleBtn) toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+    if (e.altKey && e.key === 'r') { e.preventDefault(); readAloudBtn.click(); }
+    if (e.altKey && e.key === 'c') { e.preventDefault(); window.location.href = 'mailto:hello@fusedmusic.studio'; }
+    if (e.key === 'Escape') {
+      shortcutsPanel.classList.remove('active');
+      shortcutsOverlay.classList.remove('active');
+      accessibilityPanel.classList.remove('active');
+      const toggleBtn = document.getElementById('accessibilityToggle');
+      if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+  function toggleShortcuts() {
+    shortcutsPanel.classList.toggle('active');
+    shortcutsOverlay.classList.toggle('active');
+  }
+  shortcutsOverlay.addEventListener('click', () => {
+    shortcutsPanel.classList.remove('active');
+    shortcutsOverlay.classList.remove('active');
+  });
+})();
+</script>
+</body>
+</html>
