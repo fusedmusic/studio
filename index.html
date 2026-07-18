@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fused Music Studio — Assistive Music Technology</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=OpenDyslexic:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1a1a2e;
+      --cream: #f8f6f1;
+      --teal: #1a6b6b;
+      --teal-light: #26b5b5;
+      --white: #ffffff;
+      --muted: #5a5a6e;
+      --gold: #b8823a;
+      --text-muted: #4a4a5a;
+    }
+    html { font-size: 16px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--ink);
+      background: var(--cream);
+    }
+    .btn {
+      display: inline-block;
+      padding: 14px 32px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 2px;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--teal);
+      color: var(--white);
+    }
+    .btn-primary:hover {
+      background: #145555;
+      transform: translateY(-2px);
+    }
+    .btn-outline-white {
+      background: transparent;
+      color: var(--white);
+      border: 1.5px solid rgba(255,255,255,0.3);
+    }
+    .btn-outline-white:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: var(--white);
+    }
+    .section-label {
+      font-size: 0.6875rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--teal);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    /* HEADER */
+    header {
+      background: var(--ink);
+      padding: 20px 60px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .logo em {
+      font-style: italic;
+      color: var(--teal-light);
+    }
+    nav {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+    nav a {
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 400;
+      transition: color 0.2s;
+    }
+    nav a:hover {
+      color: var(--teal-light);
+    }
+    nav a.current {
+      color: var(--teal-light);
+      font-weight: 600;
+    }
+    .accessibility-btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.8);
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+    .accessibility-btn:hover {
+      background: rgba(255,255,255,0.15);
+      color: var(--teal-light);
+    }
+    .accessibility-panel {
+      position: fixed;
+      top: 80px;
+      right: 60px;
+      background: var(--white);
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 24px;
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      max-width: 280px;
+      display: none;
+    }
+    .accessibility-panel.active {
+      display: block;
+    }
+    .accessibility-panel h3 {
+      font-size: 0.875rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--ink);
+    }
+    .accessibility-option {
+      margin-bottom: 16px;
+    }
+    .accessibility-option label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8125rem;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .accessibility-option input[type="checkbox"] {
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+    }
+    .accessibility-option input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+    .accessibility-option select {
+      cursor: pointer;
+    }
+    /* COLOR BLINDNESS FILTERS */
+    body.filter-deuteranopia {
+      filter: url(#deuteranopia-filter);
+    }
+    body.filter-protanopia {
+      filter: url(#protanopia-filter);
+    }
+    body.filter-tritanopia {
+      filter: url(#tritanopia-filter);
+    }
+    body.filter-achromatopsia {
+      filter: grayscale(100%);
+    }
+    /* SKIP LINK */
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--teal);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: 0 0 4px 0;
+    }
+    .skip-link:focus {
+      top: 0;
+    }
+    /* READ ALOUD BUTTON */
+    .read-aloud-btn {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--teal);
+      border: none;
+      color: white;
+      font-size: 1.25rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      z-index: 50;
+    }
+    .read-aloud-btn:hover {
+      background: var(--teal-light);
+      transform: scale(1.1);
+    }
+    .read-aloud-btn.active {
+      background: #ef4444;
+    }
+    .read-aloud-btn:focus {
+      outline: 3px solid var(--teal);
+      outline-offset: 2px;
+    }
+    /* READING GUIDE */
+    .reading-guide {
+      position: fixed;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--teal);
+      pointer-events: none;
+      z-index: 40;
+      display: none;
+    }
+    .reading-guide.active {
+      display: block;
+    }
+    /* KEYBOARD SHORTCUTS PANEL */
+    .keyboard-shortcuts {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--white);
+      border: 2px solid var(--teal);
+      border-radius: 8px;
+      padding: 32px;
+      z-index: 2000;
+      max-height: 80vh;
+      overflow-y: auto;
+      display: none;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .keyboard-shortcuts.active {
+      display: block;
+    }
+    .keyboard-shortcuts h2 {
+      font-size: 1.125rem;
+      margin: 0 0 20px;
+      color: var(--ink);
+    }
+    .shortcut-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 0.8125rem;
+    }
+    .shortcut-item:last-child {
+      border-bottom: none;
+    }
+    .shortcut-key {
+      background: #f0f0f0;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+      color: var(--teal);
+    }
+    .keyboard-shortcuts-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1999;
+      display: none;
+    }
+    .keyboard-shortcuts-overlay.active {
+      display: block;
+    }
+    /* ACCESSIBILITY MODES */
+    body.high-contrast {
+      --ink: #000000;
+      --cream: #ffffff;
+      --teal: #0066cc;
+      --white: #ffffff;
+      --text-muted: #000000;
+    }
+    /* Dark, fixed-background sections: force full white text everywhere inside them */
+    body.high-contrast header,
+    body.high-contrast header *,
+    body.high-contrast .hero,
+    body.high-contrast .hero *,
+    body.high-contrast .hero-demo,
+    body.high-contrast .hero-demo *,
+    body.high-contrast .hero-carousel,
+    body.high-contrast .hero-carousel *,
+    body.high-contrast .team-card,
+    body.high-contrast .team-card *,
+    body.high-contrast .film-section,
+    body.high-contrast .film-section *,
+    body.high-contrast footer,
+    body.high-contrast footer * {
+      color: #ffffff !important;
+    }
+    /* Light, fixed-background cards/panels: force full black text everywhere inside them */
+    body.high-contrast .innovation-card,
+    body.high-contrast .innovation-card *,
+    body.high-contrast .hedshok-note,
+    body.high-contrast .hedshok-note *,
+    body.high-contrast .collaborator-block,
+    body.high-contrast .collaborator-block *,
+    body.high-contrast .cta-block,
+    body.high-contrast .cta-block *,
+    body.high-contrast .accessibility-panel,
+    body.high-contrast .accessibility-panel *,
+    body.high-contrast .keyboard-shortcuts,
+    body.high-contrast .keyboard-shortcuts * {
+      color: #000000 !important;
+      background-color: #ffffff !important;
+    }
+    body.high-contrast .btn-primary,
+    body.high-contrast .cta-block .btn {
+      background-color: #000000 !important;
+      color: #ffffff !important;
+    }
+    body.high-contrast .toggle-btn.active {
+      background-color: #0066cc !important;
+      color: #ffffff !important;
+    }
+    body.high-contrast a {
+      text-decoration: underline !important;
+    }
+    body.dyslexia-friendly {
+      font-family: 'OpenDyslexic', sans-serif;
+      letter-spacing: 0.15em;
+      line-height: 1.9;
+      background: #fafaf8 !important;
+    }
+    body.dyslexia-friendly .hero-sub,
+    body.dyslexia-friendly p,
+    body.dyslexia-friendly .team-card {
+      font-size: 1.05em;
+      letter-spacing: 0.1em;
+    }
+    body.dyslexia-friendly h1,
+    body.dyslexia-friendly h2,
+    body.dyslexia-friendly h3 {
+      letter-spacing: 0.08em;
+      line-height: 1.4;
+    }
+    /* HERO */
+    .hero {
+      background: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 140px 60px 100px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-glow-1 {
+      position: absolute; top: -80px; right: -80px;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(26,107,107,0.25) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-glow-2 {
+      position: absolute; bottom: -100px; left: 20%;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(184,130,58,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      position: relative; z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.625rem, 5.5vw, 4.625rem);
+      font-weight: 900; color: var(--white);
+      line-height: 1.05; margin-bottom: 28px;
+    }
+    .hero h1 em { font-style: italic; color: var(--teal-light); }
+    .hero-sub {
+      font-size: 1.125rem; font-weight: 300;
+      color: rgba(255,255,255,0.82);
+      line-height: 1.75; max-width: 520px; margin-bottom: 48px;
+    }
+    .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+    .hero-interactive-wrapper {
+      position: relative;
+      width: 100%;
+      height: 600px;
+    }
+    .hero-toggle {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 10;
+      display: flex;
+      gap: 8px;
+      background: rgba(26,26,46,0.9);
+      padding: 4px;
+      border-radius: 2px;
+    }
+    .toggle-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.6);
+      padding: 8px 20px;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-radius: 0;
+      font-family: 'Inter', sans-serif;
+    }
+    .toggle-btn:hover {
+      color: #ffffff;
+      background: rgba(255,255,255,0.05);
+    }
+    .toggle-btn.active {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #ffffff;
+    }
+    .hero-demo {
+      position: relative;
+      width: 100%;
+      height: 600px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      background: #050508;
+    }
+    #demoVideo {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.4;
+      transform: scaleX(-1);
+    }
+    #demoCanvas {
+      display: none;
+    }
+    .demo-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-family: 'Inter', sans-serif;
+      z-index: 5;
+    }
+    .demo-label {
+      font-size: 0.875rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .demo-instructions {
+      font-size: 0.8125rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 16px;
+    }
+    .demo-status {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.5);
+    }
+    .note-burst {
+      position: absolute;
+      font-weight: 700;
+      font-size: 1.125rem;
+      pointer-events: none;
+      animation: burst-up 0.8s ease-out forwards;
+    }
+    @keyframes burst-up {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-100px); }
+    }
+    /* HERO CAROUSEL */
+    .hero-interactive-wrapper {
+      position: relative;
+      width: 100%;
+      height: 600px;
+    }
+    .hero-toggle {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 10;
+      display: flex;
+      gap: 8px;
+      background: rgba(26,26,46,0.9);
+      padding: 4px;
+      border-radius: 2px;
+    }
+    .toggle-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.6);
+      padding: 8px 20px;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-radius: 0;
+      font-family: 'Inter', sans-serif;
+    }
+    .toggle-btn:hover {
+      color: #ffffff;
+      background: rgba(255,255,255,0.05);
+    }
+    .toggle-btn.active {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #ffffff;
+    }
+    .hero-carousel {
+      position: relative;
+      width: 100%;
+      height: 600px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .carousel-slide {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      opacity: 0;
+      transition: opacity 1.5s ease-in-out;
+    }
+    .carousel-slide.active {
+      opacity: 1;
+    }
+    .carousel-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    /* INTERACTIVE DEMO */
+    .hero-demo {
+      position: relative;
+      width: 100%;
+      height: 600px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      background: #050508;
+    }
+    #demoVideo {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+      opacity: 0.4;
+      filter: grayscale(60%) contrast(1.1);
+    }
+    #demoCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .demo-overlay {
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      z-index: 5;
+    }
+    .demo-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      color: var(--teal-light);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .demo-instructions {
+      font-size: 0.8125rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 12px;
+      font-weight: 300;
+    }
+    .demo-status {
+      font-size: 0.6875rem;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Inter', monospace;
+    }
+    .note-burst {
+      position: absolute;
+      pointer-events: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 900;
+      font-size: 2.625rem;
+      animation: burst 0.8s ease-out forwards;
+      z-index: 20;
+      text-shadow: 0 0 24px currentColor;
+    }
+    @keyframes burst {
+      0%   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -200%) scale(1.6); }
+    }
+    /* STUDIO SECTION */
+    .studio-section {
+      background: var(--cream);
+      padding: 96px 60px;
+    }
+    .studio-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 64px;
+    }
+    .studio-inner > h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.875rem, 3.5vw, 2.875rem);
+      font-weight: 700; line-height: 1.2;
+    }
+    /* TEAM */
+    .team-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+    }
+    .team-card {
+      background: var(--ink);
+      padding: 40px;
+      border-radius: 2px;
+    }
+    .team-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.625rem; font-weight: 700;
+      color: var(--white); margin-bottom: 4px;
+    }
+    .team-role {
+      font-size: 0.6875rem; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--teal-light); font-weight: 500;
+      margin-bottom: 20px;
+    }
+    .team-card p {
+      font-size: 0.9375rem; font-weight: 300;
+      color: rgba(255,255,255,0.72); line-height: 1.75;
+    }
+    /* COLLABORATOR */
+    .collaborator-block {
+      background: var(--white);
+      padding: 48px;
+      border-radius: 2px;
+      border-left: 4px solid var(--teal);
+    }
+    .collaborator-block .section-label { margin-bottom: 20px; }
+    .collaborator-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+    }
+    .collaborator-text h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--ink); margin-bottom: 12px;
+    }
+    .collaborator-text p {
+      font-size: 1rem; font-weight: 300;
+      color: var(--text-muted); line-height: 1.8;
+      max-width: 680px;
+    }
+    .collaborator-tag {
+      font-size: 3rem; opacity: 0.4;
+      flex-shrink: 0;
+    }
+    /* INNOVATION SECTION */
+    .innovation-section {
+      background: var(--white);
+      padding: 96px 60px;
+    }
+    .innovation-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .innovation-inner > h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.875rem, 3.5vw, 2.875rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 48px;
+      color: var(--ink);
+    }
+    .innovation-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+    .innovation-card {
+      position: relative;
+      padding: 40px 32px;
+      background: var(--cream);
+      border-radius: 4px;
+      border-top: 3px solid var(--teal);
+    }
+    .innovation-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--teal-light);
+      opacity: 0.3;
+      margin-bottom: 16px;
+      line-height: 1;
+    }
+    .innovation-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+    .innovation-card p {
+      font-size: 0.9375rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+    /* HEDSHOK SECTION & PHOTOS */
+    .hedshok-section {
+      background: var(--white);
+      padding: 96px 60px;
+    }
+    .hedshok-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .hedshok-note {
+      background: var(--cream);
+      padding: 24px 32px;
+      border-left: 4px solid var(--teal);
+      border-radius: 2px;
+      margin-bottom: 56px;
+      text-align: center;
+    }
+    .hedshok-note p {
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin: 0;
+    }
+    .hedshok-note strong {
+      color: var(--teal);
+      font-weight: 600;
+    }
+    .photo-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    /* PHOTO & CTA SECTION */
+    .photo-cta-section {
+      background: var(--cream);
+      padding: 96px 60px;
+    }
+    .photo-grid {
+      max-width: 1200px;
+      margin: 0 auto 64px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .photo-item {
+      position: relative;
+      overflow: hidden;
+      border-radius: 4px;
+      aspect-ratio: 4 / 3;
+      background: #e0e0e0;
+    }
+    .photo-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+    .photo-item:hover img {
+      transform: scale(1.05);
+    }
+    .cta-block {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 64px 40px;
+      background: var(--white);
+      border-radius: 4px;
+    }
+    .cta-block h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.75rem, 4vw, 2.625rem);
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+    .cta-block p {
+      font-size: 1.0625rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+    .cta-block .btn {
+      display: inline-block;
+      padding: 16px 40px;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      background: var(--teal);
+      color: var(--white);
+      text-decoration: none;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+    .cta-block .btn:hover {
+      background: #145555;
+      transform: translateY(-2px);
+    }
+    /* FOOTER */
+    footer {
+      background: var(--ink);
+      padding: 64px 60px 32px;
+      color: rgba(255,255,255,0.7);
+    }
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+    .footer-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+    .footer-brand em {
+      font-style: italic;
+      color: var(--teal-light);
+    }
+    .footer-tagline {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.6;
+      max-width: 300px;
+    }
+    .footer-section h4 {
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--teal-light);
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-links a {
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover {
+      color: var(--teal-light);
+    }
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-top: 32px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8125rem;
+      color: rgba(255,255,255,0.5);
+    }
+    @media (max-width: 900px) {
+      header, .hero, .studio-section, .innovation-section, .hedshok-section, .cta-section, footer {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+      .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+      .hero-carousel { height: 400px; }
+      .hero-demo { height: 400px; }
+      .team-grid { grid-template-columns: 1fr; }
+      .innovation-grid { grid-template-columns: 1fr; }
+      .photo-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .collaborator-tag { display: none; }
+      .footer-inner { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 12px; }
+    }
+    @media (max-width: 600px) {
+      .photo-grid { grid-template-columns: 1fr; }
+    }
+    /* ───────── FEATURED FILM ───────── */
+    .film-section { background: var(--ink); padding: 96px 60px; }
+    .film-inner { max-width: 960px; margin: 0 auto; text-align: center; }
+    .film-inner .section-label { color: var(--teal-light); display: block; }
+    .film-inner > h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+      font-weight: 700; color: var(--white);
+      line-height: 1.2; margin: 8px 0 12px;
+    }
+    .film-intro {
+      font-size: 1rem; font-weight: 300;
+      color: rgba(255,255,255,0.78); line-height: 1.7;
+      max-width: 640px; margin: 0 auto 40px;
+    }
+    .film-player {
+      position: relative; width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 8px; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      background: #050508;
+    }
+    .film-play {
+      display: block; width: 100%; height: 100%;
+      padding: 0; border: none; cursor: pointer; background: none;
+      position: relative;
+    }
+    .film-thumb {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform 0.4s ease, filter 0.3s ease;
+    }
+    .film-play::after {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(10,10,20,0.22);
+    }
+    .film-play:hover .film-thumb { transform: scale(1.04); filter: brightness(0.9); }
+    .film-play-icon {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 84px; height: 84px; border-radius: 50%;
+      background: rgba(26,107,107,0.92);
+      z-index: 2;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .film-play-icon::before {
+      content: ''; position: absolute; top: 50%; left: 53%;
+      transform: translate(-50%, -50%);
+      border-style: solid;
+      border-width: 16px 0 16px 26px;
+      border-color: transparent transparent transparent #ffffff;
+    }
+    .film-play:hover .film-play-icon { background: var(--teal-light); transform: translate(-50%, -50%) scale(1.08); }
+    .film-play:focus-visible { outline: 3px solid var(--teal-light); outline-offset: 3px; }
+    .film-player iframe { display: block; width: 100%; height: 100%; border: 0; }
+    @media (max-width: 900px) {
+      .film-section { padding: 72px 24px; }
+      .film-play-icon { width: 64px; height: 64px; }
+      .film-play-icon::before { border-width: 12px 0 12px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- SKIP TO CONTENT LINK -->
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <!-- COLOR BLINDNESS SIMULATION FILTERS -->
+  <svg style="display: none;">
+    <defs>
+      <!-- Deuteranopia (Green-Blind) -->
+      <filter id="deuteranopia-filter">
+        <feColorMatrix type="matrix" values="0.625 0.375 0 0 0
+                                            0.7 0.3 0 0 0
+                                            0 0.3 0.7 0 0
+                                            0 0 0 1 0"/>
+      </filter>
+      <!-- Protanopia (Red-Blind) -->
+      <filter id="protanopia-filter">
+        <feColorMatrix type="matrix" values="0.567 0.433 0 0 0
+                                            0.558 0.442 0 0 0
+                                            0 0.242 0.758 0 0
+                                            0 0 0 1 0"/>
+      </filter>
+      <!-- Tritanopia (Blue-Yellow Blind) -->
+      <filter id="tritanopia-filter">
+        <feColorMatrix type="matrix" values="0.95 0.05 0 0 0
+                                            0 0.433 0.567 0 0
+                                            0 0.475 0.525 0 0
+                                            0 0 0 1 0"/>
+      </filter>
+    </defs>
+  </svg>
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <a href="/" class="logo">Fused Music <em>Studio</em></a>
+      <nav>
+        <a href="/blog.html">Blog</a>
+        <a href="/app-development.html">App Development</a>
+        <a href="https://fusedmusicstudio.bandcamp.com/" target="_blank" rel="noopener">Label</a>
+        <a href="#about">About</a>
+        <a href="mailto:hello@fusedmusic.studio">Contact</a>
+        <button id="accessibilityToggle" class="accessibility-btn" aria-label="Accessibility options" aria-expanded="false" aria-controls="accessibilityPanel" title="Accessibility options">A</button>
+      </nav>
+    </div>
+  </header>
+  <!-- KEYBOARD SHORTCUTS OVERLAY & PANEL -->
+  <div class="keyboard-shortcuts-overlay" id="shortcutsOverlay"></div>
+  <div class="keyboard-shortcuts" id="keyboardShortcuts" role="dialog" aria-modal="true" aria-labelledby="shortcutsHeading">
+    <h2 id="shortcutsHeading">Keyboard Shortcuts</h2>
+    <div class="shortcut-item">
+      <span>Skip to content</span>
+      <span class="shortcut-key">Tab</span>
+    </div>
+    <div class="shortcut-item">
+      <span>Accessibility menu</span>
+      <span class="shortcut-key">Alt + A</span>
+    </div>
+    <div class="shortcut-item">
+      <span>Read aloud</span>
+      <span class="shortcut-key">Alt + R</span>
+    </div>
+    <div class="shortcut-item">
+      <span>Keyboard shortcuts</span>
+      <span class="shortcut-key">?</span>
+    </div>
+    <div class="shortcut-item">
+      <span>Contact email</span>
+      <span class="shortcut-key">Alt + C</span>
+    </div>
+  </div>
+  <!-- READ ALOUD BUTTON -->
+  <button class="read-aloud-btn" id="readAloudBtn" aria-label="Read page aloud" title="Read aloud (Alt+R)">🔊</button>
+  <!-- READING GUIDE -->
+  <div class="reading-guide" id="readingGuide"></div>
+  <div class="accessibility-panel" id="accessibilityPanel" role="region" aria-labelledby="a11yHeading">
+    <h3 id="a11yHeading">Accessibility</h3>
+    <div class="accessibility-option">
+      <label>
+        <input type="checkbox" id="highContrast"> High Contrast
+      </label>
+    </div>
+    <div class="accessibility-option">
+      <label>
+        <input type="checkbox" id="dyslexiaFriendly"> Dyslexia Friendly
+      </label>
+    </div>
+    <div class="accessibility-option">
+      <label>
+        <input type="checkbox" id="noAnimations"> Reduce Animations
+      </label>
+    </div>
+    <div class="accessibility-option">
+      <label for="colorFilter">Color Filter:</label>
+      <select id="colorFilter" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ddd;">
+        <option value="none">Default</option>
+        <option value="deuteranopia">Red-Green (Deuteranopia)</option>
+        <option value="protanopia">Red-Green (Protanopia)</option>
+        <option value="tritanopia">Blue-Yellow (Tritanopia)</option>
+        <option value="achromatopsia">Monochrome</option>
+      </select>
+    </div>
+    <div class="accessibility-option">
+      <label for="textSize">Text Size: <span id="textSizeValue">100%</span></label>
+      <input type="range" id="textSize" min="80" max="150" value="100" step="10">
+    </div>
+  </div>
+  <!-- MAIN CONTENT -->
+  <main id="main" tabindex="-1">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-glow-1"></div>
+    <div class="hero-glow-2"></div>
+    <div class="hero-grid">
+      <div class="hero-content">
+        <h1>Fused Music <em>Studio</em></h1>
+        <p class="hero-sub"> Drawing on 25+ years of experience in music education, commercial music, research and engineering, we configure accessible setups to enable access to all for music making. We create interfaces and artefacts and non-proprietary solutions, explore neurofeedback and music, employ neurological music therapy techniques, and can teach music using accessible equipment. We can work very simply with you to configure your existing equipment or make suggestions on how you can make music using accessible music technology. We use eyegaze-controlled instruments, adapted music software, switch-based hardware customisation and custom software design. We offer support and training to use accessible technology for all sectors, and can also offer advice and point you in the direction of other facilitators, software developers and providers in this space!</p>
+        <div class="hero-btns">
+          <a href="mailto:hello@fusedmusic.studio" class="btn btn-primary">Email Us</a>
+        </div>
+      </div>
+      <!-- Interactive Demo -->
+      <div class="hero-interactive-wrapper">
+        <div class="hero-toggle">
+          <button class="toggle-btn active" id="btnDemoToggle">DEMO ON</button>
+        </div>
+        <div class="hero-demo" id="demoView">
+          <video id="demoVideo" autoplay playsinline aria-label="Live camera preview for the motion-controlled music demo"></video>
+          <canvas id="demoCanvas" role="img" aria-label="Visual overlay showing detected motion triggering musical notes"></canvas>
+          <div class="demo-overlay">
+            <div class="demo-label">HEDSHOK MOTION DEMO</div>
+            <div class="demo-instructions">Move in front of camera to trigger sounds</div>
+            <div class="demo-status" id="demoStatus" role="status" aria-live="polite">Click ON to start</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- STUDIO SECTION -->
+  <section class="studio-section" id="about">
+    <div class="studio-inner">
+      <div class="section-label">The Studio</div>
+      <h2>Who we are</h2>
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="team-name">Dr Rebecca Colclasure</div>
+          <div class="team-role">Founder</div>
+          <p>25+ years pedagogical experience alongside music engineering and accessible technology. Rebecca holds a PGCE, MA in music education, is a neurological music therapy professional associate, and recently completed her PhD in neuro rehabilitation, adapting open-source dance-based rhythm games for upper limb rehabilitation after stroke. Rebecca is a musician with specialism in co-design, music production and engineering, and bespoke music technology configuration.</p>
+        </div>
+        <div class="team-card">
+          <div class="team-name">Josh Saunders</div>
+          <div class="team-role">Studio Partner</div>
+          <p>20 years in digital music marketing and innovation. Josh has produced award-winning fan activations and digital campaigns for Gorillaz, Dua Lipa, Ed Sheeran, Coldplay, David Bowie, Iron Maiden, and Pink Floyd. Judge for The Webbys and The Lovies Awards. Josh is also a bass player and guitarist who can be found playing at the Fused Music Studio live sessions.</p>
+        </div>
+        <div class="team-card">
+          <div class="team-name">Dr Richard Bennett</div>
+          <div class="team-role">Collaborator (DJ HOTSOX)</div>
+          <p>Biochemist who has Locked-in Syndrome following a stroke at aged 50. Richard composes and performs music using eyegaze technology using in-browser drum machines and eyegaze overlays and custom instruments designed by Fused Music. Richard is an accomplished musician and an aficionado in industrial German-inspired electronic music.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- FEATURED FILM -->
+  <section class="film-section" aria-labelledby="filmHeading">
+    <div class="film-inner">
+      <div class="section-label">Mini Documentary · 2018</div>
+      <h2 id="filmHeading">Making Music With Locked-In Syndrome</h2>
+      <p class="film-intro">Following Dr Richard Bennett — DJ HOTSOX — composing and performing electronic music through eyegaze technology.</p>
+      <div class="film-player">
+        <button class="film-play" data-video="A8GnQaDeSIM" aria-label="Play the documentary: Making Music With Locked-In Syndrome — DJ HOTSOX">
+          <img class="film-thumb" src="./images/hotsox-poster.jpg" alt="Extreme close-up of DJ HOTSOX's eyes — the documentary explores making music through eyegaze" loading="lazy">
+          <span class="film-play-icon" aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+  </section>
+  <!-- INNOVATION SECTION -->
+  <section class="innovation-section">
+    <div class="innovation-inner">
+      <div class="section-label">Recognition</div>
+      <h2>Innovation</h2>
+      <div class="innovation-grid">
+        <div class="innovation-card">
+          <div class="innovation-number" aria-hidden="true">01</div>
+          <h3>Eyegaze for Music Design</h3>
+          <p>Pioneering research and development in eyegaze-controlled musical interfaces. Custom instruments designed around individual musician capabilities.</p>
+        </div>
+        <div class="innovation-card">
+          <div class="innovation-number" aria-hidden="true">02</div>
+          <h3>EU Conference for Innovation</h3>
+          <p>Live performance showcasing accessible music technology. Demonstrated eyegaze-controlled music creation at European innovation summit.</p>
+        </div>
+        <div class="innovation-card">
+          <div class="innovation-number" aria-hidden="true">03</div>
+          <h3>Royal Academy of Engineering</h3>
+          <p>Participated in the Frontiers Innovation Conference. Recognised for advancing assistive music technology and accessible design practices.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- HEDSHOK INFO & PHOTOS -->
+  <section class="hedshok-section">
+    <div class="hedshok-inner">
+      <div class="hedshok-note">
+        <p><strong>HEDSHOK Demo:</strong> Bespoke cut-down design for DJ HOTSOX. Full demo available as an app.</p>
+      </div>
+
+      <div class="photo-grid">
+        <div class="photo-item">
+          <img src="./images/gallery/1.jpg" alt="Accessible music interface">
+        </div>
+        <div class="photo-item">
+          <img src="./images/gallery/2.jpg" alt="Eyegaze music setup">
+        </div>
+        <div class="photo-item">
+          <img src="./images/gallery/3.jpg" alt="Music production interface">
+        </div>
+        <div class="photo-item">
+          <img src="./images/gallery/4.jpg" alt="Adaptive music controllers">
+        </div>
+        <div class="photo-item">
+          <img src="./images/gallery/5.jpg" alt="Music performance">
+        </div>
+        <div class="photo-item">
+          <img src="./images/gallery/6.jpg" alt="Hand music controller">
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- SERVICES & TRAINING CTA -->
+  <section class="cta-section">
+    <div class="cta-block">
+      <h2>Services & Training</h2>
+      <p>One-to-one sessions, in-person training, NHS consultancy, professional development, app development, and bespoke projects.</p>
+      <a href="mailto:hello@fusedmusic.studio" class="btn btn-primary">Get in Touch</a>
+    </div>
+  </section>
+  </main>
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand">Fused Music <em>Studio</em></div>
+      </div>
+      <div class="footer-section">
+        <h4>Get in Touch</h4>
+        <div class="footer-links">
+          <a href="mailto:hello@fusedmusic.studio">hello@fusedmusic.studio</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 Fused Music Studio</div>
+      <div>Based in London, UK</div>
+    </div>
+  </footer>
+<script>
+// ══ DEMO ON/OFF TOGGLE ══
+(function() {
+  const btnDemoToggle = document.getElementById('btnDemoToggle');
+  const demoView = document.getElementById('demoView');
+  const video = document.getElementById('demoVideo');
+  const canvas = document.getElementById('demoCanvas');
+  const ctx = canvas ? canvas.getContext('2d') : null;
+  const statusEl = document.getElementById('demoStatus');
+
+  let demoActive = false;
+  let stream = null;
+  let audioContext = null;
+
+  const notes = ['C', 'D', 'E', 'G', 'A'];
+  const frequencies = [261.63, 293.66, 329.63, 392.00, 440.00];
+  let lastTrigger = 0;
+
+  btnDemoToggle.addEventListener('click', () => {
+    if (demoActive) {
+      stopDemo();
+      btnDemoToggle.textContent = 'DEMO ON';
+      btnDemoToggle.classList.add('active');
+      statusEl.textContent = 'Click ON to start';
+      demoActive = false;
+    } else {
+      initDemo();
+      btnDemoToggle.textContent = 'DEMO OFF';
+      btnDemoToggle.classList.remove('active');
+      demoActive = true;
+    }
+  });
+
+  async function initDemo() {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 640, height: 480 },
+        audio: false
+      });
+      video.srcObject = stream;
+      statusEl.textContent = 'Camera active — move to trigger sounds';
+
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      detectMotion();
+    } catch (err) {
+      statusEl.textContent = 'Camera access denied';
+      btnDemoToggle.textContent = 'DEMO ON';
+      btnDemoToggle.classList.add('active');
+      demoActive = false;
+    }
+  }
+
+  function stopDemo() {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      stream = null;
+    }
+    if (audioContext) {
+      audioContext.close();
+      audioContext = null;
+    }
+  }
+
+  let prevFrame = null;
+  function detectMotion() {
+    if (!demoActive || !video || !canvas || !ctx) return;
+
+    canvas.width = 640;
+    canvas.height = 480;
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    if (prevFrame) {
+      let diff = 0;
+      for (let i = 0; i < frame.data.length; i += 4) {
+        diff += Math.abs(frame.data[i] - prevFrame.data[i]);
+      }
+
+      const threshold = 500000;
+      const now = Date.now();
+      if (diff > threshold && now - lastTrigger > 300) {
+        lastTrigger = now;
+        playNote();
+      }
+    }
+
+    prevFrame = frame;
+    requestAnimationFrame(detectMotion);
+  }
+
+  function playNote() {
+    if (!audioContext) return;
+
+    const noteIndex = Math.floor(Math.random() * notes.length);
+    const freq = frequencies[noteIndex];
+    const note = notes[noteIndex];
+
+    const burst = document.createElement('div');
+    burst.className = 'note-burst';
+    burst.textContent = note;
+    burst.style.left = (Math.random() * 80 + 10) + '%';
+    burst.style.top = (Math.random() * 60 + 20) + '%';
+    burst.style.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+    document.getElementById('demoView').appendChild(burst);
+    setTimeout(() => burst.remove(), 800);
+
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+
+    gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+    osc.start();
+    osc.stop(audioContext.currentTime + 0.5);
+  }
+})();
+// ══ ACCESSIBILITY PANEL ══
+(function() {
+  const accessibilityToggle = document.getElementById('accessibilityToggle');
+  const accessibilityPanel = document.getElementById('accessibilityPanel');
+  const highContrastCheckbox = document.getElementById('highContrast');
+  const dyslexiaFriendlyCheckbox = document.getElementById('dyslexiaFriendly');
+  const noAnimationsCheckbox = document.getElementById('noAnimations');
+  const colorFilterSelect = document.getElementById('colorFilter');
+  const textSizeSlider = document.getElementById('textSize');
+  const textSizeValue = document.getElementById('textSizeValue');
+  // Toggle panel
+  accessibilityToggle.addEventListener('click', () => {
+    const isOpen = accessibilityPanel.classList.toggle('active');
+    accessibilityToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+  // Close panel when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.accessibility-btn') && !e.target.closest('.accessibility-panel')) {
+      accessibilityPanel.classList.remove('active');
+      accessibilityToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+  // Load saved preferences
+  function loadPreferences() {
+    highContrastCheckbox.checked = localStorage.getItem('accessibility-high-contrast') === 'true';
+    dyslexiaFriendlyCheckbox.checked = localStorage.getItem('accessibility-dyslexia') === 'true';
+    noAnimationsCheckbox.checked = localStorage.getItem('accessibility-no-animations') === 'true';
+    const colorFilter = localStorage.getItem('accessibility-color-filter') || 'none';
+    colorFilterSelect.value = colorFilter;
+    const textSize = localStorage.getItem('accessibility-text-size') || '100';
+    textSizeSlider.value = textSize;
+
+    applyPreferences();
+  }
+  // Apply preferences
+  function applyPreferences() {
+    const body = document.body;
+    const textSize = textSizeSlider.value;
+    const colorFilter = colorFilterSelect.value;
+
+    // High contrast
+    if (highContrastCheckbox.checked) {
+      body.classList.add('high-contrast');
+    } else {
+      body.classList.remove('high-contrast');
+    }
+
+    // Dyslexia friendly
+    if (dyslexiaFriendlyCheckbox.checked) {
+      body.classList.add('dyslexia-friendly');
+    } else {
+      body.classList.remove('dyslexia-friendly');
+    }
+
+    // Color filter
+    body.classList.remove('filter-deuteranopia', 'filter-protanopia', 'filter-tritanopia', 'filter-achromatopsia');
+    if (colorFilter !== 'none') {
+      body.classList.add('filter-' + colorFilter);
+    }
+
+    // Reduce animations
+    if (noAnimationsCheckbox.checked) {
+      body.style.setProperty('--animation-duration', '0s');
+    } else {
+      body.style.removeProperty('--animation-duration');
+    }
+
+    // Text size
+    document.documentElement.style.fontSize = textSize + '%';
+    textSizeValue.textContent = textSize + '%';
+  }
+  // Save preferences
+  function savePreferences() {
+    localStorage.setItem('accessibility-high-contrast', highContrastCheckbox.checked);
+    localStorage.setItem('accessibility-dyslexia', dyslexiaFriendlyCheckbox.checked);
+    localStorage.setItem('accessibility-no-animations', noAnimationsCheckbox.checked);
+    localStorage.setItem('accessibility-color-filter', colorFilterSelect.value);
+    localStorage.setItem('accessibility-text-size', textSizeSlider.value);
+  }
+  // Event listeners
+  highContrastCheckbox.addEventListener('change', () => {
+    applyPreferences();
+    savePreferences();
+  });
+
+  dyslexiaFriendlyCheckbox.addEventListener('change', () => {
+    applyPreferences();
+    savePreferences();
+  });
+
+  noAnimationsCheckbox.addEventListener('change', () => {
+    applyPreferences();
+    savePreferences();
+  });
+  colorFilterSelect.addEventListener('change', () => {
+    applyPreferences();
+    savePreferences();
+  });
+
+  textSizeSlider.addEventListener('input', () => {
+    applyPreferences();
+    savePreferences();
+  });
+  // Load on page load
+  loadPreferences();
+})();
+// ══ READ ALOUD FUNCTIONALITY ══
+(function() {
+  const readAloudBtn = document.getElementById('readAloudBtn');
+  const readingGuide = document.getElementById('readingGuide');
+  let utterance = null;
+  let isReading = false;
+  readAloudBtn.addEventListener('click', toggleReadAloud);
+  function toggleReadAloud() {
+    if (isReading) {
+      speechSynthesis.cancel();
+      isReading = false;
+      readAloudBtn.classList.remove('active');
+      readingGuide.classList.remove('active');
+    } else {
+      startReadAloud();
+    }
+  }
+  function startReadAloud() {
+    const textContent = document.body.innerText;
+    utterance = new SpeechSynthesisUtterance(textContent);
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    utterance.onstart = () => {
+      isReading = true;
+      readAloudBtn.classList.add('active');
+      readingGuide.classList.add('active');
+    };
+    utterance.onend = () => {
+      isReading = false;
+      readAloudBtn.classList.remove('active');
+      readingGuide.classList.remove('active');
+    };
+    utterance.onerror = () => {
+      isReading = false;
+      readAloudBtn.classList.remove('active');
+      readingGuide.classList.remove('active');
+    };
+    speechSynthesis.speak(utterance);
+  }
+})();
+// ══ KEYBOARD SHORTCUTS ══
+(function() {
+  const shortcutsPanel = document.getElementById('keyboardShortcuts');
+  const shortcutsOverlay = document.getElementById('shortcutsOverlay');
+  const readAloudBtn = document.getElementById('readAloudBtn');
+  const accessibilityPanel = document.getElementById('accessibilityPanel');
+  document.addEventListener('keydown', (e) => {
+    // ? = Keyboard Shortcuts
+    if (e.key === '?') {
+      e.preventDefault();
+      toggleShortcuts();
+    }
+    // Alt+A = Accessibility Menu
+    if (e.altKey && e.key === 'a') {
+      e.preventDefault();
+      const isOpen = accessibilityPanel.classList.toggle('active');
+      const toggleBtn = document.getElementById('accessibilityToggle');
+      if (toggleBtn) toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+    // Alt+R = Read Aloud
+    if (e.altKey && e.key === 'r') {
+      e.preventDefault();
+      readAloudBtn.click();
+    }
+    // Alt+C = Contact
+    if (e.altKey && e.key === 'c') {
+      e.preventDefault();
+      window.location.href = 'mailto:hello@fusedmusic.studio';
+    }
+    // Escape = Close any open panel
+    if (e.key === 'Escape') {
+      shortcutsPanel.classList.remove('active');
+      shortcutsOverlay.classList.remove('active');
+      accessibilityPanel.classList.remove('active');
+      const toggleBtn = document.getElementById('accessibilityToggle');
+      if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+  function toggleShortcuts() {
+    shortcutsPanel.classList.toggle('active');
+    shortcutsOverlay.classList.toggle('active');
+  }
+  shortcutsOverlay.addEventListener('click', () => {
+    shortcutsPanel.classList.remove('active');
+    shortcutsOverlay.classList.remove('active');
+  });
+})();
+// ══ FEATURED FILM (CLICK-TO-LOAD) ══
+(function() {
+  var btn = document.querySelector('.film-section .film-play');
+  if (!btn) return;
+  var id = btn.getAttribute('data-video');
+  if (!id) return;
+  btn.addEventListener('click', function() {
+    var wrap = btn.parentElement;
+    var iframe = document.createElement('iframe');
+    iframe.setAttribute('title', 'Making Music With Locked-In Syndrome — DJ HOTSOX mini documentary');
+    iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+    iframe.setAttribute('allowfullscreen', '');
+    iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+    iframe.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&cc_load_policy=1&modestbranding=1';
+    wrap.innerHTML = '';
+    wrap.appendChild(iframe);
+  });
+})();
+</script>
+</body>
+</html>
