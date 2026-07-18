@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — Fused Music Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=OpenDyslexic:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1a1a2e;
+      --cream: #f8f6f1;
+      --teal: #1a6b6b;
+      --teal-light: #26b5b5;
+      --white: #ffffff;
+      --muted: #5a5a6e;
+      --gold: #b8823a;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--ink);
+      background: var(--cream);
+    }
+    .btn {
+      display: inline-block;
+      padding: 14px 32px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 2px;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--teal);
+      color: var(--white);
+    }
+    .btn-primary:hover {
+      background: #145555;
+      transform: translateY(-2px);
+    }
+    .section-label {
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--teal);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    /* HEADER (shared with index.html) */
+    header {
+      background: var(--ink);
+      padding: 20px 60px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .logo em {
+      font-style: italic;
+      color: var(--teal-light);
+    }
+    nav {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+    nav a {
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 400;
+      transition: color 0.2s;
+    }
+    nav a:hover {
+      color: var(--teal-light);
+    }
+    nav a.current {
+      color: var(--teal-light);
+      font-weight: 600;
+    }
+    .accessibility-btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.8);
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .accessibility-btn:hover {
+      background: rgba(255,255,255,0.15);
+      color: var(--teal-light);
+    }
+    .accessibility-panel {
+      position: fixed;
+      top: 80px;
+      right: 60px;
+      background: var(--white);
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 24px;
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      max-width: 280px;
+      display: none;
+    }
+    .accessibility-panel.active {
+      display: block;
+    }
+    .accessibility-panel h3 {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--ink);
+    }
+    .accessibility-option {
+      margin-bottom: 16px;
+    }
+    .accessibility-option label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #333;
+      cursor: pointer;
+    }
+    .accessibility-option input[type="checkbox"] {
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+    }
+    .accessibility-option input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+    .accessibility-option select {
+      cursor: pointer;
+    }
+    body.filter-deuteranopia { filter: url(#deuteranopia-filter); }
+    body.filter-protanopia { filter: url(#protanopia-filter); }
+    body.filter-tritanopia { filter: url(#tritanopia-filter); }
+    body.filter-achromatopsia { filter: grayscale(100%); }
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--teal);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: 0 0 4px 0;
+    }
+    .skip-link:focus { top: 0; }
+    .read-aloud-btn {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--teal);
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      z-index: 50;
+    }
+    .read-aloud-btn:hover { background: var(--teal-light); transform: scale(1.1); }
+    .read-aloud-btn.active { background: #ef4444; }
+    .read-aloud-btn:focus { outline: 3px solid var(--teal); outline-offset: 2px; }
+    .reading-guide {
+      position: fixed; left: 0; right: 0; height: 3px;
+      background: var(--teal); pointer-events: none; z-index: 40; display: none;
+    }
+    .reading-guide.active { display: block; }
+    .keyboard-shortcuts {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--white);
+      border: 2px solid var(--teal);
+      border-radius: 8px;
+      padding: 32px;
+      z-index: 2000;
+      max-height: 80vh;
+      overflow-y: auto;
+      display: none;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .keyboard-shortcuts.active { display: block; }
+    .keyboard-shortcuts h2 { font-size: 18px; margin: 0 0 20px; color: var(--ink); }
+    .shortcut-item {
+      display: flex; justify-content: space-between; padding: 8px 0;
+      border-bottom: 1px solid #eee; font-size: 13px;
+    }
+    .shortcut-item:last-child { border-bottom: none; }
+    .shortcut-key {
+      background: #f0f0f0; padding: 2px 8px; border-radius: 3px;
+      font-family: 'Courier New', monospace; font-weight: 600; color: var(--teal);
+    }
+    .keyboard-shortcuts-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); z-index: 1999; display: none;
+    }
+    .keyboard-shortcuts-overlay.active { display: block; }
+    body.high-contrast {
+      --ink: #000000; --cream: #ffffff; --teal: #0066cc; --white: #ffffff;
+    }
+    body.dyslexia-friendly {
+      font-family: 'OpenDyslexic', sans-serif;
+      letter-spacing: 0.15em;
+      line-height: 1.9;
+      background: #fafaf8 !important;
+    }
+    body.dyslexia-friendly p, body.dyslexia-friendly .entry-body {
+      font-size: 1.05em;
+      letter-spacing: 0.1em;
+    }
+    body.dyslexia-friendly h1, body.dyslexia-friendly h2, body.dyslexia-friendly h3 {
+      letter-spacing: 0.08em;
+      line-height: 1.4;
+    }
+
+    /* ───────── BLOG PAGE HEADER BANNER ───────── */
+    .blog-hero {
+      background: var(--ink);
+      padding: 160px 60px 72px;
+      position: relative;
+      overflow: hidden;
+    }
+    .blog-hero-glow {
+      position: absolute; top: -80px; right: -80px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(26,107,107,0.25) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .blog-hero-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .blog-hero .section-label { color: var(--teal-light); }
+    .blog-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(36px, 5vw, 58px);
+      font-weight: 900;
+      color: var(--white);
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .blog-hero h1 em { font-style: italic; color: var(--teal-light); }
+    .blog-hero-sub {
+      font-size: 16px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.7;
+      max-width: 640px;
+    }
+
+    /* ───────── JOURNAL / EXPERIMENTS SECTION ───────── */
+    .journal-section {
+      background: var(--cream);
+      padding: 72px 60px 96px;
+    }
+    .journal-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .howto-note {
+      background: var(--white);
+      padding: 24px 32px;
+      border-left: 4px solid var(--gold);
+      border-radius: 2px;
+      margin-bottom: 48px;
+    }
+    .howto-note h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+    .howto-note ol {
+      padding-left: 20px;
+      font-size: 14px;
+      color: #4a4a5a;
+      line-height: 1.8;
+    }
+    .howto-note code {
+      background: var(--cream);
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: var(--teal);
+    }
+
+    .journal-entries {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+    .journal-entry {
+      background: var(--white);
+      padding: 32px 40px;
+      border-radius: 4px;
+      border-left: 4px solid var(--teal);
+    }
+    .entry-date {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--teal);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .entry-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 14px;
+    }
+    .entry-body p {
+      font-size: 15px;
+      font-weight: 300;
+      color: #4a4a5a;
+      line-height: 1.75;
+      margin-bottom: 12px;
+    }
+    .entry-body p:last-child { margin-bottom: 0; }
+    .entry-tags {
+      display: flex;
+      gap: 8px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+    .entry-tag {
+      font-size: 11px;
+      padding: 4px 12px;
+      background: var(--cream);
+      border-radius: 20px;
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+      header, .blog-hero, .journal-section { padding-left: 24px; padding-right: 24px; }
+      .journal-entry { padding: 24px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- SKIP TO CONTENT LINK -->
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <!-- COLOR BLINDNESS SIMULATION FILTERS -->
+  <svg style="display: none;">
+    <defs>
+      <filter id="deuteranopia-filter">
+        <feColorMatrix type="matrix" values="0.625 0.375 0 0 0
+                                            0.7 0.3 0 0 0
+                                            0 0.3 0.7 0 0
+                                            0 0 0 1 0"/>
+      </filter>
+      <filter id="protanopia-filter">
+        <feColorMatrix type="matrix" values="0.567 0.433 0 0 0
+                                            0.558 0.442 0 0 0
+                                            0 0.242 0.758 0 0
+                                            0 0 0 1 0"/>
+      </filter>
+      <filter id="tritanopia-filter">
+        <feColorMatrix type="matrix" values="0.95 0.05 0 0 0
+                                            0 0.433 0.567 0 0
+                                            0 0.475 0.525 0 0
+                                            0 0 0 1 0"/>
+      </filter>
+    </defs>
+  </svg>
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <a href="/" class="logo">Fused Music <em>Studio</em></a>
+      <nav>
+        <a href="/blog.html" class="current">Blog</a>
+        <a href="/app-development.html">App Development</a>
+        <a href="/label.html">Label</a>
+        <a href="/#about">About</a>
+        <a href="mailto:hello@fusedmusic.studio">Contact</a>
+        <button id="accessibilityToggle" class="accessibility-btn" aria-label="Accessibility options" aria-expanded="false" aria-controls="accessibilityPanel" title="Accessibility options">A</button>
+      </nav>
+    </div>
+  </header>
+  <!-- KEYBOARD SHORTCUTS OVERLAY & PANEL -->
+  <div class="keyboard-shortcuts-overlay" id="shortcutsOverlay"></div>
+  <div class="keyboard-shortcuts" id="keyboardShortcuts" role="dialog" aria-modal="true" aria-labelledby="shortcutsHeading">
+    <h2 id="shortcutsHeading">Keyboard Shortcuts</h2>
+    <div class="shortcut-item"><span>Skip to content</span><span class="shortcut-key">Tab</span></div>
+    <div class="shortcut-item"><span>Accessibility menu</span><span class="shortcut-key">Alt + A</span></div>
+    <div class="shortcut-item"><span>Read aloud</span><span class="shortcut-key">Alt + R</span></div>
+    <div class="shortcut-item"><span>Keyboard shortcuts</span><span class="shortcut-key">?</span></div>
+    <div class="shortcut-item"><span>Contact email</span><span class="shortcut-key">Alt + C</span></div>
+  </div>
+  <!-- READ ALOUD BUTTON -->
+  <button class="read-aloud-btn" id="readAloudBtn" aria-label="Read page aloud" title="Read aloud (Alt+R)">🔊</button>
+  <!-- READING GUIDE -->
+  <div class="reading-guide" id="readingGuide"></div>
+  <div class="accessibility-panel" id="accessibilityPanel" role="region" aria-labelledby="a11yHeading">
+    <h3 id="a11yHeading">Accessibility</h3>
+    <div class="accessibility-option"><label><input type="checkbox" id="highContrast"> High Contrast</label></div>
+    <div class="accessibility-option"><label><input type="checkbox" id="dyslexiaFriendly"> Dyslexia Friendly</label></div>
+    <div class="accessibility-option"><label><input type="checkbox" id="noAnimations"> Reduce Animations</label></div>
+    <div class="accessibility-option">
+      <label for="colorFilter">Color Filter:</label>
+      <select id="colorFilter" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ddd;">
+        <option value="none">Default</option>
+        <option value="deuteranopia">Red-Green (Deuteranopia)</option>
+        <option value="protanopia">Red-Green (Protanopia)</option>
+        <option value="tritanopia">Blue-Yellow (Tritanopia)</option>
+        <option value="achromatopsia">Monochrome</option>
+      </select>
+    </div>
+    <div class="accessibility-option">
+      <label for="textSize">Text Size: <span id="textSizeValue">100%</span></label>
+      <input type="range" id="textSize" min="80" max="150" value="100" step="10">
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main id="main" tabindex="-1">
+
+    <!-- BLOG HERO -->
+    <section class="blog-hero">
+      <div class="blog-hero-glow"></div>
+      <div class="blog-hero-inner">
+        <div class="section-label">Journal</div>
+        <h1>Experiment <em>Log</em></h1>
+        <p class="blog-hero-sub">A running daily record of experiments, sessions, and findings — updated as they happen.</p>
+      </div>
+    </section>
+
+    <!-- JOURNAL / EXPERIMENTS -->
+    <section class="journal-section">
+      <div class="journal-inner">
+
+        <div class="howto-note">
+          <h3>How to add a new entry (do this daily)</h3>
+          <ol>
+            <li>Open <code>blog.html</code> in a text editor.</li>
+            <li>Find the <code>&lt;!-- ADD NEW ENTRIES ABOVE THIS LINE --&gt;</code> comment inside <code>&lt;div class="journal-entries"&gt;</code>.</li>
+            <li>Copy one <code>&lt;article class="journal-entry"&gt;...&lt;/article&gt;</code> block, paste it just above that comment (newest entries stay at the top).</li>
+            <li>Update the date, title, body text, and tags for today.</li>
+            <li>Save the file and refresh the page in your browser.</li>
+          </ol>
+        </div>
+
+        <div class="journal-entries">
+
+          <!-- ═══════════════════════════════════════════════════════
+               ADD NEW ENTRIES HERE — copy an <article> block below,
+               paste it ABOVE this comment, edit date/title/body/tags.
+               Newest entries go at the TOP of the list.
+               ═══════════════════════════════════════════════════════ -->
+          <!-- ADD NEW ENTRIES ABOVE THIS LINE -->
+
+          <article class="journal-entry">
+            <div class="entry-date">18 July 2026 — Cycle Day 2 (Menses)</div>
+            <div class="entry-title">First Muse 2 recording + meditation band breakdown</div>
+            <div class="entry-body">
+              <p>Got the Muse 2 → Mind Monitor pipeline working end to end after a few Bluetooth connection issues (turned out the official Muse app was still running in the background and blocking the connection). First real 3.4-minute resting-state recording produced a frontal alpha asymmetry (FAA) score of −0.78, right-lateralised.</p>
+              <p>Also ran a 3-minute meditation session through the full band breakdown script: Beta was dominant throughout (Alpha − Beta = −0.13, Theta − Beta = −0.34), meaning the session stayed more alert/active than settled. Gamma read highest of all, but that's most likely a muscle/jaw-tension artifact on dry electrodes rather than a real meditative-gamma state, so treating that one with caution.</p>
+              <p>Next: record a session in the late follicular phase (~day 10–14) and one in the luteal phase (~day 21–28) to build the phase comparison. Also starting a daily morning meditation habit and tracking Alpha–Beta trend across sessions over time.</p>
+            </div>
+            <div class="entry-tags">
+              <span class="entry-tag">EEG</span>
+              <span class="entry-tag">Muse 2</span>
+              <span class="entry-tag">Cycle Tracking</span>
+              <span class="entry-tag">Meditation</span>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer style="background: var(--ink); padding: 64px 60px 32px; color: rgba(255,255,255,0.7);">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 24px; padding-top: 0;">
+      <div>
+        <div style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--white); margin-bottom: 12px;">Fused Music <em style="font-style: italic; color: var(--teal-light);">Studio</em></div>
+        <p style="font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.6; max-width: 300px;">Specialist collaboration, innovation and training in music technology for disabled musicians, educators, and therapists.</p>
+      </div>
+      <div>
+        <h4 style="font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-light); margin-bottom: 16px; font-weight: 600;">Get in Touch</h4>
+        <a href="mailto:hello@fusedmusic.studio" style="color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px;">hello@fusedmusic.studio</a>
+      </div>
+    </div>
+    <div style="max-width: 1200px; margin: 32px auto 0; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; font-size: 13px; color: rgba(255,255,255,0.5); flex-wrap: wrap; gap: 12px;">
+      <div>© 2026 Fused Music Studio</div>
+      <div>Based in London, UK</div>
+    </div>
+  </footer>
+
+<script>
+// ══ ACCESSIBILITY PANEL ══
+(function() {
+  const accessibilityToggle = document.getElementById('accessibilityToggle');
+  const accessibilityPanel = document.getElementById('accessibilityPanel');
+  const highContrastCheckbox = document.getElementById('highContrast');
+  const dyslexiaFriendlyCheckbox = document.getElementById('dyslexiaFriendly');
+  const noAnimationsCheckbox = document.getElementById('noAnimations');
+  const colorFilterSelect = document.getElementById('colorFilter');
+  const textSizeSlider = document.getElementById('textSize');
+  const textSizeValue = document.getElementById('textSizeValue');
+
+  accessibilityToggle.addEventListener('click', () => {
+    const isOpen = accessibilityPanel.classList.toggle('active');
+    accessibilityToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.accessibility-btn') && !e.target.closest('.accessibility-panel')) {
+      accessibilityPanel.classList.remove('active');
+      accessibilityToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+  function loadPreferences() {
+    highContrastCheckbox.checked = localStorage.getItem('accessibility-high-contrast') === 'true';
+    dyslexiaFriendlyCheckbox.checked = localStorage.getItem('accessibility-dyslexia') === 'true';
+    noAnimationsCheckbox.checked = localStorage.getItem('accessibility-no-animations') === 'true';
+    const colorFilter = localStorage.getItem('accessibility-color-filter') || 'none';
+    colorFilterSelect.value = colorFilter;
+    const textSize = localStorage.getItem('accessibility-text-size') || '100';
+    textSizeSlider.value = textSize;
+    applyPreferences();
+  }
+  function applyPreferences() {
+    const body = document.body;
+    const textSize = textSizeSlider.value;
+    const colorFilter = colorFilterSelect.value;
+    if (highContrastCheckbox.checked) body.classList.add('high-contrast');
+    else body.classList.remove('high-contrast');
+    if (dyslexiaFriendlyCheckbox.checked) body.classList.add('dyslexia-friendly');
+    else body.classList.remove('dyslexia-friendly');
+    body.classList.remove('filter-deuteranopia', 'filter-protanopia', 'filter-tritanopia', 'filter-achromatopsia');
+    if (colorFilter !== 'none') body.classList.add('filter-' + colorFilter);
+    if (noAnimationsCheckbox.checked) body.style.setProperty('--animation-duration', '0s');
+    else body.style.removeProperty('--animation-duration');
+    body.style.fontSize = textSize + '%';
+    textSizeValue.textContent = textSize + '%';
+  }
+  function savePreferences() {
+    localStorage.setItem('accessibility-high-contrast', highContrastCheckbox.checked);
+    localStorage.setItem('accessibility-dyslexia', dyslexiaFriendlyCheckbox.checked);
+    localStorage.setItem('accessibility-no-animations', noAnimationsCheckbox.checked);
+    localStorage.setItem('accessibility-color-filter', colorFilterSelect.value);
+    localStorage.setItem('accessibility-text-size', textSizeSlider.value);
+  }
+  highContrastCheckbox.addEventListener('change', () => { applyPreferences(); savePreferences(); });
+  dyslexiaFriendlyCheckbox.addEventListener('change', () => { applyPreferences(); savePreferences(); });
+  noAnimationsCheckbox.addEventListener('change', () => { applyPreferences(); savePreferences(); });
+  colorFilterSelect.addEventListener('change', () => { applyPreferences(); savePreferences(); });
+  textSizeSlider.addEventListener('input', () => { applyPreferences(); savePreferences(); });
+  loadPreferences();
+})();
+// ══ READ ALOUD FUNCTIONALITY ══
+(function() {
+  const readAloudBtn = document.getElementById('readAloudBtn');
+  const readingGuide = document.getElementById('readingGuide');
+  let utterance = null;
+  let isReading = false;
+  readAloudBtn.addEventListener('click', toggleReadAloud);
+  function toggleReadAloud() {
+    if (isReading) {
+      speechSynthesis.cancel();
+      isReading = false;
+      readAloudBtn.classList.remove('active');
+      readingGuide.classList.remove('active');
+    } else {
+      startReadAloud();
+    }
+  }
+  function startReadAloud() {
+    const textContent = document.body.innerText;
+    utterance = new SpeechSynthesisUtterance(textContent);
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    utterance.onstart = () => { isReading = true; readAloudBtn.classList.add('active'); readingGuide.classList.add('active'); };
+    utterance.onend = () => { isReading = false; readAloudBtn.classList.remove('active'); readingGuide.classList.remove('active'); };
+    utterance.onerror = () => { isReading = false; readAloudBtn.classList.remove('active'); readingGuide.classList.remove('active'); };
+    speechSynthesis.speak(utterance);
+  }
+})();
+// ══ KEYBOARD SHORTCUTS ══
+(function() {
+  const shortcutsPanel = document.getElementById('keyboardShortcuts');
+  const shortcutsOverlay = document.getElementById('shortcutsOverlay');
+  const readAloudBtn = document.getElementById('readAloudBtn');
+  const accessibilityPanel = document.getElementById('accessibilityPanel');
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '?') { e.preventDefault(); toggleShortcuts(); }
+    if (e.altKey && e.key === 'a') {
+      e.preventDefault();
+      const isOpen = accessibilityPanel.classList.toggle('active');
+      const toggleBtn = document.getElementById('accessibilityToggle');
+      if (toggleBtn) toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+    if (e.altKey && e.key === 'r') { e.preventDefault(); readAloudBtn.click(); }
+    if (e.altKey && e.key === 'c') { e.preventDefault(); window.location.href = 'mailto:hello@fusedmusic.studio'; }
+    if (e.key === 'Escape') {
+      shortcutsPanel.classList.remove('active');
+      shortcutsOverlay.classList.remove('active');
+      accessibilityPanel.classList.remove('active');
+      const toggleBtn = document.getElementById('accessibilityToggle');
+      if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+  function toggleShortcuts() {
+    shortcutsPanel.classList.toggle('active');
+    shortcutsOverlay.classList.toggle('active');
+  }
+  shortcutsOverlay.addEventListener('click', () => {
+    shortcutsPanel.classList.remove('active');
+    shortcutsOverlay.classList.remove('active');
+  });
+})();
+</script>
+</body>
+</html>
