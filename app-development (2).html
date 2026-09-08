@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Development — Fused Music Studio</title>
+  <meta name="description" content="Eyegaze-controlled instruments, adapted music software, switch-based hardware and custom software design for disabled musicians. Training, consultancy and signposting from Fused Music Studio.">
+
+  <!-- ══ LINK PREVIEW ══
+       These control how the page looks when pasted into WhatsApp, X,
+       Facebook, LinkedIn, Slack or a TikTok bio. Without an image, shared
+       links appear as a bare grey box and get far fewer clicks.
+       Replace og-image.jpg with a real 1200x630 picture. A still of
+       someone playing HEDSHOK works far better than a logo.              -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Fused Music Studio">
+  <meta property="og:url" content="https://fusedmusic.studio/app-development.html">
+  <meta property="og:title" content="HEDSHOK — play music with head movement">
+  <meta property="og:description" content="A free browser instrument played by moving your head, co-designed with musician Richard Bennett. No installation, no sign-up.">
+  <meta property="og:image" content="https://fusedmusic.studio/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="HEDSHOK, a browser instrument played with head movement.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="HEDSHOK — play music with head movement">
+  <meta name="twitter:description" content="A free browser instrument played by moving your head, co-designed with musician Richard Bennett.">
+  <meta name="twitter:image" content="https://fusedmusic.studio/og-image.jpg">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=OpenDyslexic:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1a1a2e;
+      --cream: #f8f6f1;
+      --teal: #1a6b6b;
+      --teal-light: #26b5b5;
+      --white: #ffffff;
+      --muted: #5a5a6e;
+      --gold: #b8823a;
+      --text-muted: #4a4a5a;
+    }
+    html { font-size: 16px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--ink);
+      background: var(--cream);
+    }
+    .btn {
+      display: inline-block;
+      padding: 14px 32px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 2px;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--teal);
+      color: var(--white);
+    }
+    .btn-primary:hover {
+      background: #145555;
+      transform: translateY(-2px);
+    }
+    .section-label {
+      font-size: 0.6875rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--teal);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    /* HEADER (shared with index.html / blog.html) */
+    header {
+      background: var(--ink);
+      padding: 20px 60px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .logo em {
+      font-style: italic;
+      color: var(--teal-light);
+    }
+    nav {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+    nav a {
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 400;
+      transition: color 0.2s;
+    }
+    nav a:hover {
+      color: var(--teal-light);
+    }
+    nav a.current {
+      color: var(--teal-light);
+      font-weight: 600;
+    }
+    .accessibility-btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.8);
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+    .accessibility-btn:hover {
+      background: rgba(255,255,255,0.15);
+      color: var(--teal-light);
+    }
+    .accessibility-panel {
+      position: fixed;
+      top: 80px;
+      right: 60px;
+      background: var(--white);
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 24px;
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      max-width: 280px;
+      display: none;
+    }
+    .accessibility-panel.active { display: block; }
+    .accessibility-panel h3 {
+      font-size: 0.875rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--ink);
+    }
+    .accessibility-option { margin-bottom: 16px; }
+    .accessibility-option label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8125rem;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .accessibility-option input[type="checkbox"] {
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+    }
+    .accessibility-option input[type="range"] { width: 100%; cursor: pointer; }
+    .accessibility-option select { cursor: pointer; }
+    body.filter-deuteranopia { filter: url(#deuteranopia-filter); }
+    body.filter-protanopia { filter: url(#protanopia-filter); }
+    body.filter-tritanopia { filter: url(#tritanopia-filter); }
+    body.filter-achromatopsia { filter: grayscale(100%); }
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--teal);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: 0 0 4px 0;
+    }
+    .skip-link:focus { top: 0; }
+    .read-aloud-btn {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--teal);
+      border: none;
+      color: white;
+      font-size: 1.25rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      z-index: 50;
+    }
+    .read-aloud-btn:hover { background: var(--teal-light); transform: scale(1.1); }
+    .read-aloud-btn.active { background: #ef4444; }
+    .read-aloud-btn:focus { outline: 3px solid var(--teal); outline-offset: 2px; }
+    .reading-guide {
+      position: fixed; left: 0; right: 0; height: 3px;
+      background: var(--teal); pointer-events: none; z-index: 40; display: none;
+    }
+    .reading-guide.active { display: block; }
+    .keyboard-shortcuts {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--white);
+      border: 2px solid var(--teal);
+      border-radius: 8px;
+      padding: 32px;
+      z-index: 2000;
+      max-height: 80vh;
+      overflow-y: auto;
+      display: none;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .keyboard-shortcuts.active { display: block; }
+    .keyboard-shortcuts h2 { font-size: 1.125rem; margin: 0 0 20px; color: var(--ink); }
+    .shortcut-item {
+      display: flex; justify-content: space-between; padding: 8px 0;
+      border-bottom: 1px solid #eee; font-size: 0.8125rem;
+    }
+    .shortcut-item:last-child { border-bottom: none; }
+    .shortcut-key {
+      background: #f0f0f0; padding: 2px 8px; border-radius: 3px;
+      font-family: 'Courier New', monospace; font-weight: 600; color: var(--teal);
+    }
+    .keyboard-shortcuts-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); z-index: 1999; display: none;
+    }
+    .keyboard-shortcuts-overlay.active { display: block; }
+
+    /* HIGH CONTRAST */
+    body.high-contrast {
+      --ink: #000000; --cream: #ffffff; --teal: #0066cc; --white: #ffffff;
+      --text-muted: #000000;
+    }
+    body.high-contrast header,
+    body.high-contrast header *,
+    body.high-contrast .page-hero,
+    body.high-contrast .page-hero *,
+    body.high-contrast .cta-band,
+    body.high-contrast .cta-band *,
+    body.high-contrast footer,
+    body.high-contrast footer * {
+      color: #ffffff !important;
+    }
+    body.high-contrast .projects-section,
+    body.high-contrast .projects-section *,
+    body.high-contrast .accessibility-panel,
+    body.high-contrast .accessibility-panel *,
+    body.high-contrast .keyboard-shortcuts,
+    body.high-contrast .keyboard-shortcuts * {
+      color: #000000 !important;
+      background-color: transparent;
+    }
+    body.high-contrast .project-card,
+    body.high-contrast .accessibility-panel,
+    body.high-contrast .keyboard-shortcuts {
+      background-color: #ffffff !important;
+      border-color: #000000 !important;
+    }
+    body.high-contrast .shortcut-key {
+      background-color: #e0e0e0 !important;
+      color: #000000 !important;
+    }
+    body.high-contrast .project-status {
+      background-color: #000000 !important;
+      color: #ffffff !important;
+    }
+    body.high-contrast .btn-primary,
+    body.high-contrast .btn-light {
+      background-color: #000000 !important;
+      color: #ffffff !important;
+      border-color: #000000 !important;
+    }
+    body.high-contrast a { text-decoration: underline !important; }
+
+    body.dyslexia-friendly {
+      font-family: 'OpenDyslexic', sans-serif;
+      letter-spacing: 0.15em;
+      line-height: 1.9;
+      background: #fafaf8 !important;
+    }
+    body.dyslexia-friendly p { font-size: 1.05em; letter-spacing: 0.1em; }
+    body.dyslexia-friendly h1,
+    body.dyslexia-friendly h2,
+    body.dyslexia-friendly h3 { letter-spacing: 0.08em; line-height: 1.4; }
+
+    /* ───────── PAGE HERO ───────── */
+    .page-hero {
+      background: var(--ink);
+      padding: 160px 60px 64px;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-hero-glow {
+      position: absolute; top: -80px; right: -80px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(26,107,107,0.25) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .page-hero-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .page-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.25rem, 5vw, 3.625rem);
+      font-weight: 900;
+      color: var(--white);
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+    .page-hero p {
+      font-size: 1.0625rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.82);
+      line-height: 1.75;
+      max-width: 62ch;
+      margin-bottom: 16px;
+    }
+    .page-hero p:last-of-type { margin-bottom: 32px; }
+    .btn-light {
+      display: inline-block;
+      padding: 14px 30px;
+      background: var(--teal-light);
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 700;
+      border-radius: 2px;
+      border: 1px solid var(--teal-light);
+      transition: all 0.2s;
+    }
+    .btn-light:hover { background: var(--white); border-color: var(--white); }
+
+    /* ───────── SHARED SECTION SHELL ───────── */
+    .section-inner { max-width: 900px; margin: 0 auto; }
+    .section-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+    .section-lede {
+      font-size: 0.9375rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      line-height: 1.75;
+      max-width: 62ch;
+      margin-bottom: 36px;
+    }
+
+    /* ───────── DOWNLOAD + DONATION ───────── */
+    .project-actions {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Live preview */
+    .preview-wrap {
+      margin-top: 22px;
+      border: 1px solid #e3ded3;
+      border-radius: 3px;
+      overflow: hidden;
+      background: var(--ink);
+    }
+    .preview-poster {
+      aspect-ratio: 16 / 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding: 28px;
+      text-align: center;
+      background: var(--ink);
+    }
+    .preview-poster p {
+      font-size: 0.875rem !important;
+      font-weight: 300;
+      color: rgba(255,255,255,0.72) !important;
+      line-height: 1.7;
+      max-width: 44ch;
+      margin: 0 !important;
+    }
+    .preview-start {
+      padding: 13px 28px;
+      background: var(--teal-light, #26b5b5);
+      color: var(--ink);
+      border: none;
+      border-radius: 2px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .preview-start:hover { background: var(--white); }
+    .preview-end-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .preview-start {
+      text-decoration: none;
+      display: inline-block;
+    }
+    .preview-again {
+      padding: 13px 28px;
+      background: none;
+      color: var(--teal-light);
+      border: 1px solid var(--teal-light);
+      border-radius: 2px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .preview-again:hover { background: rgba(38,181,181,0.15); }
+    .preview-wrap iframe {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      min-height: 420px;
+      border: 0;
+    }
+    .preview-note {
+      font-size: 0.75rem !important;
+      color: var(--muted) !important;
+      padding: 8px 12px;
+      background: var(--cream);
+      margin: 0 !important;
+    }
+    .dl-btn.ghost {
+      background: none;
+      color: var(--teal);
+      border: 1px solid var(--teal);
+      text-decoration: none;
+    }
+    .dl-btn.ghost:hover { background: rgba(26,107,107,0.08); }
+    body.high-contrast .preview-poster p { color: #ffffff !important; }
+    .dl-btn {
+      display: inline-block;
+      padding: 13px 26px;
+      background: var(--teal);
+      color: var(--white);
+      border: 1px solid var(--teal);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .dl-btn:hover { background: #145555; }
+
+    #donateOverlay {
+      position: fixed; inset: 0;
+      background: rgba(10,10,18,0.75);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    #donateOverlay.open { display: flex; }
+    .donate-box {
+      background: var(--white);
+      border-radius: 4px;
+      border-top: 4px solid var(--gold);
+      padding: 34px 36px 30px;
+      max-width: 460px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.4);
+    }
+    .donate-box h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4375rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 14px;
+    }
+    .donate-box p {
+      font-size: 0.9375rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      line-height: 1.75;
+      margin-bottom: 14px;
+    }
+    .donate-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 24px;
+    }
+    .donate-actions a, .donate-actions button {
+      display: block;
+      width: 100%;
+      text-align: center;
+      text-decoration: none;
+      padding: 14px 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      border-radius: 2px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    .donate-give { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+    .donate-give:hover { background: #cc9b4c; }
+    .donate-skip {
+      background: none;
+      color: var(--teal);
+      border-color: var(--teal);
+      font-weight: 600;
+    }
+    .donate-skip:hover { background: rgba(26,107,107,0.08); }
+    .donate-close {
+      background: none;
+      color: var(--muted);
+      border-color: transparent;
+      font-weight: 400;
+      font-size: 0.875rem;
+    }
+    .donate-close:hover { color: var(--ink); }
+    body.high-contrast .donate-box,
+    body.high-contrast .donate-box * { color: #000000 !important; }
+    body.high-contrast .donate-box { background: #ffffff !important; border-color: #000000 !important; }
+    body.high-contrast .donate-give { background: #ffdd00 !important; color: #000000 !important; }
+
+    /* ───────── SHARE ───────── */
+    .share-bar {
+      margin-top: 26px;
+      padding-top: 20px;
+      border-top: 1px solid #ece8df;
+    }
+    .share-label {
+      display: block;
+      font-size: 0.6875rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--teal);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .share-btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .share-btn {
+      display: inline-block;
+      padding: 8px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--teal);
+      background: none;
+      border: 1px solid rgba(26,107,107,0.35);
+      border-radius: 20px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .share-btn:hover { background: rgba(26,107,107,0.09); border-color: var(--teal); }
+    .share-btn.share-native { background: var(--teal); color: var(--white); border-color: var(--teal); }
+    .share-btn.share-native:hover { background: #145555; }
+    .share-note {
+      font-size: 0.8125rem !important;
+      color: var(--muted) !important;
+      margin: 14px 0 0 !important;
+    }
+    body.high-contrast .share-btn {
+      border-color: #000000 !important;
+      color: #000000 !important;
+    }
+    body.high-contrast .share-btn.share-native {
+      background: #000000 !important;
+      color: #ffffff !important;
+    }
+
+    /* ───────── PROJECTS ───────── */
+    .projects-section {
+      background: var(--cream);
+      padding: 72px 60px 88px;
+    }
+    .projects-list {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .project-card {
+      background: var(--white);
+      padding: 32px 36px;
+      border-radius: 4px;
+      border-left: 4px solid var(--gold);
+    }
+    .project-head {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .project-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .project-status {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: var(--cream);
+      color: var(--teal);
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+    .project-card p {
+      font-size: 0.9375rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      line-height: 1.75;
+      margin-bottom: 12px;
+      max-width: 66ch;
+    }
+    .project-card p:last-child { margin-bottom: 0; }
+    .project-meta {
+      margin-top: 18px;
+      font-size: 0.8125rem;
+      color: var(--muted);
+    }
+    .project-meta a { color: var(--teal); }
+
+    /* ───────── CTA BAND ───────── */
+    .cta-band {
+      background: var(--ink);
+      padding: 64px 60px;
+      text-align: left;
+    }
+    .cta-band h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 14px;
+    }
+    .cta-band p {
+      font-size: 0.9375rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.75;
+      max-width: 58ch;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 900px) {
+      header, .page-hero, .projects-section, .cta-band { padding-left: 24px; padding-right: 24px; }
+      .project-card { padding: 26px 24px; }
+      nav { gap: 18px; flex-wrap: wrap; justify-content: flex-end; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 3px solid var(--teal-light);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <!-- COLOR BLINDNESS SIMULATION FILTERS -->
+  <svg style="display: none;">
+    <defs>
+      <filter id="deuteranopia-filter">
+        <feColorMatrix type="matrix" values="0.625 0.375 0 0 0
+                                            0.7 0.3 0 0 0
+                                            0 0.3 0.7 0 0
+                                            0 0 0 1 0"/>
+      </filter>
+      <filter id="protanopia-filter">
+        <feColorMatrix type="matrix" values="0.567 0.433 0 0 0
+                                            0.558 0.442 0 0 0
+                                            0 0.242 0.758 0 0
+                                            0 0 0 1 0"/>
+      </filter>
+      <filter id="tritanopia-filter">
+        <feColorMatrix type="matrix" values="0.95 0.05 0 0 0
+                                            0 0.433 0.567 0 0
+                                            0 0.475 0.525 0 0
+                                            0 0 0 1 0"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <a href="/" class="logo">Fused Music <em>Studio</em></a>
+      <nav>
+        <a href="/blog.html">Blog</a>
+        <a href="/app-development.html" class="current">App Development</a>
+        <a href="https://fusedmusicstudio.bandcamp.com/" target="_blank" rel="noopener">Label</a>
+        <a href="/#about">About</a>
+        <a href="mailto:hello@fusedmusic.studio">Contact</a>
+        <button id="accessibilityToggle" class="accessibility-btn" aria-label="Accessibility options" aria-expanded="false" aria-controls="accessibilityPanel" title="Accessibility options">A</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- KEYBOARD SHORTCUTS OVERLAY & PANEL -->
+  <div class="keyboard-shortcuts-overlay" id="shortcutsOverlay"></div>
+  <div class="keyboard-shortcuts" id="keyboardShortcuts" role="dialog" aria-modal="true" aria-labelledby="shortcutsHeading">
+    <h2 id="shortcutsHeading">Keyboard Shortcuts</h2>
+    <div class="shortcut-item"><span>Skip to content</span><span class="shortcut-key">Tab</span></div>
+    <div class="shortcut-item"><span>Accessibility menu</span><span class="shortcut-key">Alt + A</span></div>
+    <div class="shortcut-item"><span>Read aloud</span><span class="shortcut-key">Alt + R</span></div>
+    <div class="shortcut-item"><span>Keyboard shortcuts</span><span class="shortcut-key">?</span></div>
+    <div class="shortcut-item"><span>Contact email</span><span class="shortcut-key">Alt + C</span></div>
+  </div>
+
+  <!-- READ ALOUD BUTTON -->
+  <button class="read-aloud-btn" id="readAloudBtn" aria-label="Read page aloud" title="Read aloud (Alt+R)">🔊</button>
+  <div class="reading-guide" id="readingGuide"></div>
+
+  <div class="accessibility-panel" id="accessibilityPanel" role="region" aria-labelledby="a11yHeading">
+    <h3 id="a11yHeading">Accessibility</h3>
+    <div class="accessibility-option"><label><input type="checkbox" id="highContrast"> High Contrast</label></div>
+    <div class="accessibility-option"><label><input type="checkbox" id="dyslexiaFriendly"> Dyslexia Friendly</label></div>
+    <div class="accessibility-option"><label><input type="checkbox" id="noAnimations"> Reduce Animations</label></div>
+    <div class="accessibility-option">
+      <label for="colorFilter">Color Filter:</label>
+      <select id="colorFilter" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ddd;">
+        <option value="none">Default</option>
+        <option value="deuteranopia">Red-Green (Deuteranopia)</option>
+        <option value="protanopia">Red-Green (Protanopia)</option>
+        <option value="tritanopia">Blue-Yellow (Tritanopia)</option>
+        <option value="achromatopsia">Monochrome</option>
+      </select>
+    </div>
+    <div class="accessibility-option">
+      <label for="textSize">Text Size: <span id="textSizeValue">100%</span></label>
+      <input type="range" id="textSize" min="80" max="150" value="100" step="10">
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main id="main" tabindex="-1">
+
+    <!-- HERO -->
+    <section class="page-hero">
+      <div class="page-hero-glow"></div>
+      <div class="page-hero-inner">
+        <h1>App Development</h1>
+        <p>Fused Music Studio develops eyegaze-controlled apps and instruments based on client requests and co-design.</p>
+        <a href="mailto:hello@fusedmusic.studio" class="btn-light">Talk to us about a project</a>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section class="projects-section">
+      <div class="section-inner">
+        <h2 class="section-heading">Projects</h2>
+
+        <div class="projects-list">
+
+          <!-- ═══════════════════════════════════════════════════════
+               PROJECT CARD TEMPLATE — copy this block, edit, and paste
+               above this comment. Status options used so far:
+               Concept / In development / Prototype / In use / Released
+               ═══════════════════════════════════════════════════════ -->
+
+          <article class="project-card">
+            <div class="project-head">
+              <h3>HEDSHOK</h3>
+              <span class="project-status">Version 1</span>
+            </div>
+            <p>Hedshok was inspired by Richard Bennett, who uses his eyes to communicate and make music. The design is based around his ability to move his head in a circular motion as well as side to side.</p>
+            <p>It features easy to select effects using his existing Grid 3 mouse control system, as well as adding effects such as filters which are usually consigned to a rotary control. A mouse user can click and hold to rotate, but it's tricky for him to control continuously using eyegaze controlled mouse control.</p>
+            <p>This is version 1 and can and will be adapted as we use it. <a href="mailto:hello@fusedmusic.studio">Get in touch</a> if you would like further development for yourself or a client or family member.</p>
+            <!-- ── LIVE PREVIEW ── -->
+            <div class="preview-wrap" id="previewWrap-hedshok">
+              <div class="preview-poster" id="previewPoster-hedshok">
+                <p>Try HEDSHOK right here. It uses your camera to track head movement. Nothing is recorded or sent anywhere.</p>
+                <button class="preview-start"
+                        data-live="https://fusedmusic.github.io/hedshok/"
+                        onclick="startPreview('hedshok', this)">▶ Try it in the page</button>
+              </div>
+            </div>
+
+            <div class="project-actions">
+              <a class="dl-btn ghost"
+                 href="https://fusedmusic.github.io/hedshok/"
+                 target="_blank" rel="noopener">↗ Open full screen</a>
+              <button class="dl-btn"
+                      data-file="https://raw.githubusercontent.com/fusedmusic/hedshok/main/index.html"
+                      data-name="HEDSHOK"
+                      data-filename="hedshok.html"
+                      onclick="openDonate(this)">↓ Download HEDSHOK</button>
+            </div>
+            <div class="share-bar">
+              <span class="share-label">Spread the word</span>
+              <div class="share-btns">
+                <button class="share-btn share-native" id="shareNative" hidden
+                        onclick="shareApp()">Share</button>
+                <button class="share-btn" onclick="copyShareLink(this)">Copy link</button>
+                <a class="share-btn" id="shareWhatsapp" target="_blank" rel="noopener">WhatsApp</a>
+                <a class="share-btn" id="shareX" target="_blank" rel="noopener">X</a>
+                <a class="share-btn" id="shareFacebook" target="_blank" rel="noopener">Facebook</a>
+                <a class="share-btn" id="shareLinkedin" target="_blank" rel="noopener">LinkedIn</a>
+                <a class="share-btn" id="shareEmail">Email</a>
+              </div>
+              <p class="share-note">Made something with it? Post it and tag <strong>@fusedmusicstudio</strong> on <a href="https://www.instagram.com/fusedmusicstudio/" target="_blank" rel="noopener">Instagram</a> or <a href="https://www.tiktok.com/@fusedmusicstudio" target="_blank" rel="noopener">TikTok</a>.</p>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-band">
+      <div class="section-inner">
+        <h2>Working on something?</h2>
+        <a href="mailto:hello@fusedmusic.studio" class="btn-light">Email hello@fusedmusic.studio</a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer style="background: var(--ink); padding: 64px 60px 32px; color: rgba(255,255,255,0.7);">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 24px; padding-top: 0;">
+      <div>
+        <div style="font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--white); margin-bottom: 12px;">Fused Music <em style="font-style: italic; color: var(--teal-light);">Studio</em></div>
+      </div>
+      <div>
+        <h4 style="font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-light); margin-bottom: 16px; font-weight: 600;">Get in Touch</h4>
+        <a href="mailto:hello@fusedmusic.studio" style="color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.875rem;">hello@fusedmusic.studio</a>
+      </div>
+    </div>
+    <div style="max-width: 1200px; margin: 32px auto 0; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; font-size: 0.8125rem; color: rgba(255,255,255,0.5); flex-wrap: wrap; gap: 12px;">
+      <div>© 2026 Fused Music Studio</div>
+      <div>Based in London, UK</div>
+    </div>
+  </footer>
+
+<script>
+// ══ ACCESSIBILITY PANEL ══
+(function() {
+  const accessibilityToggle = document.getElementById('accessibilityToggle');
+  const accessibilityPanel = document.getElementById('accessibilityPanel');
+  const highContrastCheckbox = document.getElementById('highContrast');
+  const dyslexiaFriendlyCheckbox = document.getElementById('dyslexiaFriendly');
+  const noAnimationsCheckbox = document.getElementById('noAnimations');
+  const colorFilterSelect = document.getElementById('colorFilter');
+  const textSizeSlider = document.getElementById('textSize');
+  const textSizeValue = document.getElementById('textSizeValue');
+
+  accessibilityToggle.addEventListener('click', () => {
+    const isOpen = accessibilityPanel.classList.toggle('active');
+    accessibilityToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.accessibility-btn') && !e.target.closest('.accessibility-panel')) {
+      accessibilityPanel.classList.remove('active');
+      accessibilityToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+  function loadPreferences() {
+    highContrastCheckbox.checked = localStorage.getItem('accessibility-high-contrast') === 'true';
+    dyslexiaFriendlyCheckbox.checked = localStorage.getItem('accessibility-dyslexia') === 'true';
+    noAnimationsCheckbox.checked = localStorage.getItem('accessibility-no-animations') === 'true';
+    const colorFilter = localStorage.getItem('accessibility-color-filter') || 'none';
+    colorFilterSelect.value = colorFilter;
+    const textSize = localStorage.getItem('accessibility-text-size') || '100';
+    textSizeSlider.value = textSize;
+    applyPreferences();
+  }
+  function applyPreferences() {
+    const body = document.body;
+    const textSize = textSizeSlider.value;
+    const colorFilter = colorFilterSelect.value;
+    if (highContrastCheckbox.checked) body.classList.add('high-contrast');
+    else body.classList.remove('high-contrast');
+    if (dyslexiaFriendlyCheckbox.checked) body.classList.add('dyslexia-friendly');
+    else body.classList.remove('dyslexia-friendly');
+    body.classList.remove('filter-deuteranopia', 'filter-protanopia', 'filter-tritanopia', 'filter-achromatopsia');
+    if (colorFilter !== 'none') body.classList.add('filter-' + colorFilter);
+    if (noAnimationsCheckbox.checked) body.style.setProperty('--animation-duration', '0s');
+    else body.style.removeProperty('--animation-duration');
+    document.documentElement.style.fontSize = textSize + '%';
+    textSizeValue.textContent = textSize + '%';
+  }
+  function savePreferences() {
+    localStorage.setItem('accessibility-high-contrast', highContrastCheckbox.checked);
+    localStorage.setItem('accessibility-dyslexia', dyslexiaFriendlyCheckbox.checked);
+    localStorage.setItem('accessibility-no-animations', noAnimationsCheckbox.checked);
+    localStorage.setItem('accessibility-color-filter', colorFilterSelect.value);
+    localStorage.setItem('accessibility-text-size', textSizeSlider.value);
+  }
+  highContrastCheckbox.addEventListener('change', () => { applyPreferences(); savePreferences(); });
+  dyslexiaFriendlyCheckbox.addEventListener('change', () => { applyPreferences(); savePreferences(); });
+  noAnimationsCheckbox.addEventListener('change', () => { applyPreferences(); savePreferences(); });
+  colorFilterSelect.addEventListener('change', () => { applyPreferences(); savePreferences(); });
+  textSizeSlider.addEventListener('input', () => { applyPreferences(); savePreferences(); });
+  loadPreferences();
+})();
+// ══ READ ALOUD ══
+(function() {
+  const readAloudBtn = document.getElementById('readAloudBtn');
+  const readingGuide = document.getElementById('readingGuide');
+  let utterance = null;
+  let isReading = false;
+  readAloudBtn.addEventListener('click', toggleReadAloud);
+  function toggleReadAloud() {
+    if (isReading) {
+      speechSynthesis.cancel();
+      isReading = false;
+      readAloudBtn.classList.remove('active');
+      readingGuide.classList.remove('active');
+    } else {
+      startReadAloud();
+    }
+  }
+  function startReadAloud() {
+    const textContent = document.getElementById('main').innerText;
+    utterance = new SpeechSynthesisUtterance(textContent);
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    utterance.onstart = () => { isReading = true; readAloudBtn.classList.add('active'); readingGuide.classList.add('active'); };
+    utterance.onend = () => { isReading = false; readAloudBtn.classList.remove('active'); readingGuide.classList.remove('active'); };
+    utterance.onerror = () => { isReading = false; readAloudBtn.classList.remove('active'); readingGuide.classList.remove('active'); };
+    speechSynthesis.speak(utterance);
+  }
+})();
+// ══ KEYBOARD SHORTCUTS ══
+(function() {
+  const shortcutsPanel = document.getElementById('keyboardShortcuts');
+  const shortcutsOverlay = document.getElementById('shortcutsOverlay');
+  const readAloudBtn = document.getElementById('readAloudBtn');
+  const accessibilityPanel = document.getElementById('accessibilityPanel');
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '?') { e.preventDefault(); toggleShortcuts(); }
+    if (e.altKey && e.key === 'a') {
+      e.preventDefault();
+      const isOpen = accessibilityPanel.classList.toggle('active');
+      const toggleBtn = document.getElementById('accessibilityToggle');
+      if (toggleBtn) toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+    if (e.altKey && e.key === 'r') { e.preventDefault(); readAloudBtn.click(); }
+    if (e.altKey && e.key === 'c') { e.preventDefault(); window.location.href = 'mailto:hello@fusedmusic.studio'; }
+    if (e.key === 'Escape') {
+      shortcutsPanel.classList.remove('active');
+      shortcutsOverlay.classList.remove('active');
+      accessibilityPanel.classList.remove('active');
+      const toggleBtn = document.getElementById('accessibilityToggle');
+      if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+  function toggleShortcuts() {
+    shortcutsPanel.classList.toggle('active');
+    shortcutsOverlay.classList.toggle('active');
+  }
+  shortcutsOverlay.addEventListener('click', () => {
+    shortcutsPanel.classList.remove('active');
+    shortcutsOverlay.classList.remove('active');
+  });
+})();
+</script>
+<!-- ══ DONATION PROMPT ══ -->
+<div id="donateOverlay" role="dialog" aria-modal="true" aria-labelledby="donateHeading">
+  <div class="donate-box">
+    <h2 id="donateHeading">Before you download</h2>
+    <p><span id="donateAppName">This app</span> is free to download and use. It is built and maintained by Fused Music Studio alongside our client work.</p>
+    <p>If you can afford to contribute, it helps fund development time and keeps the apps free for the people who need them. If you cannot, take it anyway. That is what it is for.</p>
+    <div class="donate-actions">
+      <a href="https://buymeacoffee.com/fusedmusicstudio" target="_blank" rel="noopener"
+         class="donate-give" onclick="markDonated()">☕ Contribute, then download</a>
+      <button class="donate-skip" id="donateProceed" onclick="proceedDownload()">Download now</button>
+      <button class="donate-close" onclick="closeDonate()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ SHARE ══
+// Links are built at runtime so they stay correct wherever the page lives.
+(function(){
+  const SHARE_URL   = 'https://fusedmusic.studio/app-development.html';
+  const SHARE_TITLE = 'HEDSHOK — play music with head movement';
+  const SHARE_TEXT  = 'A free browser instrument played by moving your head, built by Fused Music Studio for disabled musicians.';
+
+  const u = encodeURIComponent(SHARE_URL);
+  const t = encodeURIComponent(SHARE_TEXT);
+
+  const set = (id, href) => {
+    const el = document.getElementById(id);
+    if (el) el.href = href;
+  };
+  set('shareWhatsapp', 'https://wa.me/?text=' + t + '%20' + u);
+  set('shareX',        'https://twitter.com/intent/tweet?text=' + t + '&url=' + u);
+  set('shareFacebook', 'https://www.facebook.com/sharer/sharer.php?u=' + u);
+  set('shareLinkedin', 'https://www.linkedin.com/sharing/share-offsite/?url=' + u);
+  set('shareEmail',    'mailto:?subject=' + encodeURIComponent(SHARE_TITLE) + '&body=' + t + '%20' + u);
+
+  // The system share sheet exists mainly on phones. It is the only route to
+  // apps like TikTok and Instagram, which have no share-by-link scheme.
+  if (navigator.share) {
+    const btn = document.getElementById('shareNative');
+    if (btn) btn.hidden = false;
+  }
+
+  window.shareApp = function(){
+    if (!navigator.share) return;
+    navigator.share({ title: SHARE_TITLE, text: SHARE_TEXT, url: SHARE_URL })
+      .catch(() => {}); // cancelling the sheet is not an error
+  };
+
+  // One button that does the right thing on either phone or desktop.
+  window.shareOrCopy = function(btn){
+    if (navigator.share) { shareApp(); return; }
+    copyShareLink(btn);
+  };
+
+  window.copyShareLink = function(btn){
+    const done = () => {
+      const original = btn.textContent;
+      btn.textContent = 'Link copied';
+      setTimeout(() => { btn.textContent = original; }, 2000);
+    };
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(SHARE_URL).then(done).catch(fallback);
+    } else {
+      fallback();
+    }
+    function fallback(){
+      const ta = document.createElement('textarea');
+      ta.value = SHARE_URL;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) {}
+      ta.remove();
+    }
+  };
+})();
+</script>
+
+<script>
+// ══ LIVE PREVIEW ══
+// The iframe is only created on click, so the camera is never requested
+// until the visitor asks for it, and the page stays light on load.
+// The demo runs for PREVIEW_SECONDS, then stops and releases the camera.
+const PREVIEW_SECONDS = 60;
+const previewTimers = {};
+
+function startPreview(id, btn){
+  const src = btn.getAttribute('data-live');
+  const wrap = document.getElementById('previewWrap-' + id);
+  if (!wrap || !src) return;
+  wrap.dataset.src = src;
+
+  wrap.innerHTML =
+    '<iframe src="' + src + '" title="Live preview" ' +
+    'allow="camera; microphone; autoplay; fullscreen" ' +
+    'allowfullscreen loading="lazy"></iframe>' +
+    '<p class="preview-note">Demo ends in <strong id="previewCount-' + id + '">1:00</strong>. ' +
+    'Your browser will ask for camera permission. For the full version use Open full screen.</p>';
+
+  const frame = wrap.querySelector('iframe');
+  if (frame) frame.focus();
+
+  let left = PREVIEW_SECONDS;
+  clearInterval(previewTimers[id]);
+  previewTimers[id] = setInterval(() => {
+    left--;
+    const c = document.getElementById('previewCount-' + id);
+    if (c) c.textContent = Math.floor(left / 60) + ':' + String(left % 60).padStart(2, '0');
+    if (left <= 0) {
+      clearInterval(previewTimers[id]);
+      endPreview(id);
+    }
+  }, 1000);
+}
+
+function endPreview(id){
+  const wrap = document.getElementById('previewWrap-' + id);
+  if (!wrap) return;
+  const src = wrap.dataset.src || '';
+  // Replacing the iframe tears down the camera stream.
+  wrap.innerHTML =
+    '<div class="preview-poster">' +
+      '<p>That is the end of the one minute demo. The full version has no time limit.</p>' +
+      '<div class="preview-end-actions">' +
+        '<a class="preview-start" href="' + src + '" target="_blank" rel="noopener">↗ Open full screen</a>' +
+        '<button class="preview-again" data-live="' + src + '" ' +
+                'onclick="startPreview(\'' + id + '\', this)">↻ Run the demo again</button>' +
+        '<button class="preview-again" onclick="shareOrCopy(this)">Share it</button>' +
+      '</div>' +
+    '</div>';
+  const a = wrap.querySelector('a');
+  if (a) a.focus();
+}
+</script>
+
+<script>
+// ══ DONATION PROMPT ══
+// Shows before a download. It never blocks the file: "Download now" always works.
+(function(){
+  let pendingFile = null, pendingName = '', lastTrigger = null, pendingBtn = null;
+
+  window.openDonate = function(btn){
+    pendingFile = btn.getAttribute('data-file');
+    pendingName = btn.getAttribute('data-name') || 'This app';
+    lastTrigger = btn;
+    pendingBtn = btn;
+    document.getElementById('donateAppName').textContent = pendingName;
+    const ov = document.getElementById('donateOverlay');
+    ov.classList.add('open');
+    document.getElementById('donateProceed').focus();
+  };
+
+  window.closeDonate = function(){
+    document.getElementById('donateOverlay').classList.remove('open');
+    if (lastTrigger) lastTrigger.focus();
+  };
+
+  window.proceedDownload = async function(){
+    if (!pendingFile) { closeDonate(); return; }
+    const filename = pendingBtn?.getAttribute('data-filename')
+                     || pendingFile.split('/').pop() || 'download.html';
+    const sameOrigin = !/^https?:\/\//i.test(pendingFile) ||
+                       pendingFile.startsWith(location.origin);
+
+    // Same-origin files can use the download attribute directly.
+    if (sameOrigin) {
+      triggerLink(pendingFile, filename);
+      closeDonate();
+      return;
+    }
+
+    // Cross-origin (e.g. raw.githubusercontent.com): the download attribute is
+    // ignored, so fetch the file and save it as a blob instead.
+    const btn = document.getElementById('donateProceed');
+    const label = btn.textContent;
+    btn.textContent = 'Preparing download…';
+    btn.disabled = true;
+    try {
+      const res = await fetch(pendingFile);
+      if (!res.ok) throw new Error(res.status);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      triggerLink(url, filename);
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    } catch (err) {
+      // Last resort: open it so the file is at least reachable.
+      window.open(pendingFile, '_blank', 'noopener');
+    } finally {
+      btn.textContent = label;
+      btn.disabled = false;
+      closeDonate();
+    }
+  };
+
+  function triggerLink(href, filename){
+    const a = document.createElement('a');
+    a.href = href;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  // Opening the donation page shouldn't cost them the download.
+  // The file starts a moment later in this tab.
+  window.markDonated = function(){
+    setTimeout(proceedDownload, 800);
+  };
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      const ov = document.getElementById('donateOverlay');
+      if (ov && ov.classList.contains('open')) closeDonate();
+    }
+  });
+
+  document.getElementById('donateOverlay').addEventListener('click', e => {
+    if (e.target.id === 'donateOverlay') closeDonate();
+  });
+})();
+</script>
+</body>
+</html>
